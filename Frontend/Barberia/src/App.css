@@ -1,0 +1,6 @@
+.lobby-container {
+  min-height: 100vh; /* altura completa de la ventana */
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef); /* opcional */
+}
