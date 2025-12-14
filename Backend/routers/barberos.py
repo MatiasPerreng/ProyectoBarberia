@@ -1,42 +1,58 @@
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
-from models import HorarioBarbero
-from schemas import HorarioBarberoCreate
+
+from database import get_db
+import crud.barbero as crud_barbero
+from schemas import BarberoCreate, BarberoUpdate, BarberoOut
 
 router = APIRouter(
     prefix="/barberos",
     tags=["Barberos"]
 )
-#----------------------------------------------------------------------------------------------------------------------
 
-def create_horario(db: Session, horario_in: HorarioBarberoCreate) -> HorarioBarbero:
-    horario = HorarioBarbero(
-        id_barbero=horario_in.id_barbero,
-        dia_semana=horario_in.dia_semana,
-        hora_desde=horario_in.hora_desde,
-        hora_hasta=horario_in.hora_hasta
-    )
+#--------------------------------------------------
+@router.get("/", response_model=List[BarberoOut])
+def listar_barberos(db: Session = Depends(get_db)):
+    barberos = crud_barbero.get_barberos(db)
+    return barberos
 
-    db.add(horario)
-    db.commit()
-    db.refresh(horario)
+#--------------------------------------------------
+@router.get("/{barbero_id}", response_model=BarberoOut)
+def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
+    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+    if not barbero:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Barbero no encontrado"
+        )
+    return barbero
 
-    return horario
+#--------------------------------------------------
+@router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
+def crear_barbero(barbero_in: BarberoCreate, db: Session = Depends(get_db)):
+    barbero = crud_barbero.create_barbero(db, barbero_in)
+    return barbero
 
-#----------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------
+@router.put("/{barbero_id}", response_model=BarberoOut)
+def actualizar_barbero(barbero_id: int, barbero_in: BarberoUpdate, db: Session = Depends(get_db)):
+    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+    if not barbero:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Barbero no encontrado"
+        )
+    barbero_actualizado = crud_barbero.update_barbero(db, barbero, barbero_in)
+    return barbero_actualizado
 
-def get_horarios_by_barbero(db: Session, barbero_id: int) -> List[HorarioBarbero]:
-    return (
-        db.query(HorarioBarbero)
-        .filter(HorarioBarbero.id_barbero == barbero_id)
-        .all()
-    )
-
-#----------------------------------------------------------------------------------------------------------------------
-
-def delete_horario(db: Session, horario: HorarioBarbero) -> None:
-    db.delete(horario)
-    db.commit()
-
-#----------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------
+@router.delete("/{barbero_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
+    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+    if not barbero:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Barbero no encontrado"
+        )
+    crud_barbero.delete_barbero(db, barbero)
