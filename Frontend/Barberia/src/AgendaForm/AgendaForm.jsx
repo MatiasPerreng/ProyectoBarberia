@@ -21,12 +21,12 @@ const AgendaForm = ({ servicio, onSubmit }) => {
 
     const turno = {
       nombre,
-      apellido,
       email,
-      fecha,
-      servicio_id: servicio.id_servicio, // <-- actualizar según nuevo schema
-      barbero_id: parseInt(barberoSeleccionado) // asegurarse de enviar número
+      fecha_hora: fecha,                 // ✅ nombre correcto
+      id_servicio: servicio.id_servicio, // ✅ nombre correcto
+      id_barbero: parseInt(barberoSeleccionado) // ✅ nombre correcto
     };
+
 
     onSubmit(turno);
   };
@@ -60,7 +60,7 @@ const AgendaForm = ({ servicio, onSubmit }) => {
           required
         />
         <input
-          type="date"
+          type="datetime-local"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
           className="form-control mb-2"
