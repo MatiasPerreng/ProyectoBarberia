@@ -1,81 +1,110 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import Lobby from './Lobby/Lobby';
 import ServiciosList from './ServiceList/ServiceList';
+import BarberosList from './BarberoList/BarberoList';
+import AgendaAvailability from './AgendaAvailability/AgendaAvailability.JSX';
 import AgendaForm from './AgendaForm/AgendaForm';
 
 function App() {
-  const [view, setView] = useState('lobby'); // 'lobby' | 'servicios' | 'form'
-  const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
+  const [view, setView] = useState('lobby');
 
-  // Manejo de envío del turno (cliente + visita)
-  const handleSubmitTurno = (turno) => {
-    // 1️⃣ Crear cliente primero
-    fetch('http://localhost:8000/clientes', {
+  const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
+  const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
+  const [fechaHoraSeleccionada, setFechaHoraSeleccionada] = useState(null);
+
+  //------------------------------------------------------------------------------------
+  // ENVÍO FINAL DEL TURNO
+  //------------------------------------------------------------------------------------
+  const handleSubmitTurno = (datosCliente) => {
+    fetch('http://localhost:8000/clientes/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: turno.nombre,
-        apellido: turno.apellido,
-        email: turno.email,
-        telefono: turno.telefono || null
+        nombre: datosCliente.nombre,
+        email: datosCliente.email,
+        telefono: datosCliente.telefono || null
       })
     })
       .then(res => res.json())
       .then(cliente => {
-        console.log({
-          id_cliente: cliente.id_cliente,
-          id_barbero: turno.id_barbero,
-          id_servicio: turno.id_servicio,
-          fecha_hora: turno.fecha_hora
-        });
-
-        // 2️⃣ Crear visita asociada al cliente
         return fetch('http://localhost:8000/visitas/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id_cliente: cliente.id_cliente,
-            id_barbero: turno.id_barbero,
-            id_servicio: turno.id_servicio,
-            fecha_hora: turno.fecha_hora
+            id_barbero: barberoSeleccionado?.id_barbero ?? null,
+            id_servicio: servicioSeleccionado.id_servicio,
+            fecha_hora: fechaHoraSeleccionada
           })
         });
       })
       .then(res => res.json())
-      .then(data => {
-        console.log('Turno agendado', data);
+      .then(() => {
         alert('Turno agendado con éxito!');
-        setServicioSeleccionado(null);
-        setView('lobby');
+        resetFlow();
       })
       .catch(err => console.error(err));
   };
 
-  // Pasar de lobby a lista de servicios
+  //------------------------------------------------------------------------------------
+  // FLUJO DE NAVEGACIÓN
+  //------------------------------------------------------------------------------------
+
   const handleAgendaClick = () => {
     setView('servicios');
   };
 
-  // Seleccionar servicio y abrir formulario
   const handleServicioSelect = (servicio) => {
-    setServicioSeleccionado(null); // limpiar primero
-    setTimeout(() => setServicioSeleccionado(servicio), 0); // luego setear servicio
+    setServicioSeleccionado(servicio);
+    setView('barberos');
+  };
+
+  const handleBarberoSelect = (barbero) => {
+    setBarberoSeleccionado(barbero);
+    setView('disponibilidad');
+  };
+
+  const handleFechaHoraSelect = (fechaHora) => {
+    console.log('FechaHora recibida en App:', fechaHora);
+    setFechaHoraSeleccionada(fechaHora);
     setView('form');
   };
 
+  const resetFlow = () => {
+    setServicioSeleccionado(null);
+    setBarberoSeleccionado(null);
+    setFechaHoraSeleccionada(null);
+    setView('lobby');
+  };
+
+  //------------------------------------------------------------------------------------
+  // RENDER
+  //------------------------------------------------------------------------------------
   return (
     <div className="App">
       {view === 'lobby' && <Lobby onAgendaClick={handleAgendaClick} />}
+
       {view === 'servicios' && (
         <ServiciosList onSelectServicio={handleServicioSelect} />
       )}
-      {view === 'form' && servicioSeleccionado && (
-        <AgendaForm
+
+      {view === 'barberos' && servicioSeleccionado && (
+        <BarberosList onSelectBarbero={handleBarberoSelect} />
+      )}
+
+      {view === 'disponibilidad' && servicioSeleccionado && (
+        <AgendaAvailability
           servicio={servicioSeleccionado}
-          onSubmit={handleSubmitTurno}
+          barbero={barberoSeleccionado}
+          onSelectFechaHora={handleFechaHoraSelect}
         />
+      )}
+
+      {view === 'form' && servicioSeleccionado && fechaHoraSeleccionada && (
+        <AgendaForm onSubmit={handleSubmitTurno} />
       )}
     </div>
   );
