@@ -13,8 +13,11 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
     fetch(url)
       .then(res => res.json())
-      .then(data => setHorarios(data.turnos))
-      .catch(err => console.error(err));
+      .then(data => setHorarios(data.turnos || []))
+      .catch(err => {
+        console.error(err);
+        setHorarios([]);
+      });
   };
 
   const handleFechaChange = (e) => {
@@ -25,6 +28,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
   const handleHoraClick = (hora) => {
     const fechaHora = `${fecha} ${hora}`;
+    console.log('Hora seleccionada:', fechaHora);
     onSelectFechaHora(fechaHora);
   };
 
@@ -40,16 +44,19 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
       />
 
       <div className="d-flex gap-2 flex-wrap">
+        {horarios.length === 0 && fecha && (
+          <p>No hay horarios disponibles para este día</p>
+        )}
+
         {horarios.map(hora => (
           <button
             key={hora}
+            type="button"              
             className="btn btn-danger"
             onClick={() => handleHoraClick(hora)}
           >
             {hora}
           </button>
-
-          
         ))}
       </div>
     </div>

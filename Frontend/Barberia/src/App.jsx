@@ -18,41 +18,58 @@ function App() {
   //------------------------------------------------------------------------------------
   // ENVÍO FINAL DEL TURNO
   //------------------------------------------------------------------------------------
-  const handleSubmitTurno = (datosCliente) => {
-    fetch('http://localhost:8000/clientes/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nombre: datosCliente.nombre,
-        email: datosCliente.email,
-        telefono: datosCliente.telefono || null
-      })
-    })
-      .then(res => res.json())
-      .then(cliente => {
-        return fetch('http://localhost:8000/visitas/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id_cliente: cliente.id_cliente,
-            id_barbero: barberoSeleccionado?.id_barbero ?? null,
-            id_servicio: servicioSeleccionado.id_servicio,
-            fecha_hora: fechaHoraSeleccionada
-          })
-        });
-      })
-      .then(res => res.json())
-      .then(() => {
-        alert('Turno agendado con éxito!');
-        resetFlow();
-      })
-      .catch(err => console.error(err));
+  const handleSubmitTurno = async (datosCliente) => {
+    try {
+      // 1️⃣ Crear cliente
+      const resCliente = await fetch('http://localhost:8000/clientes/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: datosCliente.nombre,
+          email: datosCliente.email,
+          telefono: datosCliente.telefono || null
+        })
+      });
+
+      if (!resCliente.ok) {
+        throw new Error('Error al crear cliente');
+      }
+
+      const cliente = await resCliente.json();
+      console.log('Cliente creado:', cliente);
+
+      // 2️⃣ Crear visita usando ESTADO GLOBAL
+      const resVisita = await fetch('http://localhost:8000/visitas/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_cliente: cliente.id_cliente,
+          id_barbero: barberoSeleccionado.id_barbero, // NO NULL
+          id_servicio: servicioSeleccionado.id_servicio,
+          fecha_hora: fechaHoraSeleccionada
+        })
+      });
+
+      if (!resVisita.ok) {
+        const err = await resVisita.json();
+        throw new Error(err.detail || 'Error al crear visita');
+      }
+
+      const visita = await resVisita.json();
+      console.log('Visita creada:', visita);
+
+      alert('Turno agendado con éxito!');
+      resetFlow();
+
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    }
   };
 
   //------------------------------------------------------------------------------------
   // FLUJO DE NAVEGACIÓN
   //------------------------------------------------------------------------------------
-
   const handleAgendaClick = () => {
     setView('servicios');
   };
@@ -95,7 +112,7 @@ function App() {
         <BarberosList onSelectBarbero={handleBarberoSelect} />
       )}
 
-      {view === 'disponibilidad' && servicioSeleccionado && (
+      {view === 'disponibilidad' && servicioSeleccionado && barberoSeleccionado && (
         <AgendaAvailability
           servicio={servicioSeleccionado}
           barbero={barberoSeleccionado}
