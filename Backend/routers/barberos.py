@@ -1,9 +1,13 @@
 from sqlalchemy.orm import Session
 from typing import List
-
+from fastapi import APIRouter, Depends, HTTPException, status
 from models import HorarioBarbero
 from schemas import HorarioBarberoCreate
 
+router = APIRouter(
+    prefix="/barberos",
+    tags=["Barberos"]
+)
 #----------------------------------------------------------------------------------------------------------------------
 
 def create_horario(db: Session, horario_in: HorarioBarberoCreate) -> HorarioBarbero:
