@@ -12,3 +12,16 @@ export async function crearVisita(data) {
 
   return await res.json();
 }
+
+
+export async function getAgendaBarbero(idBarbero) {
+  const res = await fetch(
+    `http://localhost:8000/barberos/${idBarbero}/agenda`
+  );
+
+  if (!res.ok) {
+    throw new Error("Error al cargar agenda");
+  }
+
+  return await res.json();
+}
