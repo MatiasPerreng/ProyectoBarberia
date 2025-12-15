@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Lobby from './Lobby/Lobby';
 import ServiciosList from './ServiceList/ServiceList';
 import BarberosList from './BarberoList/BarberoList';
-import AgendaAvailability from './AgendaAvailability/AgendaAvailability';
+import AgendaAvailability from './AgendaAvailability/AgendaAvailability.JSX';
 import AgendaForm from './AgendaForm/AgendaForm';
 
 function App() {
