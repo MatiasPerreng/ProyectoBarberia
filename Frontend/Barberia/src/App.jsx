@@ -2,11 +2,11 @@ import { useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Lobby from './Lobby/Lobby';
-import ServiciosList from './ServiceList/ServiceList';
-import BarberosList from './BarberoList/BarberoList';
-import AgendaAvailability from './AgendaAvailability/AgendaAvailability.JSX';
-import AgendaForm from './AgendaForm/AgendaForm';
+import Lobby from './components/Lobby/Lobby';
+import ServiciosList from './components/ServiceList/ServiceList';
+import BarberosList from './components/BarberoList/BarberoList';
+import AgendaAvailability from './components/Agenda/AgendaAvailability.jsx';
+import AgendaForm from './components/Agenda/AgendaForm.jsx';
 
 function App() {
   const [view, setView] = useState('lobby');

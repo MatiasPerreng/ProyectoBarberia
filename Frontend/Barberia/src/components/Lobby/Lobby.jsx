@@ -1,6 +1,6 @@
 import React from 'react';
-import AgendaButton from '../AgendaButton/AgendaButton';
-import '../App.css';
+import AgendaButton from '../Agenda/AgendaButton';
+import '../../App.css';
 
 const Lobby = ({ onAgendaClick }) => {
   return (
