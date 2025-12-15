@@ -5,14 +5,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Lobby from './Lobby/Lobby';
 import ServiciosList from './ServiceList/ServiceList';
 import BarberosList from './BarberoList/BarberoList';
-import AgendaAvailability from './AgendaAvailability/AgendaAvailability.JSX';
+import AgendaAvailability from './AgendaAvailability/AgendaAvailability';
 import AgendaForm from './AgendaForm/AgendaForm';
 
 function App() {
   const [view, setView] = useState('lobby');
 
   const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
-  const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
+  const [barberoSeleccionado, setBarberoSeleccionado] = useState(null); // null = sin preferencia
   const [fechaHoraSeleccionada, setFechaHoraSeleccionada] = useState(null);
 
   //------------------------------------------------------------------------------------
@@ -38,13 +38,15 @@ function App() {
       const cliente = await resCliente.json();
       console.log('Cliente creado:', cliente);
 
-      // 2️⃣ Crear visita usando ESTADO GLOBAL
+      // 2️⃣ Crear visita (barbero puede ser null)
       const resVisita = await fetch('http://localhost:8000/visitas/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id_cliente: cliente.id_cliente,
-          id_barbero: barberoSeleccionado.id_barbero, // NO NULL
+          id_barbero: barberoSeleccionado
+            ? barberoSeleccionado.id_barbero
+            : null,
           id_servicio: servicioSeleccionado.id_servicio,
           fecha_hora: fechaHoraSeleccionada
         })
@@ -80,6 +82,7 @@ function App() {
   };
 
   const handleBarberoSelect = (barbero) => {
+    // barbero puede ser null (sin preferencia)
     setBarberoSeleccionado(barbero);
     setView('disponibilidad');
   };
@@ -112,10 +115,11 @@ function App() {
         <BarberosList onSelectBarbero={handleBarberoSelect} />
       )}
 
-      {view === 'disponibilidad' && servicioSeleccionado && barberoSeleccionado && (
+      {/* 👇 IMPORTANTE: NO pedimos barberoSeleccionado */}
+      {view === 'disponibilidad' && servicioSeleccionado && (
         <AgendaAvailability
           servicio={servicioSeleccionado}
-          barbero={barberoSeleccionado}
+          barbero={barberoSeleccionado} // puede ser null
           onSelectFechaHora={handleFechaHoraSelect}
         />
       )}

@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta, time, date
+import random
 
-from models import Visita, Servicio, HorarioBarbero
+from models import Visita, Servicio, HorarioBarbero, Barbero
 from schemas import VisitaCreate
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -35,15 +36,79 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int) -> List
     return slots
 
 #----------------------------------------------------------------------------------------------------------------------
+# ASIGNACIÓN AUTOMÁTICA DE BARBERO (MENOS TURNOS DEL DÍA)
+#----------------------------------------------------------------------------------------------------------------------
+
+def asignar_barbero_automatico(
+    db: Session,
+    fecha_hora: datetime,
+    duracion_min: int
+) -> Optional[int]:
+    """
+    Asigna automáticamente el barbero con MENOS turnos ese día
+    (si hay empate, elige random).
+    """
+
+    fecha = fecha_hora.date()
+    hora_str = fecha_hora.strftime("%H:%M")
+
+    inicio_dia = datetime.combine(fecha, time.min)
+    fin_dia = datetime.combine(fecha, time.max)
+
+    barberos = db.query(Barbero).all()
+    candidatos = []
+
+    for barbero in barberos:
+        # 1️⃣ Ver disponibilidad horaria real
+        disponibilidad = get_disponibilidad(
+            db=db,
+            fecha=fecha,
+            id_servicio=None,
+            id_barbero=barbero.id_barbero,
+            duracion_override=duracion_min
+        )
+
+        if hora_str not in disponibilidad["turnos"]:
+            continue
+
+        # 2️⃣ Contar turnos del barbero ese día
+        cantidad_turnos = (
+            db.query(Visita)
+            .filter(
+                Visita.id_barbero == barbero.id_barbero,
+                Visita.fecha_hora >= inicio_dia,
+                Visita.fecha_hora <= fin_dia
+            )
+            .count()
+        )
+
+        candidatos.append({
+            "id_barbero": barbero.id_barbero,
+            "turnos": cantidad_turnos
+        })
+
+    if not candidatos:
+        return None
+
+    # 3️⃣ Elegir el/los de menor carga
+    min_turnos = min(c["turnos"] for c in candidatos)
+    menos_cargados = [
+        c["id_barbero"] for c in candidatos if c["turnos"] == min_turnos
+    ]
+
+    # 4️⃣ Si hay empate → random
+    return random.choice(menos_cargados)
+
+#----------------------------------------------------------------------------------------------------------------------
 # CRUD VISITA
 #----------------------------------------------------------------------------------------------------------------------
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     """
-    Crea una visita validando que no exista solapamiento horario
+    Crea una visita validando solapamiento y asignando barbero automático si es necesario
     """
 
-    # Obtener servicio para duración
+    # Obtener servicio
     servicio = db.query(Servicio).filter(
         Servicio.id_servicio == visita_in.id_servicio
     ).first()
@@ -51,10 +116,23 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     if not servicio:
         raise ValueError("Servicio no existe")
 
+    # 🟢 SIN PREFERENCIA DE BARBERO
+    if visita_in.id_barbero is None:
+        id_auto = asignar_barbero_automatico(
+            db,
+            visita_in.fecha_hora,
+            servicio.duracion_min
+        )
+
+        if not id_auto:
+            raise ValueError("No hay barberos disponibles para ese horario")
+
+        visita_in.id_barbero = id_auto
+
     inicio_nuevo = visita_in.fecha_hora
     fin_nuevo = inicio_nuevo + timedelta(minutes=servicio.duracion_min)
 
-    # Buscar visitas existentes del barbero ese día
+    # Validar solapamiento con visitas existentes
     inicio_dia = datetime.combine(inicio_nuevo.date(), time.min)
     fin_dia = datetime.combine(inicio_nuevo.date(), time.max)
 
@@ -117,22 +195,28 @@ def delete_visita(db: Session, visita: Visita) -> None:
 def get_disponibilidad(
     db: Session,
     fecha: date,
-    id_servicio: int,
-    id_barbero: Optional[int] = None
+    id_servicio: Optional[int],
+    id_barbero: Optional[int] = None,
+    duracion_override: Optional[int] = None
 ):
     """
-    Devuelve horarios disponibles para una fecha dada,
-    considerando horario laboral, visitas existentes y duración del servicio.
+    Devuelve horarios disponibles para una fecha dada.
+    Permite duración override para sin preferencia de barbero.
     """
 
-    servicio = db.query(Servicio).filter(
-        Servicio.id_servicio == id_servicio
-    ).first()
+    # Duración
+    if duracion_override:
+        duracion = duracion_override
+    else:
+        servicio = db.query(Servicio).filter(
+            Servicio.id_servicio == id_servicio
+        ).first()
 
-    if not servicio:
-        raise ValueError("Servicio no existe")
+        if not servicio:
+            raise ValueError("Servicio no existe")
 
-    duracion = servicio.duracion_min
+        duracion = servicio.duracion_min
+
     dia_semana = fecha.isoweekday()  # 1=Lunes ... 7=Domingo
 
     # Horarios laborales
@@ -150,7 +234,7 @@ def get_disponibilidad(
     if not horarios_laborales:
         return {"fecha": fecha, "turnos": []}
 
-    # Visitas existentes del día
+    # Visitas existentes
     inicio_dia = datetime.combine(fecha, time.min)
     fin_dia = datetime.combine(fecha, time.max)
 

@@ -99,7 +99,7 @@ class ServicioOut(ServicioBase):
 class VisitaBase(BaseModel):
     fecha_hora: datetime.datetime
     id_cliente: int
-    id_barbero: int
+    id_barbero: Optional[int] = None   # ✅ CLAVE
     id_servicio: int
 
 
