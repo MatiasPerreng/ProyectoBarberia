@@ -167,6 +167,21 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
 
     return visita
 
+
+def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visita:
+    visita = db.query(Visita).filter(
+        Visita.id_visita == visita_id
+    ).first()
+
+    if not visita:
+        raise ValueError("Visita no encontrada")
+
+    visita.estado = nuevo_estado
+    db.commit()
+    db.refresh(visita)
+
+    return visita
+
 #----------------------------------------------------------------------------------------------------------------------
 
 def get_visitas(db: Session) -> List[Visita]:

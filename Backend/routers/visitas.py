@@ -5,18 +5,30 @@ from datetime import date
 
 from database import get_db
 import crud.visita as crud_visita
-from schemas import VisitaCreate, VisitaOut
+from schemas import VisitaCreate, VisitaOut, VisitaUpdate
+
 
 router = APIRouter(
     prefix="/visitas",
     tags=["Visitas"]
 )
 
-#----------------------------------------------------------------------------------------------------------------------
-# OBTENER DISPONIBILIDAD DE HORARIOS
-# ⚠️ IMPORTANTE: las rutas fijas VAN ANTES que las dinámicas
-#----------------------------------------------------------------------------------------------------------------------
-
+@router.patch("/{visita_id}/estado", response_model=VisitaOut)
+def actualizar_estado_visita(
+    visita_id: int,
+    data: VisitaUpdate,
+    db: Session = Depends(get_db)
+):
+    try:
+        return crud_visita.update_estado_visita(
+            db, visita_id, data.estado
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    
 @router.get("/disponibilidad")
 def obtener_disponibilidad(
     fecha: date,

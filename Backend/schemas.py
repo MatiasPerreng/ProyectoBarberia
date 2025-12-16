@@ -141,6 +141,10 @@ class VisitaUpdate(BaseModel):
     id_servicio: Optional[int] = None
     estado: Optional[str] = None
 
+    
+class VisitaEstadoUpdate(BaseModel):
+    estado: str  # reservado | cancelado | completado
+
 
 class VisitaOut(BaseModel):
     id_visita: int
