@@ -6,12 +6,32 @@ from datetime import date
 from database import get_db
 import crud.visita as crud_visita
 from schemas import VisitaCreate, VisitaOut, VisitaUpdate
+from .dependencias import get_current_login_barbero
 
 
 router = APIRouter(
     prefix="/visitas",
     tags=["Visitas"]
 )
+
+#----------------------------------------------------------------------------------------------------------------------
+# AGENDA DEL BARBERO LOGUEADO 🔐
+#----------------------------------------------------------------------------------------------------------------------
+
+@router.get("/mi-agenda", response_model=List[VisitaOut])
+def mi_agenda(
+    login = Depends(get_current_login_barbero),
+    db: Session = Depends(get_db)
+):
+    return crud_visita.get_visitas_by_barbero(
+        db=db,
+        id_barbero=login.id_barbero
+    )
+
+
+#----------------------------------------------------------------------------------------------------------------------
+# ACTUALIZAR ESTADO
+#----------------------------------------------------------------------------------------------------------------------
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
 def actualizar_estado_visita(
@@ -28,7 +48,12 @@ def actualizar_estado_visita(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
-    
+
+
+#----------------------------------------------------------------------------------------------------------------------
+# DISPONIBILIDAD
+#----------------------------------------------------------------------------------------------------------------------
+
 @router.get("/disponibilidad")
 def obtener_disponibilidad(
     fecha: date,
@@ -36,10 +61,6 @@ def obtener_disponibilidad(
     id_barbero: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
-    """
-    Devuelve los horarios disponibles para una fecha dada,
-    considerando duración del servicio y visitas existentes.
-    """
     try:
         return crud_visita.get_disponibilidad(
             db=db,
@@ -53,15 +74,12 @@ def obtener_disponibilidad(
             detail=str(e)
         )
 
+
 #----------------------------------------------------------------------------------------------------------------------
-# CREAR VISITA (con validación de solapamiento en el CRUD)
+# CREAR VISITA
 #----------------------------------------------------------------------------------------------------------------------
 
-@router.post(
-    "/",
-    response_model=VisitaOut,
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
 def crear_visita(
     visita_in: VisitaCreate,
     db: Session = Depends(get_db)
@@ -74,16 +92,18 @@ def crear_visita(
             detail=str(e)
         )
 
+
 #----------------------------------------------------------------------------------------------------------------------
-# LISTAR TODAS LAS VISITAS
+# LISTAR TODAS
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
     return crud_visita.get_visitas(db)
 
+
 #----------------------------------------------------------------------------------------------------------------------
-# OBTENER VISITA POR ID
+# OBTENER POR ID
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/{visita_id}", response_model=VisitaOut)
@@ -98,8 +118,9 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
 
     return visita
 
+
 #----------------------------------------------------------------------------------------------------------------------
-# CANCELAR VISITA
+# CANCELAR
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.delete("/{visita_id}", status_code=status.HTTP_204_NO_CONTENT)

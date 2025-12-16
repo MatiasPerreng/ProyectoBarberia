@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 import datetime
 import decimal
@@ -30,6 +30,7 @@ class ClienteOut(ClienteBase):
     class Config:
         from_attributes = True
 
+
 #----------------------------------------------------------------------------------------------------------------------
 # BARBERO (AGENDA)
 #----------------------------------------------------------------------------------------------------------------------
@@ -53,30 +54,29 @@ class BarberoOut(BarberoBase):
     class Config:
         from_attributes = True
 
+
 #----------------------------------------------------------------------------------------------------------------------
 # AGENDA BARBERO (VISTA DE LECTURA)
 #----------------------------------------------------------------------------------------------------------------------
 
 class AgendaBarberoOut(BaseModel):
-    fecha_hora: datetime.datetime   # 🔥 FIX: no usamos func.time()
-
+    fecha_hora: datetime.datetime
     cliente_nombre: str
     cliente_telefono: Optional[str]
-
     servicio_nombre: str
     servicio_duracion: int
-
     estado: Optional[str]
 
     class Config:
         from_attributes = True
+
 
 #----------------------------------------------------------------------------------------------------------------------
 # HORARIOS BARBERO
 #----------------------------------------------------------------------------------------------------------------------
 
 class HorarioBarberoBase(BaseModel):
-    dia_semana: int  # 1=Lunes ... 7=Domingo
+    dia_semana: int
     hora_desde: datetime.time
     hora_hasta: datetime.time
 
@@ -91,6 +91,7 @@ class HorarioBarberoOut(HorarioBarberoBase):
 
     class Config:
         from_attributes = True
+
 
 #----------------------------------------------------------------------------------------------------------------------
 # SERVICIOS
@@ -120,6 +121,7 @@ class ServicioOut(ServicioBase):
     class Config:
         from_attributes = True
 
+
 #----------------------------------------------------------------------------------------------------------------------
 # VISITAS
 #----------------------------------------------------------------------------------------------------------------------
@@ -141,9 +143,9 @@ class VisitaUpdate(BaseModel):
     id_servicio: Optional[int] = None
     estado: Optional[str] = None
 
-    
+
 class VisitaEstadoUpdate(BaseModel):
-    estado: str  # reservado | cancelado | completado
+    estado: str
 
 
 class VisitaOut(BaseModel):
@@ -158,3 +160,17 @@ class VisitaOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+#----------------------------------------------------------------------------------------------------------------------
+# AUTH / LOGIN BARBERO  🔐
+#----------------------------------------------------------------------------------------------------------------------
+
+class LoginBarberoIn(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class LoginBarberoOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"

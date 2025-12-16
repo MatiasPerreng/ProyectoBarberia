@@ -2,7 +2,7 @@ from typing import Optional
 import datetime
 import decimal
 
-from sqlalchemy import CheckConstraint, DECIMAL, DateTime, Enum, ForeignKeyConstraint, Index, String, TIMESTAMP, Time, text
+from sqlalchemy import CheckConstraint, DECIMAL, DateTime, Enum, ForeignKeyConstraint, Index, Integer, String, TIMESTAMP, Time, text
 from sqlalchemy.dialects.mysql import INTEGER, TINYINT
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -18,6 +18,7 @@ class Barbero(Base):
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
     horario_barbero: Mapped[list['HorarioBarbero']] = relationship('HorarioBarbero', back_populates='barbero')
+    login_barberos: Mapped[list['LoginBarberos']] = relationship('LoginBarberos', back_populates='barbero')
     visita: Mapped[list['Visita']] = relationship('Visita', back_populates='barbero')
 
 
@@ -60,6 +61,23 @@ class HorarioBarbero(Base):
     hora_hasta: Mapped[datetime.time] = mapped_column(Time, nullable=False)
 
     barbero: Mapped['Barbero'] = relationship('Barbero', back_populates='horario_barbero')
+
+
+class LoginBarberos(Base):
+    __tablename__ = 'login_barberos'
+    __table_args__ = (
+        ForeignKeyConstraint(['id_barbero'], ['barbero.id_barbero'], name='fk_login_barbero'),
+        Index('email', 'email', unique=True),
+        Index('fk_login_barbero', 'id_barbero')
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(100), nullable=False)
+    email: Mapped[str] = mapped_column(String(100), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    id_barbero: Mapped[int] = mapped_column(INTEGER, nullable=False)
+
+    barbero: Mapped['Barbero'] = relationship('Barbero', back_populates='login_barberos')
 
 
 class Visita(Base):
