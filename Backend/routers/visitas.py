@@ -6,7 +6,8 @@ from datetime import date
 from database import get_db
 import crud.visita as crud_visita
 from schemas import VisitaCreate, VisitaOut, VisitaUpdate
-from .dependencias import get_current_login_barbero
+from core.dependencias import get_current_login_barbero
+
 
 
 router = APIRouter(

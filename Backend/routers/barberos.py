@@ -10,12 +10,16 @@ from schemas import (
     BarberoOut,
     AgendaBarberoOut
 )
+from core.dependencias import get_current_login_barbero
+
 
 router = APIRouter(
     prefix="/barberos",
     tags=["Barberos"]
 )
 
+#----------------------------------------------------------------------------------------------------------------------
+# BARBEROS (PUBLICO)
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/", response_model=List[BarberoOut])
@@ -35,9 +39,15 @@ def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     return barbero
 
 #----------------------------------------------------------------------------------------------------------------------
+# BARBEROS (PRIVADO)
+#----------------------------------------------------------------------------------------------------------------------
 
 @router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
-def crear_barbero(barbero_in: BarberoCreate, db: Session = Depends(get_db)):
+def crear_barbero(
+    barbero_in: BarberoCreate,
+    db: Session = Depends(get_db),
+    login = Depends(get_current_login_barbero)
+):
     return crud_barbero.create_barbero(db, barbero_in)
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -46,7 +56,8 @@ def crear_barbero(barbero_in: BarberoCreate, db: Session = Depends(get_db)):
 def actualizar_barbero(
     barbero_id: int,
     barbero_in: BarberoUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    login = Depends(get_current_login_barbero)
 ):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
@@ -60,7 +71,11 @@ def actualizar_barbero(
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.delete("/{barbero_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
+def eliminar_barbero(
+    barbero_id: int,
+    db: Session = Depends(get_db),
+    login = Depends(get_current_login_barbero)
+):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
         raise HTTPException(
@@ -69,21 +84,18 @@ def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
         )
 
     crud_barbero.delete_barbero(db, barbero)
+    return None
 
 #----------------------------------------------------------------------------------------------------------------------
-# AGENDA BARBERO
+# AGENDA BARBERO (PRIVADO)
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get(
-    "/{barbero_id}/agenda",
+    "/mi-agenda",
     response_model=List[AgendaBarberoOut]
 )
-def agenda_barbero(barbero_id: int, db: Session = Depends(get_db)):
-    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
-    if not barbero:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Barbero no encontrado"
-        )
-
-    return crud_barbero.get_agenda_barbero(db, barbero_id)
+def mi_agenda(
+    db: Session = Depends(get_db),
+    login = Depends(get_current_login_barbero)
+):
+    return crud_barbero.get_agenda_barbero(db, login.id_barbero)

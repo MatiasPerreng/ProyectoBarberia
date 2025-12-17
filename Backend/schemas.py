@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional
 import datetime
 import decimal
 
@@ -32,7 +32,7 @@ class ClienteOut(ClienteBase):
 
 
 #----------------------------------------------------------------------------------------------------------------------
-# BARBERO (AGENDA)
+# BARBERO (NEGOCIO / AGENDA)
 #----------------------------------------------------------------------------------------------------------------------
 
 class BarberoBase(BaseModel):
@@ -163,7 +163,7 @@ class VisitaOut(BaseModel):
 
 
 #----------------------------------------------------------------------------------------------------------------------
-# AUTH / LOGIN BARBERO  🔐
+# AUTH / LOGIN BARBERO 🔐
 #----------------------------------------------------------------------------------------------------------------------
 
 class LoginBarberoIn(BaseModel):
@@ -171,6 +171,15 @@ class LoginBarberoIn(BaseModel):
     password: str
 
 
+class BarberoAuthOut(BaseModel):
+    id_barbero: int
+    nombre: str
+
+    class Config:
+        from_attributes = True
+
+
 class LoginBarberoOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    barbero: BarberoAuthOut
