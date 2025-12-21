@@ -1,0 +1,58 @@
+.hero-section {
+  background: linear-gradient(135deg, #111, #333);
+  color: white;
+}
+
+section {
+  scroll-margin-top: 80px;
+}
+
+.hero-section {
+  height: 100vh;
+  background:
+    radial-gradient(circle at top, #1a1a1a, #000),
+    url("/noise.png");
+  background-blend-mode: overlay;
+}
+
+
+.hero-logo {
+  max-width: 270px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+}
+
+
+
+#servicios {
+  scroll-margin-top: 80px;
+}
+
+#ubicacion {
+  scroll-margin-top: 80px;
+}
+
+.hero-section .btn {
+  border-radius: 999px;
+  padding: 14px 36px;
+  transition: all 0.3s ease;
+}
+
+.hero-section .btn:hover {
+  background: #603fff;
+  color: rgb(255, 255, 255);
+  transform: translateY(-2px);
+}
+
+
+.hero-scroll {
+  position: absolute;
+  bottom: 20px;
+  opacity: 0.4;
+}
+
+.hero-title {
+  font-family: "Cinzel", serif;
+  letter-spacing: 4px;
+}

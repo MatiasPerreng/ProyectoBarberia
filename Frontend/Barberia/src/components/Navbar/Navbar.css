@@ -1,0 +1,37 @@
+.navbar-pro {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent; /* 👈 clave */
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.navbar-pro a,
+.navbar-pro span {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.navbar-pro .nav-center a {
+  margin: 0 16px;
+  opacity: 0.85;
+}
+
+.navbar-pro .nav-center a:hover {
+  opacity: 1;
+}
+
+/* SOLO cuando scrolleás */
+.navbar-pro.scrolled {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}

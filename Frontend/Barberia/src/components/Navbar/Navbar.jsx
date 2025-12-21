@@ -1,16 +1,33 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import './Navbar.css'
 
 export default function Navbar() {
-  return (
-    <nav className="navbar navbar-dark bg-dark px-3">
-      <Link className="navbar-brand" to="/">
-        💈 Barbería
-      </Link>
+  const [scrolled, setScrolled] = useState(false);
 
-      <div>
-        <Link className="btn btn-outline-light" to="/login-barbero">
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 60);
+    };
+
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <nav className={`navbar-pro ${scrolled ? "scrolled" : ""}`}>
+      <div className="nav-left">
+        <span className="nav-brand">Barbería</span>
+      </div>
+
+      <div className="nav-center">
+        <a href="#servicios">Servicios</a>
+        <a href="#ubicacion">Ubicación</a>
+      </div>
+
+      <div className="nav-right">
+        <a href="/login-barbero" className="btn btn-outline-light btn-sm">
           Soy barbero
-        </Link>
+        </a>
       </div>
     </nav>
   );
