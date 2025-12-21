@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import "./ServicesList.css";
 
 const ServiciosList = ({ onSelectServicio }) => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/servicios/')
+    fetch("http://localhost:8000/servicios/")
       .then((res) => res.json())
       .then((data) => {
         setServicios(data);
@@ -14,18 +15,45 @@ const ServiciosList = ({ onSelectServicio }) => {
       .catch((err) => console.error(err));
   }, []);
 
-  if (loading) return <p>Cargando servicios...</p>;
+  if (loading) return <p className="loading">Cargando servicios...</p>;
 
   return (
-    <div className="d-flex flex-column align-items-center">
+    <div className="servicios-grid">
       {servicios.map((servicio) => (
-        <button
-          key={servicio.id_servicio}  // <- actualizar el key
-          className="btn btn-outline-primary mb-2"
-          onClick={() => onSelectServicio(servicio)}
-        >
-          {servicio.nombre} ({servicio.duracion_min} min)  {/* <- actualizar duración */}
-        </button>
+        <div className="servicio-card" key={servicio.id_servicio}>
+          <img
+            src={servicio.imagen_url || "/img/default.jpg"}
+            alt={servicio.nombre}
+            className="servicio-img"
+          />
+
+          <div className="servicio-body">
+            <h3 className="servicio-title">
+              {servicio.nombre.toUpperCase()}
+            </h3>
+
+            <span className="servicio-duracion">
+              {servicio.duracion_min} MIN.
+            </span>
+
+            <p className="servicio-desc">
+              {servicio.descripcion || "Servicio profesional de barbería"}
+            </p>
+
+            <div className="servicio-footer">
+              <span className="servicio-precio">
+                ${servicio.precio}
+              </span>
+
+              <button
+                className="btn-reservar"
+                onClick={() => onSelectServicio(servicio)}
+              >
+                Reservar ahora
+              </button>
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );

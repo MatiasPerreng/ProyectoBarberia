@@ -1,84 +1,83 @@
-import { useState } from 'react';
+import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-import ServiciosList from '../../components/ServiceList/ServiceList';
-import BarberosList from '../../components/BarberoList/BarberoList';
-import AgendaAvailability from '../../components/Agenda/AgendaAvailability';
-import AgendaForm from '../../components/Agenda/AgendaForm';
+import ServiciosList from "../../components/ServiceList/ServiceList";
+import BarberosList from "../../components/BarberoList/BarberoList";
+import AgendaAvailability from "../../components/Agenda/AgendaAvailability";
+import AgendaForm from "../../components/Agenda/AgendaForm";
 
-import { crearCliente } from '../../services/clientes';
-import { crearVisita } from '../../services/agenda';
+import { crearCliente } from "../../services/clientes";
+import { crearVisita } from "../../services/agenda";
 
 export default function AgendaPage() {
-  const [view, setView] = useState('servicios');
+  const location = useLocation();
+
+  const [view, setView] = useState("servicios");
 
   const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
   const [fechaHoraSeleccionada, setFechaHoraSeleccionada] = useState(null);
 
-  //------------------------------------------------------------------------------------
-  // ENVÍO FINAL DEL TURNO
-  //------------------------------------------------------------------------------------
-  const handleSubmitTurno = async (datosCliente) => {
-    try {
-      const cliente = await crearCliente(datosCliente);
-
-      const visita = await crearVisita({
-        id_cliente: cliente.id_cliente,
-        id_barbero: barberoSeleccionado
-          ? barberoSeleccionado.id_barbero
-          : null,
-        id_servicio: servicioSeleccionado.id_servicio,
-        fecha_hora: fechaHoraSeleccionada
-      });
-
-      alert('Turno agendado con éxito!');
-      resetFlow();
-
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
+  // 👉 si viene desde Home con servicio ya elegido
+  useEffect(() => {
+    if (location.state?.servicio) {
+      setServicioSeleccionado(location.state.servicio);
+      setView("barberos");
     }
-  };
+  }, [location.state]);
 
-  //------------------------------------------------------------------------------------
-  // FLUJO
-  //------------------------------------------------------------------------------------
   const handleServicioSelect = (servicio) => {
     setServicioSeleccionado(servicio);
-    setView('barberos');
+    setView("barberos");
   };
 
   const handleBarberoSelect = (barbero) => {
     setBarberoSeleccionado(barbero);
-    setView('disponibilidad');
+    setView("disponibilidad");
   };
 
   const handleFechaHoraSelect = (fechaHora) => {
     setFechaHoraSeleccionada(fechaHora);
-    setView('form');
+    setView("form");
   };
 
   const resetFlow = () => {
     setServicioSeleccionado(null);
     setBarberoSeleccionado(null);
     setFechaHoraSeleccionada(null);
-    setView('servicios');
+    setView("servicios");
   };
 
-  //------------------------------------------------------------------------------------
-  // RENDER
-  //------------------------------------------------------------------------------------
+  const handleSubmitTurno = async (datosCliente) => {
+    try {
+      const cliente = await crearCliente(datosCliente);
+
+      await crearVisita({
+        id_cliente: cliente.id_cliente,
+        id_barbero: barberoSeleccionado?.id_barbero ?? null,
+        id_servicio: servicioSeleccionado.id_servicio,
+        fecha_hora: fechaHoraSeleccionada,
+      });
+
+      alert("Turno agendado con éxito!");
+      resetFlow();
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Error al agendar turno");
+    }
+  };
+
   return (
     <>
-      {view === 'servicios' && (
+      {view === "servicios" && (
         <ServiciosList onSelectServicio={handleServicioSelect} />
       )}
 
-      {view === 'barberos' && (
+      {view === "barberos" && (
         <BarberosList onSelectBarbero={handleBarberoSelect} />
       )}
 
-      {view === 'disponibilidad' && (
+      {view === "disponibilidad" && (
         <AgendaAvailability
           servicio={servicioSeleccionado}
           barbero={barberoSeleccionado}
@@ -86,7 +85,7 @@ export default function AgendaPage() {
         />
       )}
 
-      {view === 'form' && (
+      {view === "form" && (
         <AgendaForm onSubmit={handleSubmitTurno} />
       )}
     </>

@@ -1,10 +1,18 @@
-import { useNavigate } from 'react-router-dom';
-import Lobby from '../../components/Lobby/Lobby';
+import { useNavigate } from "react-router-dom";
 
-export default function LobbyPage() {
+export default function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <Lobby onAgendaClick={() => navigate('/agenda')} />
+    <div className="home">
+      <h1>Bienvenido a la barbería</h1>
+
+      <button
+        className="btn btn-danger btn-lg"
+        onClick={() => navigate("/agenda")}
+      >
+        Reservar turno
+      </button>
+    </div>
   );
 }
