@@ -8,19 +8,27 @@ section {
 }
 
 .hero-section {
-  height: 100vh;
+  position: relative;
+  height: calc(100vh - 68px); /* resta la altura del navbar */
+  padding-top: 68px;         /* empuja el contenido hacia abajo */
   background:
     radial-gradient(circle at top, #1a1a1a, #000),
     url("/noise.png");
   background-blend-mode: overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
 }
+
 
 
 .hero-logo {
   max-width: 270px;
   padding: 20px;
   background: rgba(255,255,255,0.03);
-  border-radius: 12px;
+  border-radius: 50px;
 }
 
 
@@ -40,8 +48,8 @@ section {
 }
 
 .hero-section .btn:hover {
-  background: #603fff;
-  color: rgb(255, 255, 255);
+  background: #e6c77b;
+  color: rgb(0, 0, 0);
   transform: translateY(-2px);
 }
 

@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+
 
 from routers import (
     clientes,
@@ -14,6 +16,12 @@ app = FastAPI(
     title="API Barbería",
     version="1.0.0"
 )
+app.mount(
+    "/media",
+    StaticFiles(directory="media"),
+    name="media"
+)
+
 
 app.add_middleware(
     CORSMiddleware,

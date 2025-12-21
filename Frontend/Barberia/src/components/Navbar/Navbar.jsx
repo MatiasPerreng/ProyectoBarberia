@@ -8,7 +8,6 @@ export default function Navbar() {
     const onScroll = () => {
       setScrolled(window.scrollY > 60);
     };
-
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -16,18 +15,13 @@ export default function Navbar() {
   return (
     <nav className={`navbar-pro ${scrolled ? "scrolled" : ""}`}>
       <div className="nav-left">
-        <span className="nav-brand">Barbería</span>
-      </div>
-
-      <div className="nav-center">
-        <a href="#servicios">Servicios</a>
-        <a href="#ubicacion">Ubicación</a>
+        <img src="/logo.png" alt="King Barber" className="nav-logo" />
+        <span className="nav-brand">KING BARBER</span>
       </div>
 
       <div className="nav-right">
-        <a href="/login-barbero" className="btn btn-outline-light btn-sm">
-          Soy barbero
-        </a>
+        <a href="#servicios">Servicios</a>
+        <a href="#ubicacion">Ubicación</a>
       </div>
     </nav>
   );

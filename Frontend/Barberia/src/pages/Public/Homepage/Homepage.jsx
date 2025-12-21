@@ -2,6 +2,7 @@ import Navbar from "../../../components/Navbar/Navbar";
 import ServiciosList from "../../../components/ServiceList/ServiceList";
 import MapEmbed from "../../../components/Map/MapEmbed";
 import Footer from "../../../components/Footer/Footer";
+import GalleryCarousel from "../../../components/Gallery/GalleryCarousel";
 import './Homepage.css'
 import { useNavigate } from "react-router-dom";
 
@@ -25,7 +26,7 @@ export default function HomePage() {
                         className="hero-logo mb-4"
                     />
 
-                    <h1 className="display-5 fw-bold">KING BARBERS</h1>
+                    <h1 className="display-5 fw-bold">KING BARBER</h1>
 
                     <p className="lead">
                         Degrades · Barba · Estilo · Reserva online
@@ -43,6 +44,8 @@ export default function HomePage() {
 
                 <ServiciosList onSelectServicio={handleServicioSelect} />
             </section>
+
+            <GalleryCarousel />
 
             {/* MAPA */}
             <section id="ubicacion" className="bg-light py-5">

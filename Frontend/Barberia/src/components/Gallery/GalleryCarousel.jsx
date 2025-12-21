@@ -1,0 +1,65 @@
+import './GalleryCarousel.css'
+
+export default function GalleryCarousel() {
+  return (
+    <section className="gallery-section py-5">
+      <div className="container">
+        <h2 className="mb-4 text-center text-white">
+          Nuestros trabajos
+        </h2>
+
+        <div
+          id="galleryCarousel"
+          className="carousel slide"
+          data-bs-ride="carousel"
+        >
+          <div className="carousel-inner">
+
+            <div className="carousel-item active">
+              <img
+                src="/gallery/corte1.jpg"
+                className="d-block w-100 gallery-img"
+                alt="Corte 1"
+              />
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="/gallery/corte2.jpg"
+                className="d-block w-100 gallery-img"
+                alt="Corte 2"
+              />
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="/gallery/corte3.jpg"
+                className="d-block w-100 gallery-img"
+                alt="Corte 3"
+              />
+            </div>
+
+          </div>
+
+          <button
+            className="carousel-control-prev"
+            type="button"
+            data-bs-target="#galleryCarousel"
+            data-bs-slide="prev"
+          >
+            <span className="carousel-control-prev-icon" />
+          </button>
+
+          <button
+            className="carousel-control-next"
+            type="button"
+            data-bs-target="#galleryCarousel"
+            data-bs-slide="next"
+          >
+            <span className="carousel-control-next-icon" />
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}

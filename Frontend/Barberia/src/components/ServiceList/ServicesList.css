@@ -1,91 +1,119 @@
+/* =========================
+   GRID
+========================= */
+
 .servicios-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  max-width: 1000px;
+  gap: 32px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
+/* =========================
+   CARD
+========================= */
 
-/* CARD */
 .servicio-card {
-  background-color: #0d0d0d;
+  background: #0f0f0f;
   color: #fff;
-  border: 1px solid #1f1f1f;
+  border-radius: 16px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
 .servicio-card:hover {
   transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.35);
 }
 
-/* IMAGEN */
+/* =========================
+   IMAGEN
+========================= */
+
 .servicio-img {
   width: 100%;
   height: 220px;
   object-fit: cover;
+  filter: brightness(0.85);
 }
 
-/* BODY */
+/* =========================
+   BODY
+========================= */
+
 .servicio-body {
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex-grow: 1;
 }
 
 .servicio-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
 }
 
 .servicio-duracion {
-  font-size: 13px;
-  color: #9cff00;
-  margin-bottom: 10px;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-bottom: 12px;
 }
 
 .servicio-desc {
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.5;
+  color: #cfcfcf;
   flex-grow: 1;
-  color: #ccc;
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER
+========================= */
+
 .servicio-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
+/* Precio premium */
 .servicio-precio {
-  font-size: 22px;
-  color: #ff0033;
-  font-weight: bold;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #e6c77b; /* dorado marca */
 }
 
-/* BOTÓN */
+/* =========================
+   BOTÓN
+========================= */
+
 .btn-reservar {
-  background-color: #ff0033;
-  border: none;
-  color: #fff;
-  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid rgba(230, 199, 123, 0.6);
+  color: #e6c77b;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .btn-reservar:hover {
-  background-color: #cc0029;
+  background: #e6c77b;
+  color: #000;
 }
 
-/* LOADING */
+/* =========================
+   LOADING
+========================= */
+
 .loading {
   text-align: center;
-  color: #fff;
+  color: #ccc;
 }

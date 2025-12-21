@@ -22,7 +22,7 @@ const ServiciosList = ({ onSelectServicio }) => {
       {servicios.map((servicio) => (
         <div className="servicio-card" key={servicio.id_servicio}>
           <img
-            src={servicio.imagen_url || "/img/default.jpg"}
+            src={servicio.imagen_url || "./Mechas.jpeg"}
             alt={servicio.nombre}
             className="servicio-img"
           />

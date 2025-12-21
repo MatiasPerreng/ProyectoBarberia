@@ -1,0 +1,11 @@
+
+
+.gallery-section {
+  background: linear-gradient(180deg, #000, #111);
+}
+
+.gallery-img {
+  height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+}

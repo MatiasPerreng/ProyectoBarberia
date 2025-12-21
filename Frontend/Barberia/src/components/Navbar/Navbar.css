@@ -1,37 +1,64 @@
+/* =========================
+   NAVBAR PRO (BRANDING)
+========================= */
+
 .navbar-pro {
   position: fixed;
   top: 0;
   width: 100%;
-  height: 64px;
-  padding: 0 32px;
+  height: 68px;
+  padding: 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: transparent; /* 👈 clave */
+  background: transparent;
   z-index: 1000;
-  transition: all 0.3s ease;
+  transition: all 0.35s ease;
+    background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+
+  /* 👇 esto es la clave */
+  border-bottom: 1px solid rgba(230, 199, 123, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(230, 199, 123, 0.08);
 }
 
-.navbar-pro a,
-.navbar-pro span {
-  color: white;
-  text-decoration: none;
+/* Marca */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo {
+  height: 34px;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.6));
+}
+
+.nav-brand {
+  font-family: "Cinzel", serif;
   font-size: 0.9rem;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
+  color: #e6c77b; /* dorado suave */
 }
 
-.navbar-pro .nav-center a {
-  margin: 0 16px;
-  opacity: 0.85;
+/* Links */
+.nav-right a {
+  margin-left: 24px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.85);
+  transition: all 0.2s ease;
 }
 
-.navbar-pro .nav-center a:hover {
-  opacity: 1;
+.nav-right a:hover {
+  color: #e6c77b;
 }
 
-/* SOLO cuando scrolleás */
+/* Estado scroll */
 .navbar-pro.scrolled {
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
+
