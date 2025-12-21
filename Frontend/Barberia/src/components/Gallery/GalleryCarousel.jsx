@@ -1,4 +1,7 @@
 import './GalleryCarousel.css'
+import rasuradoImg from "../../pages/Public/Gallery/rasurado-carousel.jpg";
+import rasuradoImg2 from "../../pages/Public/Gallery/rasurado-carousel2.jpg";
+import platinado from "../../pages/Public/Gallery/platinado-carousel.jpg";
 
 export default function GalleryCarousel() {
   return (
@@ -17,7 +20,7 @@ export default function GalleryCarousel() {
 
             <div className="carousel-item active">
               <img
-                src="/gallery/corte1.jpg"
+                src={rasuradoImg}
                 className="d-block w-100 gallery-img"
                 alt="Corte 1"
               />
@@ -25,7 +28,7 @@ export default function GalleryCarousel() {
 
             <div className="carousel-item">
               <img
-                src="/gallery/corte2.jpg"
+                src={rasuradoImg2}
                 className="d-block w-100 gallery-img"
                 alt="Corte 2"
               />
@@ -33,7 +36,7 @@ export default function GalleryCarousel() {
 
             <div className="carousel-item">
               <img
-                src="/gallery/corte3.jpg"
+                src={platinado}
                 className="d-block w-100 gallery-img"
                 alt="Corte 3"
               />
