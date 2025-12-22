@@ -55,7 +55,6 @@
   position: relative;
 }
 
-/* Separador dorado ultra sutil */
 .booking-sidebar::after {
   content: "";
   position: absolute;
@@ -84,7 +83,6 @@
 
 .logo img {
   width: 78px;
-  display: block;
 }
 
 /* =========================
@@ -95,18 +93,15 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  margin-top: 10px;
 }
 
 .step {
   display: flex;
   align-items: center;
   gap: 12px;
-
   font-size: 12px;
   letter-spacing: 1.6px;
   text-transform: uppercase;
-
   opacity: 0.45;
   margin-bottom: 20px;
 }
@@ -140,7 +135,6 @@
   margin-top: auto;
   font-size: 11px;
   opacity: 0.6;
-  letter-spacing: 0.5px;
 }
 
 /* =========================
@@ -152,7 +146,6 @@
   background: #f8f9fa;
 }
 
-/* TÍTULO */
 .booking-content h3 {
   font-size: 15px;
   letter-spacing: 4px;
@@ -187,18 +180,11 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.barbero-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
-}
-
-/* Selección premium (sin check grande) */
 .barbero-card.selected::after {
   content: "";
   position: absolute;
   inset: 0;
   box-shadow: inset 0 0 0 1px rgba(230,199,123,0.65);
-  pointer-events: none;
 }
 
 /* =========================
@@ -209,14 +195,8 @@
   width: 66px;
   height: 66px;
   border-radius: 50%;
-  background: #eee;
   margin: 0 auto 12px;
   overflow: hidden;
-  transition: transform 0.25s ease;
-}
-
-.barbero-card:hover .avatar {
-  transform: scale(1.04);
 }
 
 .avatar img {
@@ -232,7 +212,6 @@
 .barbero-card h4 {
   font-size: 14px;
   margin-bottom: 4px;
-  font-weight: 600;
 }
 
 .barbero-card span {
@@ -240,4 +219,57 @@
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #777;
+}
+
+/* ======================================================
+   MOBILE – ESTILO AGENDORO (SIN CAMBIAR DISEÑO)
+====================================================== */
+/* =====================================================
+   MOBILE – BARBEROS DENTRO DEL HEADER (TIPO AGENDORO)
+===================================================== */
+/* =====================================================
+   MOBILE – UN SOLO CONTENEDOR (STEPS + BARBEROS)
+===================================================== */
+
+/* =====================================================
+   MOBILE – AJUSTE FINO DE TAMAÑOS (NO FULL WIDTH)
+===================================================== */
+
+/* =====================================================
+   MOBILE – SOLO AJUSTE DE TAMAÑOS (SIN CAMBIAR DISEÑO)
+===================================================== */
+
+@media (max-width: 600px) {
+
+  /* Limitar ancho del contenedor (sin cambiar layout) */
+  .booking-container {
+    max-width: 440px;   /* ← antes ocupaba todo */
+    margin: 0 auto;
+  }
+
+  /* Barberos: un poco más de aire */
+  .barberos-grid {
+    gap: 18px;          /* ← solo separación */
+  }
+
+  /* Cards más grandes (SIN cambiar estilo) */
+  .barbero-card {
+    padding: 20px 18px; /* ← antes estaba muy chico */
+  }
+
+  /* Avatar apenas más grande */
+  .avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Nombre un poco más legible */
+  .barbero-card h4 {
+    font-size: 14.5px;
+  }
+
+  /* Rol apenas más legible */
+  .barbero-card span {
+    font-size: 11px;
+  }
 }

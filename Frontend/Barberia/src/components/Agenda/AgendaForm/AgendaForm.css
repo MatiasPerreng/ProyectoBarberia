@@ -113,23 +113,29 @@
   font-size: 11px;
 }
 
+/* ACTIVO */
 .step.active {
   opacity: 1;
   color: #e6c77b;
 }
 
 .step.active span {
-  background: #2ecc71;
+  background: #e6c77b;
   color: #000;
 }
 
+/* COMPLETADO */
 .step.done {
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .step.done span {
-  background: #6c63ff;
-  color: #fff;
+  background: linear-gradient(
+    135deg,
+    #e6c77b,
+    #caa75a
+  );
+  color: #000;
 }
 
 /* =========================
@@ -190,14 +196,32 @@
   margin-top: 30px;
 }
 
+/* BOTÓN DORADO */
 .btn-confirmar {
-  padding: 10px 22px;
+  padding: 10px 24px;
   font-size: 12px;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
-  background: #6c63ff;
-  color: #fff;
+
+  background: linear-gradient(
+    135deg,
+    #e6c77b,
+    #caa75a
+  );
+
+  color: #000;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+
+  box-shadow:
+    0 8px 24px rgba(230,199,123,0.45);
+
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.btn-confirmar:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 30px rgba(230,199,123,0.6);
 }

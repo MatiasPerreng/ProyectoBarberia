@@ -93,3 +93,46 @@ section {
   font-family: "Cinzel", serif;
   letter-spacing: 4px;
 }
+
+
+/* =========================
+   HERO – MOBILE
+========================= */
+
+/* =========================
+   HERO – FIX MOBILE (NAVBAR FIXED)
+========================= */
+
+@media (max-width: 600px) {
+
+  .hero-section {
+    height: auto;              /* CLAVE: no usar vh en mobile */
+    min-height: calc(100vh - 68px);
+    padding-top: calc(68px + 24px); /* navbar + aire */
+  
+}
+
+
+  .hero-logo {
+    max-width: 200px; /* antes 270px */
+    padding: 16px;
+    border-radius: 36px;
+  }
+
+  .hero-section h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero-section .lead {
+    font-size: 0.95rem;
+  }
+
+  .hero-section .btn {
+    padding: 12px 28px;
+    font-size: 0.75rem;
+  }
+
+  .hero-scroll {
+    bottom: 14px;
+  }
+}

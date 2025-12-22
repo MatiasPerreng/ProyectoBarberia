@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Footer from "../Footer/Footer"; // ajustá la ruta si hace falta
+import Footer from "../../Footer/Footer"; // ajustá la ruta si hace falta
 import "./AgendaAvailability.css";
 
 const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {

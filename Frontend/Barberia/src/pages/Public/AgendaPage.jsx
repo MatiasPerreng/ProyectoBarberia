@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 
 import ServiciosList from "../../components/ServiceList/ServiceList";
 import BarberosList from "../../components/BarberoList/BarberoList";
-import AgendaAvailability from "../../components/Agenda/AgendaAvailability";
-import AgendaForm from "../../components/Agenda/AgendaForm";
+import AgendaAvailability from "../../components/Agenda/AgendaAvailability/AgendaAvailability";
+import AgendaForm from "../../components/Agenda/AgendaForm/AgendaForm";
 
 import { crearCliente } from "../../services/clientes";
 import { crearVisita } from "../../services/agenda";
@@ -41,30 +41,18 @@ export default function AgendaPage() {
     setView("form");
   };
 
-  const resetFlow = () => {
-    setServicioSeleccionado(null);
-    setBarberoSeleccionado(null);
-    setFechaHoraSeleccionada(null);
-    setView("servicios");
-  };
 
   const handleSubmitTurno = async (datosCliente) => {
-    try {
-      const cliente = await crearCliente(datosCliente);
+    const cliente = await crearCliente(datosCliente);
 
-      await crearVisita({
-        id_cliente: cliente.id_cliente,
-        id_barbero: barberoSeleccionado?.id_barbero ?? null,
-        id_servicio: servicioSeleccionado.id_servicio,
-        fecha_hora: fechaHoraSeleccionada,
-      });
+    await crearVisita({
+      id_cliente: cliente.id_cliente,
+      id_barbero: barberoSeleccionado?.id_barbero ?? null,
+      id_servicio: servicioSeleccionado.id_servicio,
+      fecha_hora: fechaHoraSeleccionada,
+    });
 
-      alert("Turno agendado con éxito!");
-      resetFlow();
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Error al agendar turno");
-    }
+    return true;
   };
 
   return (
