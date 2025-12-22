@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState } from "react";
+import Footer from "../Footer/Footer"; // ajustá la ruta si hace falta
+import "./AgendaForm.css";
 
 const AgendaForm = ({ onSubmit }) => {
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [email, setEmail] = useState('');
-  const [telefono, setTelefono] = useState('');
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,58 +15,101 @@ const AgendaForm = ({ onSubmit }) => {
       nombre,
       apellido,
       email,
-      telefono
+      telefono,
     });
   };
 
   return (
-    <div className="container mt-4">
-      <h2>Datos del cliente</h2>
+    <>
+      {/* OVERLAY */}
+      <div className="booking-overlay">
+        <div className="booking-container">
 
-      <form
-        onSubmit={handleSubmit}
-        className="d-flex flex-column align-items-center"
-      >
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          className="form-control mb-2"
-          required
-        />
+          {/* SIDEBAR */}
+          <aside className="booking-sidebar">
+            <div className="logo">
+              <img src="logo.jpg" alt="King Barber" />
+            </div>
 
-        <input
-          type="text"
-          placeholder="Apellido"
-          value={apellido}
-          onChange={(e) => setApellido(e.target.value)}
-          className="form-control mb-2"
-          required
-        />
+            <ul className="steps">
+              <li className="step done">
+                <span>✓</span> Personal
+              </li>
+              <li className="step done">
+                <span>✓</span> Fecha y hora
+              </li>
+              <li className="step active">
+                <span>3</span> Información
+              </li>
+            </ul>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="form-control mb-2"
-          required
-        />
+            <div className="sidebar-footer">
+              <p>¿Tenés alguna pregunta?</p>
+              <small>099 611 465</small>
+            </div>
+          </aside>
 
-        <input
-          type="text"
-          placeholder="Teléfono (opcional)"
-          value={telefono}
-          onChange={(e) => setTelefono(e.target.value)}
-          className="form-control mb-3"
-        />
+          {/* CONTENIDO */}
+          <section className="booking-content">
+            <h3>Rellena la información</h3>
 
-        <button type="submit" className="btn btn-success">
-          Confirmar turno
-        </button>
-      </form>
-    </div>
+            <form className="form-grid" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ejemplo@email.com"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Teléfono *</label>
+                <input
+                  type="text"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  placeholder="+598 9 123 456"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Nombre *</label>
+                <input
+                  type="text"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Apellido *</label>
+                <input
+                  type="text"
+                  value={apellido}
+                  onChange={(e) => setApellido(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="btn-confirmar">
+                  Confirmar turno
+                </button>
+              </div>
+            </form>
+          </section>
+
+        </div>
+      </div>
+
+      {/* FOOTER GLOBAL */}
+      <Footer />
+    </>
   );
 };
 
