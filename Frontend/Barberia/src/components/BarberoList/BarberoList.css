@@ -1,0 +1,243 @@
+/* =========================
+   OVERLAY (FONDO)
+========================= */
+
+.booking-overlay {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(230,199,123,0.28) 0%,
+      rgba(0,0,0,0.96) 48%
+    ),
+    linear-gradient(
+      135deg,
+      #000 0%,
+      #111 50%,
+      #000 100%
+    );
+}
+
+/* =========================
+   CONTENEDOR CENTRAL
+========================= */
+
+.booking-container {
+  width: 100%;
+  max-width: 880px;
+  height: 600px;
+
+  background: #f6f7f8;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: 250px 1fr;
+
+  box-shadow:
+    0 28px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.booking-sidebar {
+  background: linear-gradient(to bottom, #1c1f24, #14171a);
+  color: #fff;
+  padding: 32px 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Separador dorado ultra sutil */
+.booking-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(230,199,123,0.35),
+    transparent
+  );
+}
+
+/* =========================
+   LOGO
+========================= */
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 36px;
+}
+
+.logo img {
+  width: 78px;
+  display: block;
+}
+
+/* =========================
+   STEPS
+========================= */
+
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 10px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+
+  opacity: 0.45;
+  margin-bottom: 20px;
+}
+
+.step span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.step.active {
+  opacity: 1;
+  color: #e6c77b;
+}
+
+.step.active span {
+  background: #2ecc71;
+  color: #000;
+}
+
+/* =========================
+   SIDEBAR FOOTER
+========================= */
+
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.booking-content {
+  padding: 36px;
+  background: #f8f9fa;
+}
+
+/* TÍTULO */
+.booking-content h3 {
+  font-size: 15px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  color: #111;
+  font-weight: 600;
+}
+
+/* =========================
+   GRID BARBEROS
+========================= */
+
+.barberos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 22px;
+}
+
+/* =========================
+   CARD BARBERO
+========================= */
+
+.barbero-card {
+  position: relative;
+  background: #fff;
+  padding: 22px 18px;
+  text-align: center;
+  cursor: pointer;
+
+  box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.barbero-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
+}
+
+/* Selección premium (sin check grande) */
+.barbero-card.selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px rgba(230,199,123,0.65);
+  pointer-events: none;
+}
+
+/* =========================
+   AVATAR
+========================= */
+
+.avatar {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: #eee;
+  margin: 0 auto 12px;
+  overflow: hidden;
+  transition: transform 0.25s ease;
+}
+
+.barbero-card:hover .avatar {
+  transform: scale(1.04);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================
+   TEXTO
+========================= */
+
+.barbero-card h4 {
+  font-size: 14px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.barbero-card span {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #777;
+}
