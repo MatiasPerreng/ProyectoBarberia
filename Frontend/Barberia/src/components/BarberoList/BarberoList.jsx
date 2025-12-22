@@ -15,7 +15,7 @@ const BarberosList = ({ onSelectBarbero }) => {
 
   const handleSelect = (barbero) => {
     setBarberoSeleccionado(barbero);
-    onSelectBarbero(barbero); 
+    onSelectBarbero(barbero);
   };
 
   return (
@@ -29,11 +29,11 @@ const BarberosList = ({ onSelectBarbero }) => {
             </div>
 
             <ul className="steps">
-              <li className="step active">
-                <span>1</span> Personal
+              <li className="step done">
+                <span>✓</span> Servicio
               </li>
-              <li className="step">
-                <span>2</span> Servicios
+              <li className="step active">
+                <span>2</span> Personal
               </li>
               <li className="step">
                 <span>3</span> Fecha y hora
@@ -57,11 +57,10 @@ const BarberosList = ({ onSelectBarbero }) => {
               {barberos.map(barbero => (
                 <div
                   key={barbero.id_barbero}
-                  className={`barbero-card ${
-                    barberoSeleccionado?.id_barbero === barbero.id_barbero
-                      ? "selected"
-                      : ""
-                  }`}
+                  className={`barbero-card ${barberoSeleccionado?.id_barbero === barbero.id_barbero
+                    ? "selected"
+                    : ""
+                    }`}
                   onClick={() => handleSelect(barbero)}
                 >
                   <div className="avatar">

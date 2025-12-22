@@ -1,0 +1,208 @@
+/* =========================
+   OVERLAY (FONDO)
+========================= */
+
+.booking-overlay {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(230,199,123,0.28) 0%,
+      rgba(0,0,0,0.96) 48%
+    ),
+    linear-gradient(
+      135deg,
+      #000 0%,
+      #111 50%,
+      #000 100%
+    );
+}
+
+/* =========================
+   CONTENEDOR CENTRAL
+========================= */
+
+.booking-container {
+  width: 100%;
+  max-width: 880px;
+  height: 600px;
+
+  background: #f6f7f8;
+  border-radius: 6px;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: 250px 1fr;
+
+  box-shadow:
+    0 28px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.booking-sidebar {
+  background: linear-gradient(to bottom, #1c1f24, #14171a);
+  color: #fff;
+  padding: 32px 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.booking-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(230,199,123,0.35),
+    transparent
+  );
+}
+
+/* LOGO */
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 36px;
+}
+
+.logo img {
+  width: 78px;
+}
+
+/* =========================
+   STEPS
+========================= */
+
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  opacity: 0.45;
+  margin-bottom: 20px;
+}
+
+.step span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.step.active {
+  opacity: 1;
+  color: #e6c77b;
+}
+
+.step.active span {
+  background: #2ecc71;
+  color: #000;
+}
+
+.step.done {
+  opacity: 0.8;
+}
+
+.step.done span {
+  background: #6c63ff;
+  color: #fff;
+}
+
+/* =========================
+   SIDEBAR FOOTER
+========================= */
+
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.booking-content {
+  padding: 36px;
+  background: #f8f9fa;
+}
+
+.booking-content h3 {
+  font-size: 15px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  font-weight: 600;
+}
+
+/* =========================
+   CALENDARIO
+========================= */
+
+.calendar-wrapper {
+  margin-bottom: 28px;
+}
+
+.calendar-input {
+  width: 260px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* =========================
+   HORARIOS
+========================= */
+
+.horarios-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hora-chip {
+  padding: 8px 16px;
+  background: #111;
+  color: #e6c77b;
+  border: 1px solid rgba(230,199,123,0.5);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hora-chip:hover {
+  background: #e6c77b;
+  color: #000;
+}
+
+.no-horarios {
+  font-size: 13px;
+  color: #777;
+}
