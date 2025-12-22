@@ -9,25 +9,52 @@ section {
 
 .hero-section {
   position: relative;
-  height: calc(100vh - 68px); /* resta la altura del navbar */
-  padding-top: 68px;         /* empuja el contenido hacia abajo */
+  height: calc(107vh - 68px);
+  padding-top: 68px;
+
   background:
-    radial-gradient(circle at top, #1a1a1a, #000),
+    linear-gradient(
+      180deg,
+      rgba(20, 18, 12, 0.95),
+      #000 55%
+    ),
     url("/noise.png");
+
   background-blend-mode: overlay;
+  background-size: cover;
+  background-position: center;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   color: white;
   overflow: hidden;
 }
 
 
 
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top,
+    rgba(230, 199, 123, 0.06),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+
+
+
+
 .hero-logo {
   max-width: 270px;
   padding: 20px;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 50px;
 }
 
@@ -43,6 +70,8 @@ section {
 
 .hero-section .btn {
   border-radius: 999px;
+  border: 1px solid rgba(230, 199, 123, 0.6);
+  color: #e6c77b;
   padding: 14px 36px;
   transition: all 0.3s ease;
 }

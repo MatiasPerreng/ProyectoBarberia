@@ -8,57 +8,81 @@
   width: 100%;
   height: 68px;
   padding: 0 40px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: transparent;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+
+  border-bottom: 1px solid rgba(230, 199, 123, 0.12);
+
   z-index: 1000;
   transition: all 0.35s ease;
-    background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(4px);
-
-  /* 👇 esto es la clave */
-  border-bottom: 1px solid rgba(230, 199, 123, 0.15);
-  box-shadow: inset 0 -1px 0 rgba(230, 199, 123, 0.08);
 }
 
-/* Marca */
+/* =========================
+   MARCA
+========================= */
+
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
-.nav-logo {
-  height: 34px;
-  filter: drop-shadow(0 0 6px rgba(0,0,0,0.6));
+/* KB – monograma */
+.nav-monogram {
+  font-family: "Cinzel", serif;
+  font-size: 0.9rem;
+  letter-spacing: 2.8px;
+  font-weight: 600;
+  line-height: 1;
+
+  color: rgba(230, 199, 123, 0.9);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-brand {
   font-family: "Cinzel", serif;
-  font-size: 0.9rem;
-  letter-spacing: 3px;
-  color: #e6c77b; /* dorado suave */
+  font-size: 0.85rem;
+  letter-spacing: 3.5px;
+  color: rgba(230, 199, 123, 0.85);
 }
 
-/* Links */
+/* =========================
+   LINKS
+========================= */
+
 .nav-right a {
-  margin-left: 24px;
-  font-size: 0.85rem;
-  letter-spacing: 2px;
+  margin-left: 28px;
+
+  font-family: "Cinzel", serif;
+  font-size: 0.75rem;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+
+  text-transform: uppercase;
   text-decoration: none;
-  color: rgba(255,255,255,0.85);
-  transition: all 0.2s ease;
+
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s ease;
 }
 
 .nav-right a:hover {
-  color: #e6c77b;
+  color: rgba(230, 199, 123, 0.85);
 }
 
-/* Estado scroll */
+/* =========================
+   ESTADO SCROLL
+========================= */
+
 .navbar-pro.scrolled {
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid rgba(230, 199, 123, 0.08);
 }
-

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import './Navbar.css'
+import "./Navbar.css";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <nav className={`navbar-pro ${scrolled ? "scrolled" : ""}`}>
       <div className="nav-left">
-        <img src="/logo.png" alt="King Barber" className="nav-logo" />
+        <div className="nav-monogram">KB</div>
         <span className="nav-brand">KING BARBER</span>
       </div>
 
