@@ -102,7 +102,7 @@ class ServicioBase(BaseModel):
     duracion_min: int
     precio: decimal.Decimal
     activo: Optional[bool] = True
-
+    imagen: Optional[str] = None 
 
 class ServicioCreate(ServicioBase):
     pass
@@ -113,6 +113,7 @@ class ServicioUpdate(BaseModel):
     duracion_min: Optional[int] = None
     precio: Optional[decimal.Decimal] = None
     activo: Optional[bool] = None
+    imagen: Optional[str] = None
 
 
 class ServicioOut(ServicioBase):

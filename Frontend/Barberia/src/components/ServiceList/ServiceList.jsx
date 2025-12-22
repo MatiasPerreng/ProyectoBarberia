@@ -22,7 +22,7 @@ const ServiciosList = ({ onSelectServicio }) => {
       {servicios.map((servicio) => (
         <div className="servicio-card" key={servicio.id_servicio}>
           <img
-            src={servicio.imagen_url || "./Mechas.jpeg"}
+            src={`http://127.0.0.1:8000/media/servicios/${servicio.imagen}`}
             alt={servicio.nombre}
             className="servicio-img"
           />

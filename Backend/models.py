@@ -41,9 +41,17 @@ class Servicio(Base):
     nombre: Mapped[str] = mapped_column(String(100), nullable=False)
     duracion_min: Mapped[int] = mapped_column(INTEGER, nullable=False)
     precio: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 2), nullable=False)
-    activo: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'1'"))
+    activo: Mapped[Optional[int]] = mapped_column(
+        TINYINT(1),
+        server_default=text("'1'")
+    )
 
-    visita: Mapped[list['Visita']] = relationship('Visita', back_populates='servicio')
+    imagen: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  # 👈 NUEVO
+
+    visita: Mapped[list['Visita']] = relationship(
+        'Visita',
+        back_populates='servicio'
+    )
 
 
 class HorarioBarbero(Base):
