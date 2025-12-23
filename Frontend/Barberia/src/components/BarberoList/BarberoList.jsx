@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Footer from "../Footer/Footer"; // ajustá la ruta si cambia
+import Footer from "../Footer/Footer";
 import "./BarberoList.css";
 
 const BarberosList = ({ onSelectBarbero }) => {
@@ -20,36 +20,43 @@ const BarberosList = ({ onSelectBarbero }) => {
 
   return (
     <>
-      {/* BOOKING */}
       <div className="booking-overlay">
         <div className="booking-container">
+
+          {/* HEADER (Antes Sidebar) */}
           <aside className="booking-sidebar">
             <div className="logo">
-              <img src="logo.jpg" alt="King Barber" />
+              {/* Ajustá tu ruta de imagen */}
+              <img src="/logo.jpg" alt="King Barber" />
             </div>
 
             <ul className="steps">
               <li className="step done">
-                <span>✓</span> Servicio
+                <span className="step-number">✓</span>
+                <span className="step-label">Servicio</span>
               </li>
               <li className="step active">
-                <span>2</span> Personal
+                <span className="step-number">2</span>
+                <span className="step-label">Personal</span>
               </li>
               <li className="step">
-                <span>3</span> Fecha y hora
+                <span className="step-number">3</span>
+                <span className="step-label">Fecha y hora</span>
               </li>
               <li className="step">
-                <span>4</span> Información
+                <span className="step-number">4</span>
+                <span className="step-label">Información</span>
               </li>
             </ul>
 
-            <div className="sidebar-footer">
+            {/* Este footer lo ocultaremos en mobile */}
+            <div className="sidebar-footer desktop-only">
               <p>¿Tenés alguna pregunta?</p>
               <small>099 611 465</small>
             </div>
           </aside>
 
-          {/* CONTENIDO */}
+          {/* CONTENIDO LISTA */}
           <section className="booking-content">
             <h3>Seleccionar personal</h3>
 
@@ -57,21 +64,18 @@ const BarberosList = ({ onSelectBarbero }) => {
               {barberos.map(barbero => (
                 <div
                   key={barbero.id_barbero}
-                  className={`barbero-card ${barberoSeleccionado?.id_barbero === barbero.id_barbero
-                    ? "selected"
-                    : ""
+                  className={`barbero-card ${barberoSeleccionado?.id_barbero === barbero.id_barbero ? "selected" : ""
                     }`}
                   onClick={() => handleSelect(barbero)}
                 >
                   <div className="avatar">
-                    <img
-                      src="/barbero-placeholder.png"
-                      alt={barbero.nombre}
-                    />
+                    <img src="/barbero-placeholder.png" alt={barbero.nombre} />
                   </div>
 
-                  <h4>{barbero.nombre}</h4>
-                  <span>barbero</span>
+                  <div className="barbero-info">
+                    <h4>{barbero.nombre}</h4>
+                    <span>barbero</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -79,8 +83,6 @@ const BarberosList = ({ onSelectBarbero }) => {
 
         </div>
       </div>
-
-
       <Footer />
     </>
   );

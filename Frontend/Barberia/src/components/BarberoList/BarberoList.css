@@ -55,6 +55,7 @@
   position: relative;
 }
 
+/* Separador dorado ultra sutil */
 .booking-sidebar::after {
   content: "";
   position: absolute;
@@ -83,6 +84,7 @@
 
 .logo img {
   width: 78px;
+  display: block;
 }
 
 /* =========================
@@ -93,15 +95,18 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  margin-top: 10px;
 }
 
 .step {
   display: flex;
   align-items: center;
   gap: 12px;
+
   font-size: 12px;
   letter-spacing: 1.6px;
   text-transform: uppercase;
+
   opacity: 0.45;
   margin-bottom: 20px;
 }
@@ -135,6 +140,7 @@
   margin-top: auto;
   font-size: 11px;
   opacity: 0.6;
+  letter-spacing: 0.5px;
 }
 
 /* =========================
@@ -146,6 +152,7 @@
   background: #f8f9fa;
 }
 
+/* TÍTULO */
 .booking-content h3 {
   font-size: 15px;
   letter-spacing: 4px;
@@ -180,11 +187,18 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+.barbero-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
+}
+
+/* Selección premium (sin check grande) */
 .barbero-card.selected::after {
   content: "";
   position: absolute;
   inset: 0;
   box-shadow: inset 0 0 0 1px rgba(230,199,123,0.65);
+  pointer-events: none;
 }
 
 /* =========================
@@ -195,8 +209,14 @@
   width: 66px;
   height: 66px;
   border-radius: 50%;
+  background: #eee;
   margin: 0 auto 12px;
   overflow: hidden;
+  transition: transform 0.25s ease;
+}
+
+.barbero-card:hover .avatar {
+  transform: scale(1.04);
 }
 
 .avatar img {
@@ -212,6 +232,7 @@
 .barbero-card h4 {
   font-size: 14px;
   margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .barbero-card span {
@@ -221,55 +242,124 @@
   color: #777;
 }
 
-/* ======================================================
-   MOBILE – ESTILO AGENDORO (SIN CAMBIAR DISEÑO)
-====================================================== */
-/* =====================================================
-   MOBILE – BARBEROS DENTRO DEL HEADER (TIPO AGENDORO)
-===================================================== */
-/* =====================================================
-   MOBILE – UN SOLO CONTENEDOR (STEPS + BARBEROS)
-===================================================== */
+@media (max-width: 899px) {
+  /* Estructura General */
+  .booking-overlay {
+    background: #1c1f24;
+    padding: 0;
+    align-items: flex-start;
+    height: auto;
+    min-height: 100vh;
+  }
 
-/* =====================================================
-   MOBILE – AJUSTE FINO DE TAMAÑOS (NO FULL WIDTH)
-===================================================== */
-
-/* =====================================================
-   MOBILE – SOLO AJUSTE DE TAMAÑOS (SIN CAMBIAR DISEÑO)
-===================================================== */
-
-@media (max-width: 600px) {
-
-  /* Limitar ancho del contenedor (sin cambiar layout) */
   .booking-container {
-    max-width: 440px;   /* ← antes ocupaba todo */
-    margin: 0 auto;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
   }
 
-  /* Barberos: un poco más de aire */
+  /* Header Oscuro y Steps */
+  .booking-sidebar {
+    width: 100% !important;
+    padding: 20px 0 !important;
+    background: #1c1f24 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    border: none !important;
+  }
+  
+  .booking-sidebar::after { display: none !important; }
+  .desktop-only { display: none !important; }
+
+  .steps {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    margin: 10px 0 0 0 !important;
+  }
+
+  .step-label { display: none !important; }
+
+  /* Contenido Blanco */
+  .booking-content {
+    background: #f8f9fa !important; /* Tu color de fondo original */
+    width: 100% !important;
+    flex: 1 !important;
+    padding: 30px 20px !important;
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    margin-top: -10px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Recuperando el estilo de tus CARDS */
   .barberos-grid {
-    gap: 18px;          /* ← solo separación */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important; /* Espaciado entre tus cards */
   }
 
-  /* Cards más grandes (SIN cambiar estilo) */
   .barbero-card {
-    padding: 20px 18px; /* ← antes estaba muy chico */
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    text-align: left !important;
+    
+    /* TUS ESTILOS ORIGINALES RECUPERADOS */
+    background: #fff !important;
+    padding: 18px 20px !important;
+    border-radius: 0; /* Si quieres que sean cuadradas como tu original, deja 0. Si no, ponle 8px */
+    box-shadow: 0 10px 24px rgba(0,0,0,0.14) !important; /* Tu sombra original */
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    position: relative;
   }
 
-  /* Avatar apenas más grande */
+  /* Hover en Mobile (se activa al tocar) */
+  .barbero-card:active {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.18) !important;
+  }
+
+  /* Tu borde dorado de selección */
+  .barbero-card.selected::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 2px rgba(230,199,123,0.8) !important;
+    pointer-events: none;
+  }
+
+  /* Avatar en formato fila */
   .avatar {
-    width: 60px;
-    height: 60px;
+    width: 60px !important;
+    height: 60px !important;
+    margin: 0 !important;
+    margin-right: 20px !important;
+    border-radius: 50%;
+    background: #eee;
+    flex-shrink: 0;
   }
 
-  /* Nombre un poco más legible */
-  .barbero-card h4 {
-    font-size: 14.5px;
+  /* Texto de las cards */
+  .barbero-info h4 {
+    margin: 0 0 4px 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #111;
   }
 
-  /* Rol apenas más legible */
-  .barbero-card span {
-    font-size: 11px;
+  .barbero-info span {
+    font-size: 11px !important;
+    letter-spacing: 2px !important;
+    text-transform: uppercase !important;
+    color: #777 !important;
+    display: block;
   }
 }
