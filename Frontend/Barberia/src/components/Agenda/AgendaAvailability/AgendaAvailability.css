@@ -1,12 +1,15 @@
 /* =======================================================
    1. DESKTOP BASE (UNIFICADO)
 ======================================================= */
+
 .booking-overlay {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(230,199,123,0.22) 0%, rgba(0,0,0,0.96) 50%), #000;
+  background:
+    linear-gradient(180deg, rgba(230,199,123,0.22) 0%, rgba(0,0,0,0.96) 50%),
+    #000;
   padding: 20px;
 }
 
@@ -19,7 +22,7 @@
   grid-template-columns: 280px 1fr;
   box-shadow: 0 30px 70px rgba(0,0,0,0.7);
   overflow: hidden;
-  border-radius: 0; 
+  border-radius: 0;
 }
 
 .booking-sidebar {
@@ -36,32 +39,115 @@
 .steps { list-style: none; padding: 0; margin: 0; }
 .step { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; opacity: 0.3; }
 .step-text { font-size: 12px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; margin: 0; }
-.step-number { width: 28px; height: 28px; border-radius: 50%; background: #2b2f36; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.step-number { width: 28px; height: 28px; border-radius: 50%; background: #2b2f36; display: flex; align-items: center; justify-content: center; font-size: 11px; }
 
 .step.active, .step.done { opacity: 1; }
 .step.active { color: #e6c77b; }
 .step.active .step-number { background: #e6c77b; color: #111; }
 .step.done .step-number { background: #caa851; color: #111; }
 
-.booking-content { padding: 50px; background: #fff; overflow-y: auto; }
-.booking-content h3 { font-size: 16px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 35px; color: #111; font-weight: 700; }
+.booking-content {
+  padding: 50px;
+  background: #fff;
+  overflow-y: auto;
+}
 
-.sidebar-footer { margin-top: auto; font-size: 11px; opacity: 0.5; }
+.booking-content h3 {
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 35px;
+  color: #111;
+  font-weight: 700;
+}
 
-/* CALENDARIO DESKTOP */
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+/* =======================================================
+   BOTÓN VOLVER (MISMO ESTILO GLOBAL)
+======================================================= */
+
+.btn-volver {
+  background: transparent;
+  border: none;
+  outline: none;
+
+  color: #777;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+
+  padding: 6px 0;
+  margin-bottom: 30px;
+
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.btn-volver:focus,
+.btn-volver:focus-visible {
+  outline: none;
+}
+
+.btn-volver::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #e6c77b,
+    transparent
+  );
+  transition: width 0.35s ease;
+}
+
+.btn-volver:hover,
+.btn-volver:focus-visible {
+  color: #111;
+}
+
+.btn-volver:hover::after,
+.btn-volver:focus-visible::after {
+  width: 100%;
+}
+
+.btn-volver:active {
+  color: #111;
+}
+
+.btn-volver:active::after {
+  width: 100%;
+}
+
+/* =======================================================
+   CALENDARIO
+======================================================= */
+
 .calendar-wrapper { margin-bottom: 35px; }
 .calendar-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 10px; }
+
 .calendar-input {
   width: 100%;
   max-width: 300px;
   padding: 12px 15px;
   border: 1px solid #eee;
-  border-radius: 0;
-  font-family: inherit;
   font-size: 15px;
 }
 
-/* GRID DE HORARIOS */
+/* =======================================================
+   HORARIOS
+======================================================= */
+
 .horarios-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -86,13 +172,14 @@
 }
 
 /* =======================================================
-   2. MODO MOBILE (ESTILO AGENDORO)
+   MOBILE
 ======================================================= */
+
 @media (max-width: 899px) {
-  .booking-overlay { 
-    background: #1c1f24; 
-    padding: 20px 0; 
-    align-items: center; 
+
+  .booking-overlay {
+    background: #1c1f24;
+    padding: 20px 0;
   }
 
   .booking-container {
@@ -100,60 +187,52 @@
     flex-direction: column !important;
     width: 90% !important;
     max-width: 420px !important;
-    min-height: 580px !important; /* Mismo largo que Barberos */
-    height: auto !important; 
-    margin: auto !important; 
+    min-height: 580px !important;
     background: #1c1f24 !important;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
-    border-radius: 0 !important;
   }
 
   .booking-sidebar {
     padding: 30px 20px 25px 20px !important;
-    background: #1c1f24 !important;
     align-items: center !important;
   }
 
-  .logo { margin-bottom: 20px !important; }
   .logo img { width: 75px !important; }
   .sidebar-footer { display: none !important; }
 
-  /* STEPS: SOLO ICONOS */
-  .steps { 
-    display: flex !important; 
-    flex-direction: row !important; 
-    justify-content: center !important; 
-    gap: 15px !important; 
+  .steps {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 15px !important;
   }
-  .step-text { display: none !important; } 
-  .step-number { width: 32px !important; height: 32px !important; font-size: 12px !important; }
 
-  /* CONTENIDO BLANCO */
+  .step-text { display: none !important; }
+  .step-number { width: 32px !important; height: 32px !important; }
+
   .booking-content {
     background: #fdfdfd !important;
     padding: 30px 20px !important;
-    border-radius: 0 !important; 
-    flex: 1 !important;
   }
 
-  .booking-content h3 { font-size: 14px !important; text-align: center !important; margin-bottom: 25px !important; }
+  .booking-content h3 {
+    font-size: 14px !important;
+    text-align: center !important;
+    margin-bottom: 25px !important;
+  }
 
   .calendar-input {
     max-width: 100% !important;
     text-align: center;
   }
 
-  /* HORARIOS EN MOBILE */
   .horarios-grid {
-    grid-template-columns: repeat(3, 1fr) !important; /* 3 columnas de horas */
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 10px !important;
   }
 
   .hora-card {
     padding: 12px 5px !important;
-    font-size: 14px !important;
     border: none !important;
-    /* Sombras para contraste con el fondo */
     box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
   }
 }

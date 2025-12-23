@@ -1,10 +1,13 @@
 import { useState } from "react";
-import Footer from "../../Footer/Footer"; 
+import { useNavigate } from "react-router-dom";
+import Footer from "../../Footer/Footer";
 import "./AgendaAvailability.css";
 
 const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
   const [fecha, setFecha] = useState("");
   const [horarios, setHorarios] = useState([]);
+
+  const navigate = useNavigate();
 
   const fetchDisponibilidad = (fechaSeleccionada) => {
     let url = `http://localhost:8000/visitas/disponibilidad?fecha=${fechaSeleccionada}&id_servicio=${servicio.id_servicio}`;
@@ -30,10 +33,15 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
     onSelectFechaHora(fechaHora);
   };
 
+  const handleVolver = () => {
+      navigate("/agenda");
+  };
+
   return (
     <>
       <div className="booking-overlay">
         <div className="booking-container">
+
           {/* SIDEBAR */}
           <aside className="booking-sidebar">
             <div className="logo">
@@ -42,19 +50,19 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
             <ul className="steps">
               <li className="step done">
-                <span className="step-number">✓</span> 
+                <span className="step-number">✓</span>
                 <p className="step-text">Servicio</p>
               </li>
               <li className="step done">
-                <span className="step-number">✓</span> 
+                <span className="step-number">✓</span>
                 <p className="step-text">Personal</p>
               </li>
               <li className="step active">
-                <span className="step-number">3</span> 
+                <span className="step-number">3</span>
                 <p className="step-text">Fecha y hora</p>
               </li>
               <li className="step">
-                <span className="step-number">4</span> 
+                <span className="step-number">4</span>
                 <p className="step-text">Información</p>
               </li>
             </ul>
@@ -67,6 +75,12 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
           {/* CONTENIDO */}
           <section className="booking-content">
+
+            {/* BOTÓN VOLVER */}
+            <button className="btn-volver" onClick={handleVolver}>
+              ← Volver
+            </button>
+
             <h3>Seleccionar fecha y hora</h3>
 
             <div className="calendar-wrapper">
@@ -98,6 +112,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
           </section>
         </div>
       </div>
+
       <Footer />
     </>
   );

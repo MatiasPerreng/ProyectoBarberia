@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import Footer from "../Footer/Footer"; 
+import { useNavigate } from "react-router-dom";
+import Footer from "../Footer/Footer";
 import "./BarberoList.css";
 
 const BarberosList = ({ onSelectBarbero }) => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8000/barberos/")
@@ -18,6 +21,10 @@ const BarberosList = ({ onSelectBarbero }) => {
     if (onSelectBarbero) onSelectBarbero(barbero);
   };
 
+  const handleVolver = () => {
+       navigate(-1);
+  };
+
   return (
     <>
       <div className="booking-overlay">
@@ -29,19 +36,19 @@ const BarberosList = ({ onSelectBarbero }) => {
 
             <ul className="steps">
               <li className="step done">
-                <span className="step-number">✓</span> 
+                <span className="step-number">✓</span>
                 <p className="step-text">Servicio</p>
               </li>
               <li className="step active">
-                <span className="step-number">2</span> 
+                <span className="step-number">2</span>
                 <p className="step-text">Personal</p>
               </li>
               <li className="step">
-                <span className="step-number">3</span> 
+                <span className="step-number">3</span>
                 <p className="step-text">Fecha y hora</p>
               </li>
               <li className="step">
-                <span className="step-number">4</span> 
+                <span className="step-number">4</span>
                 <p className="step-text">Información</p>
               </li>
             </ul>
@@ -53,6 +60,10 @@ const BarberosList = ({ onSelectBarbero }) => {
           </aside>
 
           <section className="booking-content">
+            <button className="btn-volver" onClick={handleVolver}>
+              ← Volver
+            </button>
+
             <h3>Seleccionar personal</h3>
 
             <div className="barberos-grid">
@@ -60,7 +71,9 @@ const BarberosList = ({ onSelectBarbero }) => {
                 <div
                   key={barbero.id_barbero}
                   className={`barbero-card ${
-                    barberoSeleccionado?.id_barbero === barbero.id_barbero ? "selected" : ""
+                    barberoSeleccionado?.id_barbero === barbero.id_barbero
+                      ? "selected"
+                      : ""
                   }`}
                   onClick={() => handleSelect(barbero)}
                 >

@@ -1,12 +1,17 @@
 /* =======================================================
    1. DESKTOP BASE (BORDE RECTO Y PREMIUM)
 ======================================================= */
+
 .booking-overlay {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(230,199,123,0.22) 0%, rgba(0,0,0,0.96) 50%), #000;
+  background:
+    linear-gradient(180deg,
+      rgba(230, 199, 123, 0.22) 0%,
+      rgba(0, 0, 0, 0.96) 50%),
+    #000;
   padding: 20px;
 }
 
@@ -17,9 +22,9 @@
   background: #f6f7f8;
   display: grid;
   grid-template-columns: 280px 1fr;
-  box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
   overflow: hidden;
-  border-radius: 0; 
+  border-radius: 0;
 }
 
 .booking-sidebar {
@@ -30,22 +35,146 @@
   flex-direction: column;
 }
 
-.logo { margin-bottom: 45px; text-align: center; }
-.logo img { width: 95px; }
+.logo {
+  margin-bottom: 45px;
+  text-align: center;
+}
 
-.steps { list-style: none; padding: 0; margin: 0; }
-.step { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; opacity: 0.3; }
-.step-text { font-size: 12px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; margin: 0; }
-.step-number { width: 28px; height: 28px; border-radius: 50%; background: #2b2f36; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.logo img {
+  width: 95px;
+}
 
-.step.active, .step.done { opacity: 1; }
-.step.active { color: #e6c77b; }
-.step.active .step-number { background: #e6c77b; color: #111; }
+/* =========================
+   STEPS
+========================= */
 
-.booking-content { padding: 50px; background: #fff; overflow-y: auto; }
-.booking-content h3 { font-size: 16px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 35px; color: #111; }
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-.barberos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; }
+.step {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  opacity: 0.3;
+}
+
+.step-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2b2f36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.step.active,
+.step.done {
+  opacity: 1;
+}
+
+.step.active {
+  color: #e6c77b;
+}
+
+.step.active .step-number {
+  background: #e6c77b;
+  color: #111;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.booking-content {
+  padding: 50px;
+  background: #fff;
+  overflow-y: auto;
+}
+
+.booking-content h3 {
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 35px;
+  color: #111;
+}
+
+/* =========================
+   BOTÓN VOLVER (UNIFICADO)
+   Línea dorada SOLO en hover
+========================= */
+
+.btn-volver {
+  background: transparent;
+  border: none;
+  color: #777;
+  outline: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+
+  padding: 6px 0;
+  margin-bottom: 30px;
+
+  cursor: pointer;
+  position: relative;
+
+  transition: color 0.25s ease;
+}
+
+/* Línea dorada oculta */
+.btn-volver::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+
+  background: linear-gradient(90deg,
+      transparent,
+      #e6c77b,
+      transparent);
+
+  transition: width 0.35s ease;
+}
+
+/* Hover / focus */
+.btn-volver:hover,
+.btn-volver:focus-visible {
+  color: #111;
+}
+
+.btn-volver:hover::after,
+.btn-volver:focus-visible::after {
+  width: 100%;
+}
+
+/* =========================
+   BARBEROS GRID - DESKTOP
+========================= */
+
+.barberos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 25px;
+}
 
 .barbero-card {
   background: #fff;
@@ -53,25 +182,53 @@
   text-align: center;
   cursor: pointer;
   border: 1px solid #eee;
-  border-radius: 0; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
-.avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; overflow: hidden; background: #eee; }
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.barbero-card.selected {
+  border-color: #e6c77b;
+}
 
-.barbero-info h4 { font-size: 16px; margin: 0; color: #111; }
-.role-text { font-size: 11px; text-transform: uppercase; color: #999; }
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.barbero-info h4 {
+  font-size: 16px;
+  margin: 0;
+  color: #111;
+}
+
+.role-text {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #999;
+}
 
 /* =======================================================
-   2. MODO MOBILE (ESTILO AGENDORO PERFECCIONADO)
+   2. MOBILE (RESPONSIVE)
+   MISMO BOTÓN – mismo comportamiento
 ======================================================= */
+
 @media (max-width: 899px) {
-  .booking-overlay { 
-    background: #1c1f24; 
-    padding: 20px 0; 
-    align-items: center; 
+
+  .booking-overlay {
+    background: #1c1f24;
+    padding: 20px 0;
+    align-items: center;
   }
 
   .booking-container {
@@ -79,12 +236,11 @@
     flex-direction: column !important;
     width: 90% !important;
     max-width: 420px !important;
-    /* Alargamos el contenedor como Agendoro */
-    min-height: 580px !important; 
-    height: auto !important; 
-    margin: auto !important; 
+    min-height: 580px !important;
+    height: auto !important;
+    margin: auto !important;
     background: #1c1f24 !important;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
     border-radius: 0 !important;
   }
 
@@ -93,40 +249,55 @@
     background: #1c1f24 !important;
   }
 
-  .logo { margin-bottom: 20px !important; }
-  .logo img { width: 75px !important; }
-  .sidebar-footer { display: none !important; }
-
-  /* STEPS: SOLO ICONOS */
-  .steps { 
-    display: flex !important; 
-    flex-direction: row !important; 
-    justify-content: center !important; 
-    gap: 15px !important; 
+  .logo {
+    margin-bottom: 20px !important;
   }
-  .step-text { display: none !important; } 
-  .step-number { width: 32px !important; height: 32px !important; font-size: 12px !important; }
 
-  /* CONTENIDO BLANCO */
+  .logo img {
+    width: 75px !important;
+  }
+
+  .sidebar-footer {
+    display: none !important;
+  }
+
+  .steps {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 15px !important;
+  }
+
+  .step-text {
+    display: none !important;
+  }
+
+  .step-number {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 12px !important;
+  }
+
   .booking-content {
     background: #fdfdfd !important;
     padding: 30px 18px !important;
-    border-radius: 0 !important; 
-    flex: 1 !important; /* Empuja el fondo hacia abajo para dar altura */
+    border-radius: 0 !important;
+    flex: 1 !important;
   }
 
-  .booking-content h3 { 
-    font-size: 14px !important; 
-    margin-bottom: 25px !important; 
+  .booking-content h3 {
+    font-size: 14px !important;
+    margin-bottom: 25px !important;
     text-align: center !important;
     letter-spacing: 2px !important;
   }
 
-  /* GRID CARDS */
-  .barberos-grid { 
-    display: flex !important; 
-    flex-direction: column !important; 
-    gap: 14px !important; 
+  /* GRID MOBILE */
+
+  .barberos-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
   }
 
   .barbero-card {
@@ -136,10 +307,7 @@
     padding: 16px 18px !important;
     background: #fff !important;
     border: none !important;
-    border-radius: 0 !important;
-    /* Sombra para resaltar sobre el fondo blanco/gris */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important; 
-    transition: transform 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
   }
 
   .avatar {
@@ -149,23 +317,20 @@
     flex-shrink: 0;
   }
 
-  /* TEXTO EN COLUMNA (Nombre arriba, rol abajo) */
   .barbero-info {
     display: flex !important;
     flex-direction: column !important;
   }
 
-  .barbero-info h4 { 
-    font-size: 15px !important; 
-    font-weight: 700 !important; 
+  .barbero-info h4 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
     margin: 0 !important;
-    line-height: 1.2 !important;
   }
-  
-  .role-text { 
-    font-size: 11px !important; 
-    color: #888 !important; 
-    margin-top: 2px !important;
+
+  .role-text {
+    font-size: 11px !important;
+    color: #888 !important;
   }
 
   .barbero-card.selected {
