@@ -1,365 +1,148 @@
-/* =========================
-   OVERLAY (FONDO)
-========================= */
-
+/* =======================================================
+   1. DESKTOP BASE (BORDE RECTO Y PREMIUM)
+======================================================= */
 .booking-overlay {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(230,199,123,0.28) 0%,
-      rgba(0,0,0,0.96) 48%
-    ),
-    linear-gradient(
-      135deg,
-      #000 0%,
-      #111 50%,
-      #000 100%
-    );
+  background: linear-gradient(180deg, rgba(230,199,123,0.22) 0%, rgba(0,0,0,0.96) 50%), #000;
+  padding: 20px;
 }
-
-/* =========================
-   CONTENEDOR CENTRAL
-========================= */
 
 .booking-container {
   width: 100%;
-  max-width: 880px;
-  height: 600px;
-
+  max-width: 900px;
+  height: 620px;
   background: #f6f7f8;
-  overflow: hidden;
-
   display: grid;
-  grid-template-columns: 250px 1fr;
-
-  box-shadow:
-    0 28px 60px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+  grid-template-columns: 280px 1fr;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+  overflow: hidden;
+  border-radius: 0; 
 }
-
-/* =========================
-   SIDEBAR
-========================= */
 
 .booking-sidebar {
-  background: linear-gradient(to bottom, #1c1f24, #14171a);
+  background: #1c1f24;
   color: #fff;
-  padding: 32px 22px;
+  padding: 45px 35px;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
-/* Separador dorado ultra sutil */
-.booking-sidebar::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 1px;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(230,199,123,0.35),
-    transparent
-  );
-}
+.logo { margin-bottom: 45px; text-align: center; }
+.logo img { width: 95px; }
 
-/* =========================
-   LOGO
-========================= */
+.steps { list-style: none; padding: 0; margin: 0; }
+.step { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; opacity: 0.3; }
+.step-text { font-size: 12px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; margin: 0; }
+.step-number { width: 28px; height: 28px; border-radius: 50%; background: #2b2f36; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
 
-.logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 36px;
-}
+.step.active, .step.done { opacity: 1; }
+.step.active { color: #e6c77b; }
+.step.active .step-number { background: #e6c77b; color: #111; }
 
-.logo img {
-  width: 78px;
-  display: block;
-}
+.booking-content { padding: 50px; background: #fff; overflow-y: auto; }
+.booking-content h3 { font-size: 16px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 35px; color: #111; }
 
-/* =========================
-   STEPS
-========================= */
-
-.steps {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  margin-top: 10px;
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  font-size: 12px;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-
-  opacity: 0.45;
-  margin-bottom: 20px;
-}
-
-.step span {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-}
-
-.step.active {
-  opacity: 1;
-  color: #e6c77b;
-}
-
-.step.active span {
-  background: #2ecc71;
-  color: #000;
-}
-
-/* =========================
-   SIDEBAR FOOTER
-========================= */
-
-.sidebar-footer {
-  margin-top: auto;
-  font-size: 11px;
-  opacity: 0.6;
-  letter-spacing: 0.5px;
-}
-
-/* =========================
-   CONTENIDO
-========================= */
-
-.booking-content {
-  padding: 36px;
-  background: #f8f9fa;
-}
-
-/* TÍTULO */
-.booking-content h3 {
-  font-size: 15px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  margin-bottom: 28px;
-  color: #111;
-  font-weight: 600;
-}
-
-/* =========================
-   GRID BARBEROS
-========================= */
-
-.barberos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 22px;
-}
-
-/* =========================
-   CARD BARBERO
-========================= */
+.barberos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; }
 
 .barbero-card {
-  position: relative;
   background: #fff;
-  padding: 22px 18px;
+  padding: 30px 20px;
   text-align: center;
   cursor: pointer;
-
-  box-shadow: 0 10px 24px rgba(0,0,0,0.14);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid #eee;
+  border-radius: 0; 
 }
 
-.barbero-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
-}
+.avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; overflow: hidden; background: #eee; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Selección premium (sin check grande) */
-.barbero-card.selected::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  box-shadow: inset 0 0 0 1px rgba(230,199,123,0.65);
-  pointer-events: none;
-}
+.barbero-info h4 { font-size: 16px; margin: 0; color: #111; }
+.role-text { font-size: 11px; text-transform: uppercase; color: #999; }
 
-/* =========================
-   AVATAR
-========================= */
-
-.avatar {
-  width: 66px;
-  height: 66px;
-  border-radius: 50%;
-  background: #eee;
-  margin: 0 auto 12px;
-  overflow: hidden;
-  transition: transform 0.25s ease;
-}
-
-.barbero-card:hover .avatar {
-  transform: scale(1.04);
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* =========================
-   TEXTO
-========================= */
-
-.barbero-card h4 {
-  font-size: 14px;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-
-.barbero-card span {
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #777;
-}
-
+/* =======================================================
+   2. MODO MOBILE (ESTILO AGENDORO CON MARGIN AUTO)
+======================================================= */
 @media (max-width: 899px) {
-  /* Estructura General */
-  .booking-overlay {
-    background: #1c1f24;
-    padding: 0;
-    align-items: flex-start;
-    height: auto;
-    min-height: 100vh;
+  .booking-overlay { 
+    background: #1c1f24; 
+    padding: 20px 0; 
+    align-items: center; /* Centrado vertical en el viewport */
   }
 
   .booking-container {
     display: flex !important;
     flex-direction: column !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
-
-  /* Header Oscuro y Steps */
-  .booking-sidebar {
-    width: 100% !important;
-    padding: 20px 0 !important;
+    width: 90% !important; /* Evita que toque los bordes laterales */
+    max-width: 420px !important;
+    height: auto !important; /* Permite que el contenido dicte el alto */
+    margin: auto !important; /* 🔑 AJUSTE SOLICITADO */
     background: #1c1f24 !important;
-    display: flex !important;
-    flex-direction: column !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    border-radius: 0 !important;
+  }
+
+  .booking-sidebar {
+    padding: 25px 20px !important;
+    background: #1c1f24 !important;
     align-items: center !important;
-    border: none !important;
-  }
-  
-  .booking-sidebar::after { display: none !important; }
-  .desktop-only { display: none !important; }
-
-  .steps {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    margin: 10px 0 0 0 !important;
   }
 
-  .step-label { display: none !important; }
+  .logo { margin-bottom: 15px !important; }
+  .logo img { width: 75px !important; }
+  .sidebar-footer { display: none !important; }
 
-  /* Contenido Blanco */
+  /* STEPS: SOLO CÍRCULOS */
+  .steps { 
+    display: flex !important; 
+    flex-direction: row !important; 
+    justify-content: center !important; 
+    gap: 12px !important; 
+  }
+  .step-text { display: none !important; } 
+  .step-number { width: 28px !important; height: 28px !important; }
+
+  /* CONTENIDO BLANCO */
   .booking-content {
-    background: #f8f9fa !important; /* Tu color de fondo original */
-    width: 100% !important;
-    flex: 1 !important;
-    padding: 30px 20px !important;
-    border-top-left-radius: 28px;
-    border-top-right-radius: 28px;
-    margin-top: -10px;
-    position: relative;
-    z-index: 10;
+    background: #f8f9fa !important;
+    padding: 20px 15px !important;
+    border-radius: 0 !important; 
   }
 
-  /* Recuperando el estilo de tus CARDS */
-  .barberos-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 18px !important; /* Espaciado entre tus cards */
-  }
+  .booking-content h3 { font-size: 13px !important; margin-bottom: 18px !important; }
+
+  /* CARD: FOTO IZQ | TEXTO COLUMNA */
+  .barberos-grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
 
   .barbero-card {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    text-align: left !important;
-    
-    /* TUS ESTILOS ORIGINALES RECUPERADOS */
+    padding: 12px 15px !important;
     background: #fff !important;
-    padding: 18px 20px !important;
-    border-radius: 0; /* Si quieres que sean cuadradas como tu original, deja 0. Si no, ponle 8px */
-    box-shadow: 0 10px 24px rgba(0,0,0,0.14) !important; /* Tu sombra original */
-    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
-    position: relative;
+    border-radius: 0 !important;
+    border: none !important;
   }
 
-  /* Hover en Mobile (se activa al tocar) */
-  .barbero-card:active {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 16px 32px rgba(0,0,0,0.18) !important;
-  }
-
-  /* Tu borde dorado de selección */
-  .barbero-card.selected::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    box-shadow: inset 0 0 0 2px rgba(230,199,123,0.8) !important;
-    pointer-events: none;
-  }
-
-  /* Avatar en formato fila */
   .avatar {
-    width: 60px !important;
-    height: 60px !important;
-    margin: 0 !important;
-    margin-right: 20px !important;
-    border-radius: 50%;
-    background: #eee;
+    width: 48px !important;
+    height: 48px !important;
+    margin: 0 15px 0 0 !important;
     flex-shrink: 0;
   }
 
-  /* Texto de las cards */
-  .barbero-info h4 {
-    margin: 0 0 4px 0 !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    color: #111;
+  /* TEXTO EN COLUMNA */
+  .barbero-info {
+    display: flex !important;
+    flex-direction: column !important;
   }
 
-  .barbero-info span {
-    font-size: 11px !important;
-    letter-spacing: 2px !important;
-    text-transform: uppercase !important;
-    color: #777 !important;
-    display: block;
+  .barbero-info h4 { font-size: 14px !important; margin: 0 !important; }
+  .role-text { font-size: 10px !important; color: #888 !important; }
+
+  .barbero-card.selected {
+    border-left: 4px solid #e6c77b !important;
   }
 }

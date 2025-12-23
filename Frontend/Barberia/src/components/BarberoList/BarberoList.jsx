@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Footer from "../Footer/Footer";
+import Footer from "../Footer/Footer"; 
 import "./BarberoList.css";
 
 const BarberosList = ({ onSelectBarbero }) => {
@@ -15,48 +15,43 @@ const BarberosList = ({ onSelectBarbero }) => {
 
   const handleSelect = (barbero) => {
     setBarberoSeleccionado(barbero);
-    onSelectBarbero(barbero);
+    if (onSelectBarbero) onSelectBarbero(barbero);
   };
 
   return (
     <>
       <div className="booking-overlay">
         <div className="booking-container">
-
-          {/* HEADER (Antes Sidebar) */}
           <aside className="booking-sidebar">
             <div className="logo">
-              {/* Ajustá tu ruta de imagen */}
-              <img src="/logo.jpg" alt="King Barber" />
+              <img src="logo.jpg" alt="King Barber" />
             </div>
 
             <ul className="steps">
               <li className="step done">
-                <span className="step-number">✓</span>
-                <span className="step-label">Servicio</span>
+                <span className="step-number">✓</span> 
+                <p className="step-text">Servicio</p>
               </li>
               <li className="step active">
-                <span className="step-number">2</span>
-                <span className="step-label">Personal</span>
+                <span className="step-number">2</span> 
+                <p className="step-text">Personal</p>
               </li>
               <li className="step">
-                <span className="step-number">3</span>
-                <span className="step-label">Fecha y hora</span>
+                <span className="step-number">3</span> 
+                <p className="step-text">Fecha y hora</p>
               </li>
               <li className="step">
-                <span className="step-number">4</span>
-                <span className="step-label">Información</span>
+                <span className="step-number">4</span> 
+                <p className="step-text">Información</p>
               </li>
             </ul>
 
-            {/* Este footer lo ocultaremos en mobile */}
-            <div className="sidebar-footer desktop-only">
+            <div className="sidebar-footer">
               <p>¿Tenés alguna pregunta?</p>
               <small>099 611 465</small>
             </div>
           </aside>
 
-          {/* CONTENIDO LISTA */}
           <section className="booking-content">
             <h3>Seleccionar personal</h3>
 
@@ -64,8 +59,9 @@ const BarberosList = ({ onSelectBarbero }) => {
               {barberos.map(barbero => (
                 <div
                   key={barbero.id_barbero}
-                  className={`barbero-card ${barberoSeleccionado?.id_barbero === barbero.id_barbero ? "selected" : ""
-                    }`}
+                  className={`barbero-card ${
+                    barberoSeleccionado?.id_barbero === barbero.id_barbero ? "selected" : ""
+                  }`}
                   onClick={() => handleSelect(barbero)}
                 >
                   <div className="avatar">
@@ -74,13 +70,12 @@ const BarberosList = ({ onSelectBarbero }) => {
 
                   <div className="barbero-info">
                     <h4>{barbero.nombre}</h4>
-                    <span>barbero</span>
+                    <span className="role-text">barbero</span>
                   </div>
                 </div>
               ))}
             </div>
           </section>
-
         </div>
       </div>
       <Footer />
