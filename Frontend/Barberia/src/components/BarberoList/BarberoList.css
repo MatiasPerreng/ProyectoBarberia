@@ -54,6 +54,8 @@
   cursor: pointer;
   border: 1px solid #eee;
   border-radius: 0; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
 }
 
 .avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; overflow: hidden; background: #eee; }
@@ -63,86 +65,111 @@
 .role-text { font-size: 11px; text-transform: uppercase; color: #999; }
 
 /* =======================================================
-   2. MODO MOBILE (ESTILO AGENDORO CON MARGIN AUTO)
+   2. MODO MOBILE (ESTILO AGENDORO PERFECCIONADO)
 ======================================================= */
 @media (max-width: 899px) {
   .booking-overlay { 
     background: #1c1f24; 
     padding: 20px 0; 
-    align-items: center; /* Centrado vertical en el viewport */
+    align-items: center; 
   }
 
   .booking-container {
     display: flex !important;
     flex-direction: column !important;
-    width: 90% !important; /* Evita que toque los bordes laterales */
+    width: 90% !important;
     max-width: 420px !important;
-    height: auto !important; /* Permite que el contenido dicte el alto */
-    margin: auto !important; /* 🔑 AJUSTE SOLICITADO */
+    /* Alargamos el contenedor como Agendoro */
+    min-height: 580px !important; 
+    height: auto !important; 
+    margin: auto !important; 
     background: #1c1f24 !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
     border-radius: 0 !important;
   }
 
   .booking-sidebar {
-    padding: 25px 20px !important;
+    padding: 30px 20px 25px 20px !important;
     background: #1c1f24 !important;
-    align-items: center !important;
   }
 
-  .logo { margin-bottom: 15px !important; }
+  .logo { margin-bottom: 20px !important; }
   .logo img { width: 75px !important; }
   .sidebar-footer { display: none !important; }
 
-  /* STEPS: SOLO CÍRCULOS */
+  /* STEPS: SOLO ICONOS */
   .steps { 
     display: flex !important; 
     flex-direction: row !important; 
     justify-content: center !important; 
-    gap: 12px !important; 
+    gap: 15px !important; 
   }
   .step-text { display: none !important; } 
-  .step-number { width: 28px !important; height: 28px !important; }
+  .step-number { width: 32px !important; height: 32px !important; font-size: 12px !important; }
 
   /* CONTENIDO BLANCO */
   .booking-content {
-    background: #f8f9fa !important;
-    padding: 20px 15px !important;
+    background: #fdfdfd !important;
+    padding: 30px 18px !important;
     border-radius: 0 !important; 
+    flex: 1 !important; /* Empuja el fondo hacia abajo para dar altura */
   }
 
-  .booking-content h3 { font-size: 13px !important; margin-bottom: 18px !important; }
+  .booking-content h3 { 
+    font-size: 14px !important; 
+    margin-bottom: 25px !important; 
+    text-align: center !important;
+    letter-spacing: 2px !important;
+  }
 
-  /* CARD: FOTO IZQ | TEXTO COLUMNA */
-  .barberos-grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+  /* GRID CARDS */
+  .barberos-grid { 
+    display: flex !important; 
+    flex-direction: column !important; 
+    gap: 14px !important; 
+  }
 
   .barbero-card {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    padding: 12px 15px !important;
+    padding: 16px 18px !important;
     background: #fff !important;
-    border-radius: 0 !important;
     border: none !important;
+    border-radius: 0 !important;
+    /* Sombra para resaltar sobre el fondo blanco/gris */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important; 
+    transition: transform 0.2s ease;
   }
 
   .avatar {
-    width: 48px !important;
-    height: 48px !important;
-    margin: 0 15px 0 0 !important;
+    width: 52px !important;
+    height: 52px !important;
+    margin: 0 18px 0 0 !important;
     flex-shrink: 0;
   }
 
-  /* TEXTO EN COLUMNA */
+  /* TEXTO EN COLUMNA (Nombre arriba, rol abajo) */
   .barbero-info {
     display: flex !important;
     flex-direction: column !important;
   }
 
-  .barbero-info h4 { font-size: 14px !important; margin: 0 !important; }
-  .role-text { font-size: 10px !important; color: #888 !important; }
+  .barbero-info h4 { 
+    font-size: 15px !important; 
+    font-weight: 700 !important; 
+    margin: 0 !important;
+    line-height: 1.2 !important;
+  }
+  
+  .role-text { 
+    font-size: 11px !important; 
+    color: #888 !important; 
+    margin-top: 2px !important;
+  }
 
   .barbero-card.selected {
-    border-left: 4px solid #e6c77b !important;
+    border-left: 5px solid #e6c77b !important;
+    background: #fffdf9 !important;
   }
 }

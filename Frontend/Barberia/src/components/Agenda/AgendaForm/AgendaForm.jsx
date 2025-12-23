@@ -18,51 +18,27 @@ const AgendaForm = ({ onSubmit }) => {
 
   const navigate = useNavigate();
 
-  // ---------------- VALIDACIONES ----------------
-  const validarEmail = (email) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  const validarTelefono = (telefono) =>
-    /^[0-9+\s-]{8,15}$/.test(telefono);
+  const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validarTelefono = (telefono) => /^[0-9+\s-]{8,15}$/.test(telefono);
 
   const validate = () => {
     const newErrors = {};
-
-    if (!form.nombre.trim()) {
-      newErrors.nombre = "El nombre es obligatorio";
-    }
-
-    if (!form.apellido.trim()) {
-      newErrors.apellido = "El apellido es obligatorio";
-    }
-
-    if (!validarEmail(form.email)) {
-      newErrors.email = "Email inválido";
-    }
-
-    if (!validarTelefono(form.telefono)) {
-      newErrors.telefono = "Teléfono inválido";
-    }
-
+    if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
+    if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
+    if (!validarEmail(form.email)) newErrors.email = "Email inválido";
+    if (!validarTelefono(form.telefono)) newErrors.telefono = "Teléfono inválido";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // ---------------- HANDLERS ----------------
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
-
     setLoading(true);
-
     try {
       await onSubmit(form);
       setShowSuccess(true);
@@ -78,7 +54,6 @@ const AgendaForm = ({ onSubmit }) => {
     <>
       <div className="booking-overlay">
         <div className="booking-container">
-
           {/* SIDEBAR */}
           <aside className="booking-sidebar">
             <div className="logo">
@@ -86,10 +61,10 @@ const AgendaForm = ({ onSubmit }) => {
             </div>
 
             <ul className="steps">
-              <li className="step done"><span>✓</span> Servicio</li>
-              <li className="step done"><span>✓</span> Personal</li>
-              <li className="step done"><span>✓</span> Fecha y hora</li>
-              <li className="step active"><span>4</span> Información</li>
+              <li className="step done"><span className="step-number">✓</span><p className="step-text">Servicio</p></li>
+              <li className="step done"><span className="step-number">✓</span><p className="step-text">Personal</p></li>
+              <li className="step done"><span className="step-number">✓</span><p className="step-text">Fecha y hora</p></li>
+              <li className="step active"><span className="step-number">4</span><p className="step-text">Información</p></li>
             </ul>
 
             <div className="sidebar-footer">
@@ -103,7 +78,6 @@ const AgendaForm = ({ onSubmit }) => {
             <h3>Rellena la información</h3>
 
             <form className="form-grid" onSubmit={handleSubmit} noValidate>
-
               <div className="form-group">
                 <label>Email *</label>
                 <input
@@ -153,18 +127,12 @@ const AgendaForm = ({ onSubmit }) => {
               </div>
 
               <div className="form-actions">
-                <button
-                  type="submit"
-                  className="btn-confirmar"
-                  disabled={loading}
-                >
+                <button type="submit" className="btn-confirmar" disabled={loading}>
                   {loading ? "Agendando..." : "Confirmar turno"}
                 </button>
               </div>
-
             </form>
           </section>
-
         </div>
       </div>
 
@@ -175,7 +143,6 @@ const AgendaForm = ({ onSubmit }) => {
           navigate("/");
         }}
       />
-
       <Footer />
     </>
   );

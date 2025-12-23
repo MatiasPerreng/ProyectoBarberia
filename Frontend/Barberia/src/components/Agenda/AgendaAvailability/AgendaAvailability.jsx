@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Footer from "../../Footer/Footer"; // ajustá la ruta si hace falta
+import Footer from "../../Footer/Footer"; 
 import "./AgendaAvailability.css";
 
 const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
@@ -8,10 +8,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
   const fetchDisponibilidad = (fechaSeleccionada) => {
     let url = `http://localhost:8000/visitas/disponibilidad?fecha=${fechaSeleccionada}&id_servicio=${servicio.id_servicio}`;
-
-    if (barbero) {
-      url += `&id_barbero=${barbero.id_barbero}`;
-    }
+    if (barbero) url += `&id_barbero=${barbero.id_barbero}`;
 
     fetch(url)
       .then(res => res.json())
@@ -35,10 +32,8 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
   return (
     <>
-      {/* OVERLAY */}
       <div className="booking-overlay">
         <div className="booking-container">
-
           {/* SIDEBAR */}
           <aside className="booking-sidebar">
             <div className="logo">
@@ -47,16 +42,20 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
             <ul className="steps">
               <li className="step done">
-                <span>✓</span> Servicio
+                <span className="step-number">✓</span> 
+                <p className="step-text">Servicio</p>
               </li>
               <li className="step done">
-                <span>✓</span> Personal
+                <span className="step-number">✓</span> 
+                <p className="step-text">Personal</p>
               </li>
               <li className="step active">
-                <span>3</span> Fecha y hora
+                <span className="step-number">3</span> 
+                <p className="step-text">Fecha y hora</p>
               </li>
               <li className="step">
-                <span>4</span> Información
+                <span className="step-number">4</span> 
+                <p className="step-text">Información</p>
               </li>
             </ul>
 
@@ -70,8 +69,8 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
           <section className="booking-content">
             <h3>Seleccionar fecha y hora</h3>
 
-            {/* CALENDARIO */}
             <div className="calendar-wrapper">
+              <label className="calendar-label">Elegí el día:</label>
               <input
                 type="date"
                 value={fecha}
@@ -80,19 +79,16 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
               />
             </div>
 
-            {/* HORARIOS */}
-            <div className="horarios-wrapper">
+            <div className="horarios-grid">
               {horarios.length === 0 && fecha && (
-                <p className="no-horarios">
-                  No hay horarios disponibles para este día
-                </p>
+                <p className="no-horarios">No hay horarios disponibles</p>
               )}
 
               {horarios.map(hora => (
                 <button
                   key={hora}
                   type="button"
-                  className="hora-chip"
+                  className="hora-card"
                   onClick={() => handleHoraClick(hora)}
                 >
                   {hora}
@@ -100,11 +96,8 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
               ))}
             </div>
           </section>
-
         </div>
       </div>
-
-      {/* FOOTER GLOBAL */}
       <Footer />
     </>
   );
