@@ -10,17 +10,19 @@ def generar_email_confirmacion(visita: Visita) -> str:
     hora = visita.fecha_hora.strftime("%H:%M")
 
     return f"""
+👑 KING BARBER 👑
+
 Hola {cliente.nombre},
 
-Tu turno fue confirmado con éxito ✅
+Tu turno fue confirmado con éxito ✨  
+Estás a un paso de vivir la experiencia **King Barber**, donde cada detalle importa.
 
+━━━━━━━━━━━━━━━━━━━━━━
 📅 Fecha: {fecha}
 ⏰ Hora: {hora}
 ✂️ Servicio: {servicio.nombre}
 👤 Barbero: {barbero.nombre}
+━━━━━━━━━━━━━━━━━━━━━━
 
-Te esperamos en la barbería.
-
-Saludos,
-Barbería
+— Equipo King Barber
 """
