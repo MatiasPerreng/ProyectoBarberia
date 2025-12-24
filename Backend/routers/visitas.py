@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
@@ -7,6 +7,8 @@ from database import get_db
 import crud.visita as crud_visita
 from schemas import VisitaCreate, VisitaOut, VisitaUpdate
 from core.dependencias import get_current_login_barbero
+from core.email import enviar_email_confirmacion
+from core.email_templates import generar_email_confirmacion
 
 
 router = APIRouter(
@@ -15,7 +17,7 @@ router = APIRouter(
 )
 
 #----------------------------------------------------------------------------------------------------------------------
-# AGENDA DEL BARBERO LOGUEADO 🔐
+# AGENDA DEL BARBERO LOGUEADO
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
@@ -73,7 +75,7 @@ def obtener_disponibilidad(
         )
 
 #----------------------------------------------------------------------------------------------------------------------
-# CREAR VISITA
+# CREAR VISITA + EMAIL
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.post(
@@ -83,10 +85,22 @@ def obtener_disponibilidad(
 )
 def crear_visita(
     visita_in: VisitaCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     try:
-        return crud_visita.create_visita(db, visita_in)
+        visita = crud_visita.create_visita(db, visita_in)
+
+        if visita.cliente.email:
+            background_tasks.add_task(
+                enviar_email_confirmacion,
+                visita.cliente.email,
+                "✅ Turno confirmado - Barbería",
+                generar_email_confirmacion(visita)
+            )
+
+        return visita
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
