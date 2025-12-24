@@ -1,29 +1,8 @@
+
+
 /* =======================================================
-   1. DESKTOP BASE (UNIFICADO)
+   SIDEBAR
 ======================================================= */
-
-.booking-overlay {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    linear-gradient(180deg, rgba(230,199,123,0.22) 0%, rgba(0,0,0,0.96) 50%),
-    #000;
-  padding: 20px;
-}
-
-.booking-container {
-  width: 100%;
-  max-width: 900px;
-  height: 620px;
-  background: #f6f7f8;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  box-shadow: 0 30px 70px rgba(0,0,0,0.7);
-  overflow: hidden;
-  border-radius: 0;
-}
 
 .booking-sidebar {
   background: #1c1f24;
@@ -33,32 +12,65 @@
   flex-direction: column;
 }
 
-.logo { margin-bottom: 45px; text-align: center; }
-.logo img { width: 95px; }
-
-.steps { list-style: none; padding: 0; margin: 0; }
-.step { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; opacity: 0.3; }
-.step-text { font-size: 12px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; margin: 0; }
-.step-number { width: 28px; height: 28px; border-radius: 50%; background: #2b2f36; display: flex; align-items: center; justify-content: center; font-size: 11px; }
-
-.step.active, .step.done { opacity: 1; }
-.step.active { color: #e6c77b; }
-.step.active .step-number { background: #e6c77b; color: #111; }
-.step.done .step-number { background: #caa851; color: #111; }
-
-.booking-content {
-  padding: 50px;
-  background: #fff;
-  overflow-y: auto;
+.logo {
+  margin-bottom: 45px;
+  text-align: center;
 }
 
-.booking-content h3 {
-  font-size: 16px;
-  letter-spacing: 3px;
+.logo img {
+  width: 95px;
+}
+
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  opacity: 0.3;
+}
+
+.step-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
-  margin-bottom: 35px;
+  margin: 0;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2b2f36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.step.active,
+.step.done {
+  opacity: 1;
+}
+
+.step.active {
+  color: #e6c77b;
+}
+
+.step.active .step-number {
+  background: #e6c77b;
   color: #111;
-  font-weight: 700;
+}
+
+.step.done .step-number {
+  background: #caa851;
+  color: #111;
 }
 
 .sidebar-footer {
@@ -68,31 +80,40 @@
 }
 
 /* =======================================================
-   BOTÓN VOLVER (MISMO ESTILO GLOBAL)
+   CONTENIDO
+======================================================= */
+
+.booking-content {
+  padding: 50px;
+  background: #fff;
+  overflow-y: auto;
+}
+
+.booking-content h3 {
+  font-size: 15px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  color: #111;
+  font-weight: 700;
+}
+
+/* =======================================================
+   BOTÓN VOLVER
 ======================================================= */
 
 .btn-volver {
   background: transparent;
   border: none;
-  outline: none;
-
   color: #777;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.6px;
   text-transform: uppercase;
-
   padding: 6px 0;
-  margin-bottom: 30px;
-
+  margin-bottom: 24px;
   cursor: pointer;
   position: relative;
-  transition: color 0.25s ease;
-}
-
-.btn-volver:focus,
-.btn-volver:focus-visible {
-  outline: none;
 }
 
 .btn-volver::after {
@@ -102,30 +123,11 @@
   bottom: -4px;
   width: 0;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #e6c77b,
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, #e6c77b, transparent);
   transition: width 0.35s ease;
 }
 
-.btn-volver:hover,
-.btn-volver:focus-visible {
-  color: #111;
-}
-
-.btn-volver:hover::after,
-.btn-volver:focus-visible::after {
-  width: 100%;
-}
-
-.btn-volver:active {
-  color: #111;
-}
-
-.btn-volver:active::after {
+.btn-volver:hover::after {
   width: 100%;
 }
 
@@ -133,15 +135,51 @@
    CALENDARIO
 ======================================================= */
 
-.calendar-wrapper { margin-bottom: 35px; }
-.calendar-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 10px; }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
 
-.calendar-input {
-  width: 100%;
-  max-width: 300px;
-  padding: 12px 15px;
-  border: 1px solid #eee;
-  font-size: 15px;
+.calendar-day {
+  height: 34px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f6f7f8;
+  color: #111;
+}
+
+/* Día disponible */
+.calendar-day.available {
+  background: #e9f7ee;
+  border-color: #3cb371;
+  color: #1f7a4f;
+}
+
+/* Hover */
+.calendar-day.available:hover {
+  background: #3cb371;
+  color: #fff;
+}
+
+/* Día seleccionado */
+.calendar-day.selected {
+  background: #1f7a4f;
+  color: #fff;
+  border-color: #1f7a4f;
+  box-shadow: 0 0 0 1px rgba(60,179,113,0.35);
+}
+
+/* Día deshabilitado */
+.calendar-day.disabled {
+  background: #e0e0e0;
+  color: #aaa;
+  cursor: not-allowed;
 }
 
 /* =======================================================
@@ -150,25 +188,31 @@
 
 .horarios-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
 }
 
 .hora-card {
+  padding: 8px 0;
   background: #fff;
-  padding: 15px;
-  text-align: center;
-  border: 1px solid #eee;
-  cursor: pointer;
-  color: #111;
+  border: 1px solid #e5e5e5;
   font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  color: #111;
 }
 
 .hora-card:hover {
-  border-color: #e6c77b;
-  background: #fffdf9;
+  background: #3cb371;
+  color: #fff;
+  border-color: #3cb371;
+}
+
+.no-horarios {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: #999;
 }
 
 /* =======================================================
@@ -176,63 +220,54 @@
 ======================================================= */
 
 @media (max-width: 899px) {
-
   .booking-overlay {
     background: #1c1f24;
     padding: 20px 0;
   }
 
   .booking-container {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 90% !important;
-    max-width: 420px !important;
-    min-height: 580px !important;
-    background: #1c1f24 !important;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 420px;
+    background: #1c1f24;
   }
 
   .booking-sidebar {
-    padding: 30px 20px 25px 20px !important;
-    align-items: center !important;
+    padding: 30px 20px;
+    align-items: center;
   }
-
-  .logo img { width: 75px !important; }
-  .sidebar-footer { display: none !important; }
 
   .steps {
-    display: flex !important;
-    justify-content: center !important;
-    gap: 15px !important;
+    display: flex;
+    gap: 12px;
   }
 
-  .step-text { display: none !important; }
-  .step-number { width: 32px !important; height: 32px !important; }
+  .step-text {
+    display: none;
+  }
 
   .booking-content {
-    background: #fdfdfd !important;
-    padding: 30px 20px !important;
+    background: #fdfdfd;
+    padding: 30px 20px;
   }
 
-  .booking-content h3 {
-    font-size: 14px !important;
-    text-align: center !important;
-    margin-bottom: 25px !important;
+  .calendar-grid {
+    gap: 6px;
   }
 
-  .calendar-input {
-    max-width: 100% !important;
-    text-align: center;
+  .calendar-day {
+    height: 32px;
+    font-size: 11px;
   }
 
   .horarios-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 
   .hora-card {
-    padding: 12px 5px !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    font-size: 11px;
+    padding: 7px 0;
   }
 }

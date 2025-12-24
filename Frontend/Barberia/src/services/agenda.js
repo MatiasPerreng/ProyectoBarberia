@@ -1,26 +1,56 @@
+import API_URL from "./api";
+
+/* =========================
+   CREAR VISITA
+========================= */
 export async function crearVisita(data) {
-  const res = await fetch('http://localhost:8000/visitas/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+  const res = await fetch(`${API_URL}/visitas/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail || 'Error al crear visita');
+    throw new Error(err.detail || "Error al crear visita");
   }
 
   return await res.json();
 }
 
-
+/* =========================
+   AGENDA BARBERO
+========================= */
 export async function getAgendaBarbero(idBarbero) {
-  const res = await fetch(
-    `http://localhost:8000/barberos/${idBarbero}/agenda`
-  );
+  const res = await fetch(`${API_URL}/barberos/${idBarbero}/agenda`);
 
   if (!res.ok) {
     throw new Error("Error al cargar agenda");
+  }
+
+  return await res.json();
+}
+
+/* =========================
+   DISPONIBILIDAD
+========================= */
+export async function getDisponibilidad({
+  fecha,
+  id_servicio,
+  id_barbero,
+}) {
+  let url = `${API_URL}/visitas/disponibilidad?fecha=${fecha}&id_servicio=${id_servicio}`;
+
+  if (id_barbero) {
+    url += `&id_barbero=${id_barbero}`;
+  }
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error("Error al cargar disponibilidad");
   }
 
   return await res.json();

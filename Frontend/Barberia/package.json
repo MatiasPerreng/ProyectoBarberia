@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,6 +12,7 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "react": "^18.2.0",
+    "react-calendar": "^6.0.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.30.2"
   },

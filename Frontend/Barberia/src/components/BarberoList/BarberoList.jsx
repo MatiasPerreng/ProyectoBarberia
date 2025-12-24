@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import Footer from "../Footer/Footer";
 import "./BarberoList.css";
+import API_URL from "../../services/api";
+
 
 const BarberosList = ({ onSelectBarbero, onVolver }) => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/barberos/")
+    fetch(`${API_URL}/barberos`)
       .then((res) => res.json())
       .then((data) => setBarberos(data))
       .catch((err) => console.error(err));

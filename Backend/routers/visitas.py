@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
+from calendar import monthrange
 
 from database import get_db
 import crud.visita as crud_visita
@@ -51,7 +52,7 @@ def actualizar_estado_visita(
         )
 
 #----------------------------------------------------------------------------------------------------------------------
-# DISPONIBILIDAD
+# DISPONIBILIDAD POR FECHA (YA EXISTENTE)
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/disponibilidad")
@@ -73,6 +74,46 @@ def obtener_disponibilidad(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+#----------------------------------------------------------------------------------------------------------------------
+# 🆕 DISPONIBILIDAD POR MES (PARA CALENDARIO)
+#----------------------------------------------------------------------------------------------------------------------
+
+@router.get("/disponibilidad-mes")
+def disponibilidad_mes(
+    mes: int,
+    anio: int,
+    id_servicio: int,
+    id_barbero: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    hoy = date.today()
+    _, last_day = monthrange(anio, mes)
+
+    resultado = []
+
+    for dia in range(1, last_day + 1):
+        fecha_dia = date(anio, mes, dia)
+
+        # días pasados
+        if fecha_dia < hoy:
+            estado = "pasado"
+        else:
+            turnos = crud_visita.get_disponibilidad(
+                db=db,
+                fecha=fecha_dia,
+                id_servicio=id_servicio,
+                id_barbero=id_barbero
+            )
+
+            estado = "disponible" if len(turnos) > 0 else "sin"
+
+        resultado.append({
+            "fecha": fecha_dia.isoformat(),
+            "estado": estado
+        })
+
+    return resultado
 
 #----------------------------------------------------------------------------------------------------------------------
 # CREAR VISITA + EMAIL

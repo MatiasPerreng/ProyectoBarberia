@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./ServicesList.css";
+import API_URL from "../../services/api";
+
 
 const ServiciosList = ({ onSelectServicio }) => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/servicios/")
+    fetch(`${API_URL}/servicios`)
       .then((res) => res.json())
       .then((data) => {
         setServicios(data);
@@ -22,7 +24,7 @@ const ServiciosList = ({ onSelectServicio }) => {
       {servicios.map((servicio) => (
         <div className="servicio-card" key={servicio.id_servicio}>
           <img
-            src={`http://127.0.0.1:8000/media/servicios/${servicio.imagen}`}
+            src={`${API_URL}/media/servicios/${servicio.imagen}`}
             alt={servicio.nombre}
             className="servicio-img"
           />
