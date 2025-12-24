@@ -9,7 +9,6 @@ from schemas import VisitaCreate, VisitaOut, VisitaUpdate
 from core.dependencias import get_current_login_barbero
 
 
-
 router = APIRouter(
     prefix="/visitas",
     tags=["Visitas"]
@@ -21,14 +20,13 @@ router = APIRouter(
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
 def mi_agenda(
-    login = Depends(get_current_login_barbero),
+    login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
     return crud_visita.get_visitas_by_barbero(
         db=db,
-        id_barbero=login.id_barbero
+        barbero_id=login.id_barbero
     )
-
 
 #----------------------------------------------------------------------------------------------------------------------
 # ACTUALIZAR ESTADO
@@ -49,7 +47,6 @@ def actualizar_estado_visita(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
-
 
 #----------------------------------------------------------------------------------------------------------------------
 # DISPONIBILIDAD
@@ -75,12 +72,15 @@ def obtener_disponibilidad(
             detail=str(e)
         )
 
-
 #----------------------------------------------------------------------------------------------------------------------
 # CREAR VISITA
 #----------------------------------------------------------------------------------------------------------------------
 
-@router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=VisitaOut,
+    status_code=status.HTTP_201_CREATED
+)
 def crear_visita(
     visita_in: VisitaCreate,
     db: Session = Depends(get_db)
@@ -93,7 +93,6 @@ def crear_visita(
             detail=str(e)
         )
 
-
 #----------------------------------------------------------------------------------------------------------------------
 # LISTAR TODAS
 #----------------------------------------------------------------------------------------------------------------------
@@ -101,7 +100,6 @@ def crear_visita(
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
     return crud_visita.get_visitas(db)
-
 
 #----------------------------------------------------------------------------------------------------------------------
 # OBTENER POR ID
@@ -119,7 +117,6 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
 
     return visita
 
-
 #----------------------------------------------------------------------------------------------------------------------
 # CANCELAR
 #----------------------------------------------------------------------------------------------------------------------
@@ -135,3 +132,4 @@ def cancelar_visita(visita_id: int, db: Session = Depends(get_db)):
         )
 
     crud_visita.delete_visita(db, visita)
+    return None

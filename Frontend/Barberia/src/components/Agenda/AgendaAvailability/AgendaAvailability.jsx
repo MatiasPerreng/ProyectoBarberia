@@ -1,22 +1,24 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
 import "./AgendaAvailability.css";
 
-const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
+const AgendaAvailability = ({
+  servicio,
+  barbero,
+  onSelectFechaHora,
+  onVolver,
+}) => {
   const [fecha, setFecha] = useState("");
   const [horarios, setHorarios] = useState([]);
-
-  const navigate = useNavigate();
 
   const fetchDisponibilidad = (fechaSeleccionada) => {
     let url = `http://localhost:8000/visitas/disponibilidad?fecha=${fechaSeleccionada}&id_servicio=${servicio.id_servicio}`;
     if (barbero) url += `&id_barbero=${barbero.id_barbero}`;
 
     fetch(url)
-      .then(res => res.json())
-      .then(data => setHorarios(data.turnos || []))
-      .catch(err => {
+      .then((res) => res.json())
+      .then((data) => setHorarios(data.turnos || []))
+      .catch((err) => {
         console.error(err);
         setHorarios([]);
       });
@@ -33,15 +35,10 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
     onSelectFechaHora(fechaHora);
   };
 
-  const handleVolver = () => {
-      navigate("/agenda");
-  };
-
   return (
     <>
       <div className="booking-overlay">
         <div className="booking-container">
-
           {/* SIDEBAR */}
           <aside className="booking-sidebar">
             <div className="logo">
@@ -75,9 +72,8 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
 
           {/* CONTENIDO */}
           <section className="booking-content">
-
             {/* BOTÓN VOLVER */}
-            <button className="btn-volver" onClick={handleVolver}>
+            <button className="btn-volver" onClick={onVolver}>
               ← Volver
             </button>
 
@@ -98,7 +94,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora }) => {
                 <p className="no-horarios">No hay horarios disponibles</p>
               )}
 
-              {horarios.map(hora => (
+              {horarios.map((hora) => (
                 <button
                   key={hora}
                   type="button"

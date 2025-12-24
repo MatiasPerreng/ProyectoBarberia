@@ -26,6 +26,10 @@ export default function AgendaPage() {
     }
   }, [location.state]);
 
+  // ----------------------------
+  // HANDLERS DE PASOS
+  // ----------------------------
+
   const handleServicioSelect = (servicio) => {
     setServicioSeleccionado(servicio);
     setView("barberos");
@@ -33,14 +37,34 @@ export default function AgendaPage() {
 
   const handleBarberoSelect = (barbero) => {
     setBarberoSeleccionado(barbero);
+    setFechaHoraSeleccionada(null); 
     setView("disponibilidad");
   };
+
 
   const handleFechaHoraSelect = (fechaHora) => {
     setFechaHoraSeleccionada(fechaHora);
     setView("form");
   };
 
+  // 🔙 volver desde Barberos → Servicios
+  const handleVolverDesdeBarberos = () => {
+    setView("servicios");
+  };
+
+  // 🔙 volver desde Disponibilidad → Barberos
+  const handleVolverDesdeDisponibilidad = () => {
+    setView("barberos");
+  };
+
+  // 🔙 volver desde Formulario → Disponibilidad
+  const handleVolverDesdeForm = () => {
+    setView("disponibilidad");
+  };
+
+  // ----------------------------
+  // SUBMIT FINAL
+  // ----------------------------
 
   const handleSubmitTurno = async (datosCliente) => {
     const cliente = await crearCliente(datosCliente);
@@ -55,6 +79,10 @@ export default function AgendaPage() {
     return true;
   };
 
+  // ----------------------------
+  // RENDER
+  // ----------------------------
+
   return (
     <>
       {view === "servicios" && (
@@ -62,7 +90,10 @@ export default function AgendaPage() {
       )}
 
       {view === "barberos" && (
-        <BarberosList onSelectBarbero={handleBarberoSelect} />
+        <BarberosList
+          onSelectBarbero={handleBarberoSelect}
+          onVolver={handleVolverDesdeBarberos}
+        />
       )}
 
       {view === "disponibilidad" && (
@@ -70,11 +101,15 @@ export default function AgendaPage() {
           servicio={servicioSeleccionado}
           barbero={barberoSeleccionado}
           onSelectFechaHora={handleFechaHoraSelect}
+          onVolver={handleVolverDesdeDisponibilidad}
         />
       )}
 
       {view === "form" && (
-        <AgendaForm onSubmit={handleSubmitTurno} />
+        <AgendaForm
+          onSubmit={handleSubmitTurno}
+          onVolver={handleVolverDesdeForm}
+        />
       )}
     </>
   );

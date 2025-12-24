@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
 import SuccessModal from "../../SuccessModal/SuccessModal";
 import "./AgendaForm.css";
 
-const AgendaForm = ({ onSubmit }) => {
+const AgendaForm = ({ onSubmit, onVolver }) => {
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
@@ -16,10 +15,11 @@ const AgendaForm = ({ onSubmit }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
+  const validarEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validarTelefono = (telefono) => /^[0-9+\s-]{8,15}$/.test(telefono);
+  const validarTelefono = (telefono) =>
+    /^[0-9+\s-]{8,15}$/.test(telefono);
 
   const validate = () => {
     const newErrors = {};
@@ -38,6 +38,7 @@ const AgendaForm = ({ onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+
     setLoading(true);
     try {
       await onSubmit(form);
@@ -75,6 +76,11 @@ const AgendaForm = ({ onSubmit }) => {
 
           {/* CONTENIDO */}
           <section className="booking-content">
+            {/* BOTÓN VOLVER */}
+            <button className="btn-volver" onClick={onVolver}>
+              ← Volver
+            </button>
+
             <h3>Rellena la información</h3>
 
             <form className="form-grid" onSubmit={handleSubmit} noValidate>
@@ -99,7 +105,9 @@ const AgendaForm = ({ onSubmit }) => {
                   onChange={handleChange}
                   className={errors.telefono ? "input-error" : ""}
                 />
-                {errors.telefono && <small className="error">{errors.telefono}</small>}
+                {errors.telefono && (
+                  <small className="error">{errors.telefono}</small>
+                )}
               </div>
 
               <div className="form-group">
@@ -123,11 +131,17 @@ const AgendaForm = ({ onSubmit }) => {
                   onChange={handleChange}
                   className={errors.apellido ? "input-error" : ""}
                 />
-                {errors.apellido && <small className="error">{errors.apellido}</small>}
+                {errors.apellido && (
+                  <small className="error">{errors.apellido}</small>
+                )}
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="btn-confirmar" disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn-confirmar"
+                  disabled={loading}
+                >
                   {loading ? "Agendando..." : "Confirmar turno"}
                 </button>
               </div>
@@ -140,9 +154,10 @@ const AgendaForm = ({ onSubmit }) => {
         show={showSuccess}
         onClose={() => {
           setShowSuccess(false);
-          navigate("/");
+          window.location.href = "/";
         }}
       />
+
       <Footer />
     </>
   );

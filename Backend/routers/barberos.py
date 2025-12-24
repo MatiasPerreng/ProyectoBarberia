@@ -31,22 +31,28 @@ def listar_barberos(db: Session = Depends(get_db)):
 @router.get("/{barbero_id}", response_model=BarberoOut)
 def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+
     if not barbero:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Barbero no encontrado"
         )
+
     return barbero
 
 #----------------------------------------------------------------------------------------------------------------------
 # BARBEROS (PRIVADO)
 #----------------------------------------------------------------------------------------------------------------------
 
-@router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=BarberoOut,
+    status_code=status.HTTP_201_CREATED
+)
 def crear_barbero(
     barbero_in: BarberoCreate,
     db: Session = Depends(get_db),
-    login = Depends(get_current_login_barbero)
+    login=Depends(get_current_login_barbero)
 ):
     return crud_barbero.create_barbero(db, barbero_in)
 
@@ -57,9 +63,10 @@ def actualizar_barbero(
     barbero_id: int,
     barbero_in: BarberoUpdate,
     db: Session = Depends(get_db),
-    login = Depends(get_current_login_barbero)
+    login=Depends(get_current_login_barbero)
 ):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+
     if not barbero:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -74,9 +81,10 @@ def actualizar_barbero(
 def eliminar_barbero(
     barbero_id: int,
     db: Session = Depends(get_db),
-    login = Depends(get_current_login_barbero)
+    login=Depends(get_current_login_barbero)
 ):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+
     if not barbero:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -96,6 +104,6 @@ def eliminar_barbero(
 )
 def mi_agenda(
     db: Session = Depends(get_db),
-    login = Depends(get_current_login_barbero)
+    login=Depends(get_current_login_barbero)
 ):
     return crud_barbero.get_agenda_barbero(db, login.id_barbero)

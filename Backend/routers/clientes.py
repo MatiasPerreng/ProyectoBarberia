@@ -6,19 +6,19 @@ from database import get_db
 import crud.cliente as crud_cliente
 from schemas import ClienteCreate, ClienteUpdate, ClienteOut
 
+
 router = APIRouter(
     prefix="/clientes",
     tags=["Clientes"]
 )
 
- #----------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/", response_model=List[ClienteOut])
 def listar_clientes(db: Session = Depends(get_db)):
-    clientes = crud_cliente.get_clientes(db)
-    return clientes
+    return crud_cliente.get_clientes(db)
 
- #----------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/{cliente_id}", response_model=ClienteOut)
 def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
@@ -32,7 +32,7 @@ def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
 
     return cliente
 
- #----------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
 
 @router.post(
     "/",
@@ -43,10 +43,9 @@ def crear_cliente(
     cliente_in: ClienteCreate,
     db: Session = Depends(get_db)
 ):
-    cliente = crud_cliente.create_cliente(db, cliente_in)
-    return cliente
+    return crud_cliente.create_cliente(db, cliente_in)
 
- #----------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
 
 @router.put("/{cliente_id}", response_model=ClienteOut)
 def actualizar_cliente(
@@ -62,8 +61,7 @@ def actualizar_cliente(
             detail="Cliente no encontrado"
         )
 
-    cliente_actualizado = crud_cliente.update_cliente(db, cliente, cliente_in)
-    return cliente_actualizado
+    return crud_cliente.update_cliente(db, cliente, cliente_in)
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -78,3 +76,4 @@ def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db)):
         )
 
     crud_cliente.delete_cliente(db, cliente)
+    return None

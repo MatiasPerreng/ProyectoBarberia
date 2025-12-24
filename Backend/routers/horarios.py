@@ -6,6 +6,7 @@ from database import get_db
 import crud.horario as crud_horario
 from schemas import HorarioBarberoCreate, HorarioBarberoOut
 
+
 router = APIRouter(
     prefix="/horarios",
     tags=["Horarios"]
@@ -19,7 +20,10 @@ def listar_horarios(db: Session = Depends(get_db)):
 
 #----------------------------------------------------------------------------------------------------------------------
 
-@router.get("/barbero/{barbero_id}", response_model=List[HorarioBarberoOut])
+@router.get(
+    "/barbero/{barbero_id}",
+    response_model=List[HorarioBarberoOut]
+)
 def listar_horarios_por_barbero(
     barbero_id: int,
     db: Session = Depends(get_db)
@@ -52,5 +56,4 @@ def eliminar_horario(horario_id: int, db: Session = Depends(get_db)):
         )
 
     crud_horario.delete_horario(db, horario)
-
-#----------------------------------------------------------------------------------------------------------------------
+    return None

@@ -1,14 +1,16 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from sqlalchemy import func
 
 from models import Barbero, Visita, Cliente, Servicio
 from schemas import BarberoCreate, BarberoUpdate
 
+
 #----------------------------------------------------------------------------------------------------------------------
 
 def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
-    barbero = Barbero(nombre=barbero_in.nombre)
+    barbero = Barbero(
+        nombre=barbero_in.nombre
+    )
 
     db.add(barbero)
     db.commit()
@@ -16,19 +18,18 @@ def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
 
     return barbero
 
-#----------------------------------------------------------------------------------------------------------------------
 
 def get_barberos(db: Session) -> List[Barbero]:
     return db.query(Barbero).all()
 
-#----------------------------------------------------------------------------------------------------------------------
 
 def get_barbero_by_id(db: Session, barbero_id: int) -> Optional[Barbero]:
-    return db.query(Barbero).filter(
-        Barbero.id_barbero == barbero_id
-    ).first()
+    return (
+        db.query(Barbero)
+        .filter(Barbero.id_barbero == barbero_id)
+        .first()
+    )
 
-#----------------------------------------------------------------------------------------------------------------------
 
 def update_barbero(
     db: Session,
@@ -44,7 +45,6 @@ def update_barbero(
 
     return barbero
 
-#----------------------------------------------------------------------------------------------------------------------
 
 def delete_barbero(db: Session, barbero: Barbero) -> None:
     db.delete(barbero)
@@ -57,7 +57,7 @@ def delete_barbero(db: Session, barbero: Barbero) -> None:
 def get_agenda_barbero(db: Session, barbero_id: int):
     return (
         db.query(
-            Visita.fecha_hora.label("fecha_hora"),   # 🔥 FIX
+            Visita.fecha_hora.label("fecha_hora"),
 
             Cliente.nombre.label("cliente_nombre"),
             Cliente.telefono.label("cliente_telefono"),

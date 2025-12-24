@@ -1,28 +1,21 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Footer from "../Footer/Footer";
 import "./BarberoList.css";
 
-const BarberosList = ({ onSelectBarbero }) => {
+const BarberosList = ({ onSelectBarbero, onVolver }) => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     fetch("http://localhost:8000/barberos/")
-      .then(res => res.json())
-      .then(data => setBarberos(data))
-      .catch(err => console.error(err));
+      .then((res) => res.json())
+      .then((data) => setBarberos(data))
+      .catch((err) => console.error(err));
   }, []);
 
   const handleSelect = (barbero) => {
     setBarberoSeleccionado(barbero);
     if (onSelectBarbero) onSelectBarbero(barbero);
-  };
-
-  const handleVolver = () => {
-       navigate(-1);
   };
 
   return (
@@ -60,14 +53,15 @@ const BarberosList = ({ onSelectBarbero }) => {
           </aside>
 
           <section className="booking-content">
-            <button className="btn-volver" onClick={handleVolver}>
+            {/* BOTÓN VOLVER */}
+            <button className="btn-volver" onClick={onVolver}>
               ← Volver
             </button>
 
             <h3>Seleccionar personal</h3>
 
             <div className="barberos-grid">
-              {barberos.map(barbero => (
+              {barberos.map((barbero) => (
                 <div
                   key={barbero.id_barbero}
                   className={`barbero-card ${
@@ -78,7 +72,10 @@ const BarberosList = ({ onSelectBarbero }) => {
                   onClick={() => handleSelect(barbero)}
                 >
                   <div className="avatar">
-                    <img src="/barbero-placeholder.png" alt={barbero.nombre} />
+                    <img
+                      src="/barbero-placeholder.png"
+                      alt={barbero.nombre}
+                    />
                   </div>
 
                   <div className="barbero-info">
@@ -91,6 +88,7 @@ const BarberosList = ({ onSelectBarbero }) => {
           </section>
         </div>
       </div>
+
       <Footer />
     </>
   );
