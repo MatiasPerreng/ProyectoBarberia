@@ -15,6 +15,8 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // ---------------- VALIDACIONES ----------------
+
   const validarEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -23,25 +25,55 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
-    if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
-    if (!validarEmail(form.email)) newErrors.email = "Email inválido";
-    if (!validarTelefono(form.telefono)) newErrors.telefono = "Teléfono inválido";
+
+    if (!form.nombre.trim()) {
+      newErrors.nombre = "El nombre es obligatorio";
+    }
+
+    if (!form.apellido.trim()) {
+      newErrors.apellido = "El apellido es obligatorio";
+    }
+
+    // email es opcional, pero si viene, debe ser válido
+    if (form.email.trim() && !validarEmail(form.email)) {
+      newErrors.email = "Email inválido";
+    }
+
+    // teléfono es opcional, pero si viene, debe ser válido
+    if (form.telefono.trim() && !validarTelefono(form.telefono)) {
+      newErrors.telefono = "Teléfono inválido";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // ---------------- HANDLERS ----------------
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validate()) return;
 
     setLoading(true);
+
     try {
-      await onSubmit(form);
+      // 🔥 FIX DEFINITIVO DEL 422
+      await onSubmit({
+        ...form,
+        email: form.email.trim() || null,
+        telefono: form.telefono.trim() || null,
+      });
+
       setShowSuccess(true);
     } catch (err) {
       console.error("Error al agendar:", err);
@@ -50,6 +82,8 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
       setLoading(false);
     }
   };
+
+  // ---------------- RENDER ----------------
 
   return (
     <>
@@ -62,10 +96,22 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
             </div>
 
             <ul className="steps">
-              <li className="step done"><span className="step-number">✓</span><p className="step-text">Servicio</p></li>
-              <li className="step done"><span className="step-number">✓</span><p className="step-text">Personal</p></li>
-              <li className="step done"><span className="step-number">✓</span><p className="step-text">Fecha y hora</p></li>
-              <li className="step active"><span className="step-number">4</span><p className="step-text">Información</p></li>
+              <li className="step done">
+                <span className="step-number">✓</span>
+                <p className="step-text">Servicio</p>
+              </li>
+              <li className="step done">
+                <span className="step-number">✓</span>
+                <p className="step-text">Personal</p>
+              </li>
+              <li className="step done">
+                <span className="step-number">✓</span>
+                <p className="step-text">Fecha y hora</p>
+              </li>
+              <li className="step active">
+                <span className="step-number">4</span>
+                <p className="step-text">Información</p>
+              </li>
             </ul>
 
             <div className="sidebar-footer">
@@ -81,11 +127,11 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
               ← Volver
             </button>
 
-            <h3>Rellena la información</h3>
+            <h3>Rellená la información</h3>
 
             <form className="form-grid" onSubmit={handleSubmit} noValidate>
               <div className="form-group">
-                <label>Email *</label>
+                <label>Email</label>
                 <input
                   type="email"
                   name="email"
@@ -93,11 +139,13 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                   onChange={handleChange}
                   className={errors.email ? "input-error" : ""}
                 />
-                {errors.email && <small className="error">{errors.email}</small>}
+                {errors.email && (
+                  <small className="error">{errors.email}</small>
+                )}
               </div>
 
               <div className="form-group">
-                <label>Teléfono *</label>
+                <label>Teléfono</label>
                 <input
                   type="text"
                   name="telefono"
@@ -119,7 +167,9 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                   onChange={handleChange}
                   className={errors.nombre ? "input-error" : ""}
                 />
-                {errors.nombre && <small className="error">{errors.nombre}</small>}
+                {errors.nombre && (
+                  <small className="error">{errors.nombre}</small>
+                )}
               </div>
 
               <div className="form-group">

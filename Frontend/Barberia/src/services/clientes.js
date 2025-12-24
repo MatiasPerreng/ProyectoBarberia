@@ -1,17 +1,19 @@
-export async function crearCliente(datosCliente) {
-  const res = await fetch('http://localhost:8000/clientes/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      nombre: datosCliente.nombre,
-      email: datosCliente.email,
-      telefono: datosCliente.telefono || null
-    })
+const API_URL = "http://127.0.0.1:8000";
+
+export async function crearCliente(datos) {
+  const response = await fetch(`${API_URL}/clientes/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(datos),
   });
 
-  if (!res.ok) {
-    throw new Error('Error al crear cliente');
+  if (!response.ok) {
+    const error = await response.json();
+    console.error("Error backend /clientes:", error);
+    throw new Error(error.detail || "Error al crear cliente");
   }
 
-  return await res.json();
+  return await response.json();
 }

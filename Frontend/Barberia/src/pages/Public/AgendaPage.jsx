@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import ServiciosList from "../../components/ServiceList/ServiceList";
@@ -11,6 +11,7 @@ import { crearVisita } from "../../services/agenda";
 
 export default function AgendaPage() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [view, setView] = useState("servicios");
 
@@ -37,27 +38,38 @@ export default function AgendaPage() {
 
   const handleBarberoSelect = (barbero) => {
     setBarberoSeleccionado(barbero);
-    setFechaHoraSeleccionada(null); 
+    setFechaHoraSeleccionada(null);
     setView("disponibilidad");
   };
-
 
   const handleFechaHoraSelect = (fechaHora) => {
     setFechaHoraSeleccionada(fechaHora);
     setView("form");
   };
 
-  // 🔙 volver desde Barberos → Servicios
+  // ----------------------------
+  // 🔙 VOLVER AL HOME → SERVICIOS
+  // ----------------------------
+
   const handleVolverDesdeBarberos = () => {
+    // limpiar estado agenda
+    setServicioSeleccionado(null);
+    setBarberoSeleccionado(null);
+    setFechaHoraSeleccionada(null);
     setView("servicios");
+
+    // volver al home posicionado en servicios
+    navigate("/", {
+      replace: true,
+      state: { focus: "servicios" }
+    });
   };
 
-  // 🔙 volver desde Disponibilidad → Barberos
   const handleVolverDesdeDisponibilidad = () => {
+    setFechaHoraSeleccionada(null);
     setView("barberos");
   };
 
-  // 🔙 volver desde Formulario → Disponibilidad
   const handleVolverDesdeForm = () => {
     setView("disponibilidad");
   };

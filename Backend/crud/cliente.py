@@ -10,6 +10,7 @@ from schemas import ClienteCreate, ClienteUpdate
 def create_cliente(db: Session, cliente_in: ClienteCreate) -> Cliente:
     cliente = Cliente(
         nombre=cliente_in.nombre,
+        apellido=cliente_in.apellido,   # 🔥 FIX CLAVE
         telefono=cliente_in.telefono,
         email=cliente_in.email
     )
@@ -41,6 +42,9 @@ def update_cliente(
 
     if cliente_in.nombre is not None:
         cliente.nombre = cliente_in.nombre
+
+    if cliente_in.apellido is not None:
+        cliente.apellido = cliente_in.apellido   # 🔥 FIX TAMBIÉN ACÁ
 
     if cliente_in.telefono is not None:
         cliente.telefono = cliente_in.telefono
