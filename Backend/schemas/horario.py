@@ -1,17 +1,23 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from typing import Optional
 import datetime
 
 # ----------------------------------------------------------------------------------------------------------------------
-# HORARIO BASE (CON VIGENCIA)
+# HORARIO BASE
 # ----------------------------------------------------------------------------------------------------------------------
 
 class HorarioBarberoBase(BaseModel):
-    dia_semana: int                 # 1 = lunes ... 7 = domingo
+    dia_semana: int
     hora_desde: datetime.time
     hora_hasta: datetime.time
     fecha_desde: datetime.date
     fecha_hasta: datetime.date
+
+    @model_validator(mode="after")
+    def validar_fechas(self):
+        if self.fecha_desde > self.fecha_hasta:
+            raise ValueError("fecha_desde no puede ser mayor que fecha_hasta")
+        return self
 
 
 class HorarioBarberoCreate(HorarioBarberoBase):
@@ -28,29 +34,6 @@ class HorarioBarberoUpdate(BaseModel):
 
 class HorarioBarberoOut(HorarioBarberoBase):
     id_horario: int
-    id_barbero: int
-
-    class Config:
-        from_attributes = True
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# EXCEPCIONES DE HORARIO (FUTURO: feriados, cierres, horarios especiales)
-# ----------------------------------------------------------------------------------------------------------------------
-
-class HorarioExcepcionBase(BaseModel):
-    fecha: datetime.date
-    tipo: str  # 'cierre' | 'horario_especial'
-    hora_desde: Optional[datetime.time] = None
-    hora_hasta: Optional[datetime.time] = None
-
-
-class HorarioExcepcionCreate(HorarioExcepcionBase):
-    id_barbero: int
-
-
-class HorarioExcepcionOut(HorarioExcepcionBase):
-    id_excepcion: int
     id_barbero: int
 
     class Config:

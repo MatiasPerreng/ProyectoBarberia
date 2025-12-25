@@ -1,26 +1,89 @@
-const dias = [
-  "", "Lunes", "Martes", "Miércoles",
-  "Jueves", "Viernes", "Sábado", "Domingo"
+import { useState } from "react";
+import "./HorarioList.css";
+
+const DIAS = [
+  { id: 1, label: "Lunes" },
+  { id: 2, label: "Martes" },
+  { id: 3, label: "Miércoles" },
+  { id: 4, label: "Jueves" },
+  { id: 5, label: "Viernes" },
+  { id: 6, label: "Sábado" },
 ];
 
-const HorarioList = ({ horarios, onDelete }) => {
+const getDiaLabel = (id) =>
+  DIAS.find((d) => d.id === id)?.label || "";
+
+const HorarioList = ({ horarios, onDelete, onCopy }) => {
+  const [copiandoId, setCopiandoId] = useState(null);
+  const [diaDestino, setDiaDestino] = useState("");
+
   return (
-    <div className="admin-table">
+    <div className="horarios-list">
       {horarios.map((h) => (
-        <div className="admin-row" key={h.id_horario}>
-          <div>
-            <strong>{dias[h.dia_semana]}</strong>
-            <small>
+        <div key={h.id_horario} className="horario-card">
+          <div className="horario-info">
+            <div className="horario-dia">
+              {getDiaLabel(h.dia_semana)}
+            </div>
+
+            <div className="horario-horas">
               {h.hora_desde} → {h.hora_hasta}
-            </small>
-            <small>
-              {h.fecha_desde} / {h.fecha_hasta}
-            </small>
+            </div>
+
+            <div className="horario-vigencia">
+              {h.fecha_desde} → {h.fecha_hasta}
+            </div>
+
+            {copiandoId === h.id_horario && (
+              <div className="copy-panel">
+                <select
+                  value={diaDestino}
+                  onChange={(e) => setDiaDestino(e.target.value)}
+                >
+                  <option value="">Elegir día</option>
+                  {DIAS.filter((d) => d.id !== h.dia_semana).map(
+                    (d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.label}
+                      </option>
+                    )
+                  )}
+                </select>
+
+                <button
+                  className="btn-copy"
+                  onClick={() => {
+                    onCopy(h, Number(diaDestino));
+                    setCopia(null);
+                  }}
+                >
+                  Confirmar
+                </button>
+              </div>
+            )}
           </div>
 
-          <button onClick={() => onDelete(h.id_horario)}>
-            Eliminar
-          </button>
+          <div className="horario-actions">
+            <button
+              className="btn-copy"
+              onClick={() =>
+                setCopiandoId(
+                  copiandoId === h.id_horario
+                    ? null
+                    : h.id_horario
+                )
+              }
+            >
+              Copiar
+            </button>
+
+            <button
+              className="btn-delete"
+              onClick={() => onDelete(h.id_horario)}
+            >
+              Eliminar
+            </button>
+          </div>
         </div>
       ))}
     </div>

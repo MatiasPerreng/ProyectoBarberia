@@ -18,7 +18,7 @@ import ProtectedRoute from "./ProtectedRoute";
 ========================= */
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberosPage";
-import HorariosPage from "../pages/Admin/HorariosPage";
+import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
 
 export default function AppRouter() {
   return (

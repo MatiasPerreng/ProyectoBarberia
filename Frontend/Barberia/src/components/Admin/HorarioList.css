@@ -1,0 +1,187 @@
+/* ======================================================
+   LISTA
+====================================================== */
+
+.horarios-list {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.horario-card {
+  background: #f8f9fa;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.horario-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* ======================================================
+   INFO
+====================================================== */
+
+.horario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.horario-dia {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111;
+}
+
+.horario-horas {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.horario-vigencia {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.horario-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ======================================================
+   BOTONES
+====================================================== */
+
+.btn-copy {
+  background: #e6c77b;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #000;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-copy:hover {
+  background: #f0d58d;
+  transform: translateY(-1px);
+}
+
+.btn-copy:active {
+  transform: translateY(0);
+}
+
+.btn-delete {
+  background: #f1f1f1;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #444;
+  transition: background 0.15s ease;
+}
+
+.btn-delete:hover {
+  background: #e3e3e3;
+}
+
+/* ======================================================
+   COPY PANEL
+====================================================== */
+
+.copy-panel {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Select */
+.copy-panel select {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.copy-panel select:focus {
+  outline: none;
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
+}
+
+/* Confirmar */
+.copy-panel .btn-copy {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+/* ======================================================
+   RESPONSIVE – TABLET
+====================================================== */
+
+@media (max-width: 900px) {
+  .horario-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .horario-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* ======================================================
+   RESPONSIVE – MOBILE
+====================================================== */
+
+@media (max-width: 600px) {
+  .horario-card {
+    padding: 16px;
+  }
+
+  .horario-actions {
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .btn-copy,
+  .btn-delete {
+    width: 100%;
+    text-align: center;
+  }
+
+  .copy-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copy-panel select {
+    width: 100%;
+  }
+}

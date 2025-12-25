@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/Admin/AdminLayout/AdminLayout";
 import BarberoForm from "../../components/Admin/BarberoForm";
+import './BarberoPage.css'
 
 import {
   getBarberos,
