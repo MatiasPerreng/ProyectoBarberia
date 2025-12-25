@@ -4,7 +4,6 @@ import "./AgendaAvailability.css";
 
 import { getDisponibilidad } from "../../../services/agenda";
 
-
 const AgendaAvailability = ({
   servicio,
   barbero,
@@ -13,33 +12,51 @@ const AgendaAvailability = ({
 }) => {
   const hoy = new Date();
 
+  const [mesActual, setMesActual] = useState(hoy.getMonth());
+  const [anioActual, setAnioActual] = useState(hoy.getFullYear());
+
   const [dias, setDias] = useState([]);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [horarios, setHorarios] = useState([]);
+
+  const meses = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  ];
+
+  const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
   /* =========================
      GENERAR DÍAS DEL MES
   ========================= */
   useEffect(() => {
-    const year = hoy.getFullYear();
-    const month = hoy.getMonth();
-    const totalDias = new Date(year, month + 1, 0).getDate();
+    const primerDiaMes = new Date(anioActual, mesActual, 1);
+    const offset = (primerDiaMes.getDay() + 6) % 7; // lunes = 0
 
-    const diasMes = Array.from({ length: totalDias }, (_, i) => {
-      const dia = i + 1;
-      const fecha = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-        dia
-      ).padStart(2, "0")}`;
+    const totalDias = new Date(anioActual, mesActual + 1, 0).getDate();
 
-      return {
+    const diasMes = [];
+
+    // huecos antes del día 1
+    for (let i = 0; i < offset; i++) {
+      diasMes.push({ empty: true });
+    }
+
+    for (let dia = 1; dia <= totalDias; dia++) {
+      const fechaObj = new Date(anioActual, mesActual, dia);
+      const fecha = fechaObj.toISOString().split("T")[0];
+
+      diasMes.push({
         dia,
         fecha,
-        disponible: new Date(fecha) >= new Date(hoy.toDateString()),
-      };
-    });
+        disponible: fechaObj >= new Date(hoy.toDateString()),
+      });
+    }
 
     setDias(diasMes);
-  }, []);
+    setFechaSeleccionada(null);
+    setHorarios([]);
+  }, [mesActual, anioActual]);
 
   /* =========================
      FETCH HORARIOS
@@ -51,10 +68,8 @@ const AgendaAvailability = ({
         id_servicio: servicio.id_servicio,
         id_barbero: barbero?.id_barbero,
       });
-
       setHorarios(data.turnos || []);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setHorarios([]);
     }
   };
@@ -65,16 +80,35 @@ const AgendaAvailability = ({
     fetchHorarios(fecha);
   };
 
+  /* =========================
+     CAMBIO DE MES
+  ========================= */
+  const mesAnterior = () => {
+    if (mesActual === 0) {
+      setMesActual(11);
+      setAnioActual((a) => a - 1);
+    } else {
+      setMesActual((m) => m - 1);
+    }
+  };
+
+  const mesSiguiente = () => {
+    if (mesActual === 11) {
+      setMesActual(0);
+      setAnioActual((a) => a + 1);
+    } else {
+      setMesActual((m) => m + 1);
+    }
+  };
+
   return (
     <>
       <div className="booking-overlay">
         <div className="booking-container">
-          {/* SIDEBAR */}
           <aside className="booking-sidebar">
             <div className="logo">
               <img src="/logo.jpg" alt="King Barber" />
             </div>
-
             <ul className="steps">
               <li className="step done">
                 <span className="step-number">✓</span>
@@ -98,9 +132,9 @@ const AgendaAvailability = ({
               <p>¿Tenés alguna pregunta?</p>
               <small>099 611 465</small>
             </div>
+
           </aside>
 
-          {/* CONTENIDO */}
           <section className="booking-content">
             <button className="btn-volver" onClick={onVolver}>
               ← Volver
@@ -108,30 +142,51 @@ const AgendaAvailability = ({
 
             <h3>Selecciona la fecha y hora</h3>
 
+            {/* HEADER MES */}
+            <div className="calendar-header">
+              <button className="month-btn" onClick={mesAnterior}>‹</button>
+              <span className="month-label">
+                {meses[mesActual]} {anioActual}
+              </span>
+              <button className="month-btn" onClick={mesSiguiente}>›</button>
+            </div>
+
+            {/* HEADER DIAS SEMANA */}
+            <div className="calendar-weekdays">
+              {diasSemana.map((d) => (
+                <span key={d}>{d}</span>
+              ))}
+            </div>
+
             {/* CALENDARIO */}
             <div className="calendar-grid">
-              {dias.map((d) => (
-                <button
-                  key={d.fecha}
-                  className={`calendar-day
-                    ${d.disponible ? "available" : "disabled"}
-                    ${fechaSeleccionada === d.fecha ? "selected" : ""}
-                  `}
-                  disabled={!d.disponible}
-                  onClick={() => handleSelectDia(d.fecha)}
-                >
-                  {d.dia}
-                </button>
-              ))}
+              {dias.map((d, idx) =>
+                d.empty ? (
+                  <div key={idx} className="calendar-empty" />
+                ) : (
+                  <button
+                    key={d.fecha}
+                    className={`calendar-day
+                      ${d.disponible ? "available" : "disabled"}
+                      ${fechaSeleccionada === d.fecha ? "selected" : ""}
+                    `}
+                    disabled={!d.disponible}
+                    onClick={() => handleSelectDia(d.fecha)}
+                  >
+                    {d.dia}
+                  </button>
+                )
+              )}
             </div>
 
             {/* HORARIOS */}
             {fechaSeleccionada && (
               <div className="horarios-grid">
                 {horarios.length === 0 && (
-                  <p className="no-horarios">No hay horarios disponibles</p>
+                  <p className="no-horarios">
+                    No hay horarios disponibles
+                  </p>
                 )}
-
                 {horarios.map((hora) => (
                   <button
                     key={hora}

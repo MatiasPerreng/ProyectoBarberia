@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+import API_URL from "./api";
 
 export async function crearCliente(datos) {
   const response = await fetch(`${API_URL}/clientes/`, {

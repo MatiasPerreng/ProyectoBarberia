@@ -1,134 +1,53 @@
-
-
 /* =======================================================
-   SIDEBAR
+   HEADER MES
 ======================================================= */
 
-.booking-sidebar {
-  background: #1c1f24;
-  color: #fff;
-  padding: 45px 35px;
-  display: flex;
-  flex-direction: column;
-}
-
-.logo {
-  margin-bottom: 45px;
-  text-align: center;
-}
-
-.logo img {
-  width: 95px;
-}
-
-.steps {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-  opacity: 0.3;
-}
-
-.step-text {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  margin: 0;
-}
-
-.step-number {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #2b2f36;
+.calendar-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  gap: 18px;
+  margin-bottom: 14px;
 }
 
-.step.active,
-.step.done {
-  opacity: 1;
-}
-
-.step.active {
-  color: #e6c77b;
-}
-
-.step.active .step-number {
-  background: #e6c77b;
-  color: #111;
-}
-
-.step.done .step-number {
-  background: #caa851;
-  color: #111;
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  font-size: 11px;
-  opacity: 0.5;
-}
-
-/* =======================================================
-   CONTENIDO
-======================================================= */
-
-.booking-content {
-  padding: 50px;
-  background: #fff;
-  overflow-y: auto;
-}
-
-.booking-content h3 {
-  font-size: 15px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 30px;
-  color: #111;
+.month-label {
+  font-size: 13px;
   font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.month-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #999;
+  padding: 4px 6px;
+}
+
+.month-btn:hover {
+  color: #111;
 }
 
 /* =======================================================
-   BOTÓN VOLVER
+   DIAS DE LA SEMANA
 ======================================================= */
 
-.btn-volver {
-  background: transparent;
-  border: none;
-  color: #777;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1.6px;
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.calendar-weekdays span {
+  font-size: 10px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
-  padding: 6px 0;
-  margin-bottom: 24px;
-  cursor: pointer;
-  position: relative;
-}
-
-.btn-volver::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #e6c77b, transparent);
-  transition: width 0.35s ease;
-}
-
-.btn-volver:hover::after {
-  width: 100%;
+  color: #9ca3af;
 }
 
 /* =======================================================
@@ -138,48 +57,59 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 6px;
+  margin-bottom: 28px;
 }
 
 .calendar-day {
   height: 34px;
-  border-radius: 5px;
-  border: 1px solid transparent;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+
+  font-size: 13px;
   font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #f6f7f8;
   color: #111;
+
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 /* Día disponible */
 .calendar-day.available {
-  background: #e9f7ee;
-  border-color: #3cb371;
-  color: #1f7a4f;
+  border-bottom: 3px solid #3cb371;
 }
 
-/* Hover */
+/* Hover disponible */
 .calendar-day.available:hover {
-  background: #3cb371;
-  color: #fff;
+  background: #f0fdf4;
 }
 
 /* Día seleccionado */
 .calendar-day.selected {
-  background: #1f7a4f;
+  background: #3cb371;
+  border-color: #3cb371;
   color: #fff;
-  border-color: #1f7a4f;
-  box-shadow: 0 0 0 1px rgba(60,179,113,0.35);
 }
 
-/* Día deshabilitado */
+/* Día completo (rojo – preparado para backend) */
+.calendar-day.full {
+  border-bottom: 3px solid #dc2626;
+  background: #fff5f5;
+  color: #991b1b;
+}
+
+/* Día no disponible */
 .calendar-day.disabled {
-  background: #e0e0e0;
-  color: #aaa;
+  background: #f1f1f1;
+  border-color: #e5e5e5;
+  color: #bdbdbd;
   cursor: not-allowed;
+}
+
+/* Huecos antes del día 1 */
+.calendar-empty {
+  height: 34px;
 }
 
 /* =======================================================
@@ -188,77 +118,62 @@
 
 .horarios-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
   gap: 8px;
+  margin-top: 6px;
 }
 
+/* Botón hora */
 .hora-card {
   padding: 8px 0;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  font-weight: 600;
   font-size: 12px;
+  font-weight: 600;
+  color: #111 !important;
+
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: #111;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  -webkit-appearance: none;
+  appearance: none;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Hover */
 .hora-card:hover {
   background: #3cb371;
-  color: #fff;
+  color: #fff !important;
   border-color: #3cb371;
 }
 
+/* Estados iOS */
+.hora-card:visited,
+.hora-card:active,
+.hora-card:focus {
+  color: #111 !important;
+  outline: none;
+}
+
+/* Sin horarios */
 .no-horarios {
   grid-column: 1 / -1;
   font-size: 12px;
   color: #999;
+  text-align: left;
 }
 
-/* =======================================================
-   MOBILE
-======================================================= */
-
 @media (max-width: 899px) {
-  .booking-overlay {
-    background: #1c1f24;
-    padding: 20px 0;
-  }
-
-  .booking-container {
-    display: flex;
-    flex-direction: column;
-    width: 90%;
-    max-width: 420px;
-    background: #1c1f24;
-  }
-
-  .booking-sidebar {
-    padding: 30px 20px;
-    align-items: center;
-  }
-
-  .steps {
-    display: flex;
-    gap: 12px;
-  }
-
-  .step-text {
-    display: none;
-  }
-
-  .booking-content {
-    background: #fdfdfd;
-    padding: 30px 20px;
-  }
-
   .calendar-grid {
-    gap: 6px;
+    gap: 5px;
   }
 
   .calendar-day {
     height: 32px;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .horarios-grid {

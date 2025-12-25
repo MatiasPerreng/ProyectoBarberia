@@ -1,12 +1,15 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Literal
 import datetime
 
+# ----------------------------------------------------------------------------------------------------------------------
+# VISITA BASE
+# ----------------------------------------------------------------------------------------------------------------------
 
 class VisitaBase(BaseModel):
     fecha_hora: datetime.datetime
     id_cliente: int
-    id_barbero: Optional[int] = None
+    id_barbero: int
     id_servicio: int
 
 
@@ -14,16 +17,20 @@ class VisitaCreate(VisitaBase):
     pass
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# UPDATE (ADMIN / BARBERO)
+# ----------------------------------------------------------------------------------------------------------------------
+
 class VisitaUpdate(BaseModel):
     fecha_hora: Optional[datetime.datetime] = None
     id_barbero: Optional[int] = None
     id_servicio: Optional[int] = None
-    estado: Optional[str] = None
+    estado: Optional[Literal["reservado", "cancelado", "completado"]] = None
 
 
-class VisitaEstadoUpdate(BaseModel):
-    estado: str
-
+# ----------------------------------------------------------------------------------------------------------------------
+# OUTPUT
+# ----------------------------------------------------------------------------------------------------------------------
 
 class VisitaOut(BaseModel):
     id_visita: int

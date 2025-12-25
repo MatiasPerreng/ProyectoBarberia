@@ -2,13 +2,12 @@ from pydantic import BaseModel
 from typing import Optional
 import datetime
 
-
-# ------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # HORARIO BASE (CON VIGENCIA)
-# ------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 class HorarioBarberoBase(BaseModel):
-    dia_semana: int                # 1 = lunes ... 7 = domingo
+    dia_semana: int                 # 1 = lunes ... 7 = domingo
     hora_desde: datetime.time
     hora_hasta: datetime.time
     fecha_desde: datetime.date
@@ -35,9 +34,9 @@ class HorarioBarberoOut(HorarioBarberoBase):
         from_attributes = True
 
 
-# ------------------------------
-# EXCEPCIONES DE HORARIO
-# ------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# EXCEPCIONES DE HORARIO (FUTURO: feriados, cierres, horarios especiales)
+# ----------------------------------------------------------------------------------------------------------------------
 
 class HorarioExcepcionBase(BaseModel):
     fecha: datetime.date

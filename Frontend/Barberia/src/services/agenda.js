@@ -55,3 +55,22 @@ export async function getDisponibilidad({
 
   return await res.json();
 }
+
+
+
+export async function getDisponibilidadMes({
+  mes,
+  anio,
+  id_servicio,
+  id_barbero,
+}) {
+  const res = await fetch(
+    `${API_URL}/visitas/disponibilidad-mes?mes=${mes}&anio=${anio}&id_servicio=${id_servicio}&id_barbero=${id_barbero}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Error al cargar disponibilidad mensual");
+  }
+
+  return await res.json();
+}

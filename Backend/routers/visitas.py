@@ -1,25 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime, timedelta
 from calendar import monthrange
 
 from database import get_db
 import crud.visita as crud_visita
+import crud.horario as crud_horario
+
 from schemas import VisitaCreate, VisitaOut, VisitaUpdate
 from core.dependencias import get_current_login_barbero
 from core.email import enviar_email_confirmacion
 from core.email_templates import generar_email_confirmacion
-
 
 router = APIRouter(
     prefix="/visitas",
     tags=["Visitas"]
 )
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # AGENDA DEL BARBERO LOGUEADO
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
 def mi_agenda(
@@ -31,9 +32,9 @@ def mi_agenda(
         barbero_id=login.id_barbero
     )
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # ACTUALIZAR ESTADO
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
 def actualizar_estado_visita(
@@ -51,9 +52,9 @@ def actualizar_estado_visita(
             detail=str(e)
         )
 
-#----------------------------------------------------------------------------------------------------------------------
-# DISPONIBILIDAD POR FECHA (YA EXISTENTE)
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# DISPONIBILIDAD POR FECHA (EXISTENTE - NO SE TOCA)
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/disponibilidad")
 def obtener_disponibilidad(
@@ -75,16 +76,16 @@ def obtener_disponibilidad(
             detail=str(e)
         )
 
-#----------------------------------------------------------------------------------------------------------------------
-# 🆕 DISPONIBILIDAD POR MES (PARA CALENDARIO)
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# 🆕 DISPONIBILIDAD MENSUAL (CALENDARIO)
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/disponibilidad-mes")
 def disponibilidad_mes(
     mes: int,
     anio: int,
     id_servicio: int,
-    id_barbero: Optional[int] = None,
+    id_barbero: int,
     db: Session = Depends(get_db)
 ):
     hoy = date.today()
@@ -94,19 +95,40 @@ def disponibilidad_mes(
 
     for dia in range(1, last_day + 1):
         fecha_dia = date(anio, mes, dia)
+        dia_semana = fecha_dia.isoweekday()  # 1 = lunes
 
-        # días pasados
+        # 1️⃣ Día pasado
         if fecha_dia < hoy:
-            estado = "pasado"
-        else:
-            turnos = crud_visita.get_disponibilidad(
-                db=db,
-                fecha=fecha_dia,
-                id_servicio=id_servicio,
-                id_barbero=id_barbero
-            )
+            resultado.append({
+                "fecha": fecha_dia.isoformat(),
+                "estado": "pasado"
+            })
+            continue
 
-            estado = "disponible" if len(turnos) > 0 else "sin"
+        # 2️⃣ Ver si el barbero trabaja ese día
+        horarios = crud_horario.get_horarios_barbero_para_fecha(
+            db=db,
+            id_barbero=id_barbero,
+            dia_semana=dia_semana,
+            fecha=fecha_dia
+        )
+
+        if not horarios:
+            resultado.append({
+                "fecha": fecha_dia.isoformat(),
+                "estado": "sin_horario"
+            })
+            continue
+
+        # 3️⃣ Ver si existen slots disponibles
+        turnos = crud_visita.get_disponibilidad(
+            db=db,
+            fecha=fecha_dia,
+            id_servicio=id_servicio,
+            id_barbero=id_barbero
+        )
+
+        estado = "disponible" if len(turnos) > 0 else "completo"
 
         resultado.append({
             "fecha": fecha_dia.isoformat(),
@@ -115,9 +137,9 @@ def disponibilidad_mes(
 
     return resultado
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # CREAR VISITA + EMAIL
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.post(
     "/",
@@ -148,17 +170,17 @@ def crear_visita(
             detail=str(e)
         )
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # LISTAR TODAS
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
     return crud_visita.get_visitas(db)
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # OBTENER POR ID
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/{visita_id}", response_model=VisitaOut)
 def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
@@ -172,9 +194,9 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
 
     return visita
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # CANCELAR
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 @router.delete("/{visita_id}", status_code=status.HTTP_204_NO_CONTENT)
 def cancelar_visita(visita_id: int, db: Session = Depends(get_db)):
