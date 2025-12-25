@@ -13,6 +13,13 @@ class Barbero(Base):
 
     id_barbero: Mapped[int] = mapped_column(INTEGER, primary_key=True)
     nombre: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    # 👇 FOTO DEL BARBERO
+    foto_url: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True
+    )
+
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         TIMESTAMP,
         server_default=text('CURRENT_TIMESTAMP')

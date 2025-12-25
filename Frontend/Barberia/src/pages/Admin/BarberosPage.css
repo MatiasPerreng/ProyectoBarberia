@@ -1,0 +1,135 @@
+/* ======================================================
+   HEADER
+====================================================== */
+
+.admin-page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.admin-page-header h2 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-right: auto;
+}
+
+/* Botón nuevo barbero */
+.admin-page-header button {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: none;
+  background: #e6c77b;
+  color: #000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.admin-page-header button:hover {
+  background: #f0d58d;
+}
+
+/* ======================================================
+   TABLA / LISTADO
+====================================================== */
+
+.admin-table {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Fila */
+.admin-row {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Info barbero */
+.admin-row strong {
+  font-size: 1rem;
+}
+
+.admin-row small {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Estado */
+.status {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status.active {
+  color: #2e7d32;
+}
+
+.status.inactive {
+  color: #a40000;
+}
+
+/* Botón activar / desactivar */
+.admin-actions button {
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: #e6c77b;
+  color: #000;
+  font-weight: 600;
+}
+
+.admin-actions button:hover {
+  background: #f0d58d;
+}
+
+/* ======================================================
+   RESPONSIVE – MOBILE
+====================================================== */
+
+@media (max-width: 600px) {
+  .admin-page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .admin-page-header button {
+    width: 100%;
+  }
+
+  .admin-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .admin-actions {
+    justify-content: space-between;
+  }
+
+  .admin-actions button {
+    width: 100%;
+  }
+}

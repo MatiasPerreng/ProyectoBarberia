@@ -5,11 +5,15 @@ from models import Barbero, Visita, Cliente, Servicio
 from schemas import BarberoCreate, BarberoUpdate
 
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# BARBEROS
+# ----------------------------------------------------------------------------------------------------------------------
 
 def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
     barbero = Barbero(
-        nombre=barbero_in.nombre
+        nombre=barbero_in.nombre,
+        email=barbero_in.email,
+        foto_url=None 
     )
 
     db.add(barbero)
@@ -40,6 +44,9 @@ def update_barbero(
     if barbero_in.nombre is not None:
         barbero.nombre = barbero_in.nombre
 
+    if barbero_in.foto_url is not None:
+        barbero.foto_url = barbero_in.foto_url
+
     db.commit()
     db.refresh(barbero)
 
@@ -50,9 +57,10 @@ def delete_barbero(db: Session, barbero: Barbero) -> None:
     db.delete(barbero)
     db.commit()
 
-#----------------------------------------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------
 # AGENDA DEL BARBERO (LECTURA)
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 def get_agenda_barbero(db: Session, barbero_id: int):
     return (
