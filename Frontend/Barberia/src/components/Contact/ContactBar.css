@@ -1,0 +1,114 @@
+
+/* =======================================================
+   CONTACT CARD (EDITORIAL / MINIMAL)
+======================================================= */
+
+.contact-card {
+  margin: 60px auto 0;
+  padding: 48px 40px;
+  max-width: 700px;
+  background: #f7f5f3;
+  color: #111;
+}
+
+/* =======================================================
+   TITULOS
+======================================================= */
+
+.contact-title {
+  margin: 0 0 10px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.contact-subtitle {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* =======================================================
+   DIVIDER
+======================================================= */
+
+.contact-divider {
+  margin: 28px 0;
+  height: 1px;
+  background: #222;
+  opacity: 0.15;
+}
+
+/* =======================================================
+   ITEMS
+======================================================= */
+
+.contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-label {
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-icon {
+  font-size: 0.9rem;
+}
+
+.contact-text {
+  font-size: 0.95rem;
+  color: #222;
+}
+
+/* =======================================================
+   SOCIALS
+======================================================= */
+
+.contact-socials {
+  margin-top: 32px;
+  display: flex;
+  gap: 14px;
+}
+
+.contact-socials a {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.contact-socials a:hover {
+  transform: translateY(-2px);
+  opacity: 0.8;
+}
+
+.contact-socials img {
+  width: 20px;
+  height: 20px;
+}
+
+/* =======================================================
+   RESPONSIVE
+======================================================= */
+
+@media (max-width: 600px) {
+  .contact-card {
+    padding: 36px 24px;
+  }
+
+  .contact-title {
+    font-size: 1.5rem;
+  }
+}

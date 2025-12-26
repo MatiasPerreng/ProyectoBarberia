@@ -3,6 +3,7 @@ import ServiciosList from "../../../components/ServiceList/ServiceList";
 import MapEmbed from "../../../components/Map/MapEmbed";
 import Footer from "../../../components/Footer/Footer";
 import GalleryCarousel from "../../../components/Gallery/GalleryCarousel";
+import ContactBar from "../../../components/Contact/ContactBar";
 import './Homepage.css'
 import { useNavigate } from "react-router-dom";
 
@@ -50,8 +51,8 @@ export default function HomePage() {
             {/* MAPA */}
             <section id="ubicacion" className="bg-light py-5">
                 <div className="container">
-                    <h2 className="mb-4 text-center">Dónde nos encontramos?</h2>
                     <MapEmbed />
+                    <ContactBar />
                 </div>
             </section>
 
