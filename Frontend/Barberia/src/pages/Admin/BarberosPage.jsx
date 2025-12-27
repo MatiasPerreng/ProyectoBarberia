@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/Admin/AdminLayout/AdminLayout";
 import BarberoForm from "../../components/Admin/BarberoForm/BarberoForm";
+import Footer from "../../components/Footer/Footer";
 import "./BarberosPage.css";
 
 import {
@@ -39,7 +40,7 @@ const BarberosPage = () => {
       const barbero = await crearBarbero(data);
       await loadBarberos();
       setShowForm(false);
-      return barbero; // 👈 para subir foto
+      return barbero;
     } catch (err) {
       console.error("Error creando barbero:", err);
       setError("No se pudo crear el barbero");
@@ -52,7 +53,7 @@ const BarberosPage = () => {
   // ----------------------------
   const handleToggle = async (barbero) => {
     try {
-      // 🔥 optimista (opcional pero pro)
+      // optimista
       setBarberos((prev) =>
         prev.map((b) =>
           b.id_barbero === barbero.id_barbero
@@ -65,54 +66,58 @@ const BarberosPage = () => {
     } catch (err) {
       console.error("Error actualizando barbero:", err);
       setError("No se pudo actualizar el barbero");
-      loadBarberos(); // rollback si falla
+      loadBarberos();
     }
   };
 
   return (
-    <AdminLayout>
-      <div className="admin-page-header">
-        <h2>Barberos</h2>
+    <>
+      <AdminLayout>
+        <div className="admin-page-header">
+          <h2>Barberos</h2>
 
-        <button onClick={() => setShowForm(true)}>
-          + Nuevo barbero
-        </button>
-      </div>
+          <button onClick={() => setShowForm(true)}>
+            + Nuevo barbero
+          </button>
+        </div>
 
-      {error && <p className="error">{error}</p>}
+        {error && <p className="error">{error}</p>}
 
-      <div className="admin-table">
-        {barberos.map((b) => (
-          <div className="admin-row" key={b.id_barbero}>
-            <div>
-              <strong>{b.nombre}</strong>
-              {b.email && <small>{b.email}</small>}
+        <div className="admin-table">
+          {barberos.map((b) => (
+            <div className="admin-row" key={b.id_barbero}>
+              <div>
+                <strong>{b.nombre}</strong>
+                {b.email && <small>{b.email}</small>}
+              </div>
+
+              <div className="admin-actions">
+                <span
+                  className={`status ${
+                    b.activo ? "active" : "inactive"
+                  }`}
+                >
+                  {b.activo ? "Activo" : "Inactivo"}
+                </span>
+
+                <button onClick={() => handleToggle(b)}>
+                  {b.activo ? "Desactivar" : "Activar"}
+                </button>
+              </div>
             </div>
+          ))}
+        </div>
 
-            <div className="admin-actions">
-              <span
-                className={`status ${
-                  b.activo ? "active" : "inactive"
-                }`}
-              >
-                {b.activo ? "Activo" : "Inactivo"}
-              </span>
+        {showForm && (
+          <BarberoForm
+            onSubmit={handleCreate}
+            onClose={() => setShowForm(false)}
+          />
+        )}
+      </AdminLayout>
 
-              <button onClick={() => handleToggle(b)}>
-                {b.activo ? "Desactivar" : "Activar"}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {showForm && (
-        <BarberoForm
-          onSubmit={handleCreate}
-          onClose={() => setShowForm(false)}
-        />
-      )}
-    </AdminLayout>
+      <Footer />
+    </>
   );
 };
 

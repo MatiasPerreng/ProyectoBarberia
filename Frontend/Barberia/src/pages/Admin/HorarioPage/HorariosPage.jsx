@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import HorarioForm from "../../../components/Admin/HorarioForm";
 import HorarioList from "../../../components/Admin/HorarioList";
-
+import Footer from "../../../components/Footer/Footer";
 import { getBarberos } from "../../../services/barberos";
 import {
   getHorariosBarbero,
@@ -10,19 +10,41 @@ import {
   eliminarHorario,
 } from "../../../services/horarios";
 
-/**
- * Mueve una fecha ISO (YYYY-MM-DD) al PRÓXIMO día de la semana indicado
- * NUNCA va hacia atrás en el calendario
- */
-const moverFechaAlProximoDia = (fechaISO, diaDestino) => {
-  const fecha = new Date(fechaISO);
-  const diaActual = fecha.getDay() === 0 ? 7 : fecha.getDay(); // 1-7
+
+const parseFechaLocal = (isoDate) => {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
+
+
+const normalizarRangoPorDia = ({
+  fecha_desde,
+  fecha_hasta,
+  dia_semana,
+}) => {
+  const desde = parseFechaLocal(fecha_desde);
+  const hasta = parseFechaLocal(fecha_hasta);
+
+  const diaActual = desde.getDay() === 0 ? 7 : desde.getDay();
+  const diaDestino = Number(dia_semana);
 
   let diff = diaDestino - diaActual;
-  if (diff <= 0) diff += 7; // 🔑 siempre hacia adelante
+  if (diff < 0) diff += 7;
 
-  fecha.setDate(fecha.getDate() + diff);
-  return fecha.toISOString().slice(0, 10);
+  if (diff === 0) {
+    return { fecha_desde, fecha_hasta };
+  }
+
+  const nuevaDesde = new Date(desde);
+  nuevaDesde.setDate(nuevaDesde.getDate() + diff);
+
+  const nuevaHasta = new Date(hasta);
+  nuevaHasta.setDate(nuevaHasta.getDate() + diff);
+
+  return {
+    fecha_desde: nuevaDesde.toISOString().slice(0, 10),
+    fecha_hasta: nuevaHasta.toISOString().slice(0, 10),
+  };
 };
 
 const HorariosPage = () => {
@@ -45,7 +67,7 @@ const HorariosPage = () => {
   }, []);
 
   // ----------------------------
-  // Cargar horarios del barbero
+  // Cargar horarios
   // ----------------------------
   useEffect(() => {
     if (!barberoSeleccionado) {
@@ -63,11 +85,23 @@ const HorariosPage = () => {
   }, [barberoSeleccionado]);
 
   // ----------------------------
-  // Crear horario (desde form)
+  // CREAR HORARIO (MODAL)
+  // 🔑 PASA POR NORMALIZACIÓN
   // ----------------------------
   const handleCreate = async (data) => {
     try {
-      await crearHorario(data);
+      const fechasNormalizadas = normalizarRangoPorDia({
+        fecha_desde: data.fecha_desde,
+        fecha_hasta: data.fecha_hasta,
+        dia_semana: data.dia_semana,
+      });
+
+      await crearHorario({
+        ...data,
+        dia_semana: Number(data.dia_semana),
+        ...fechasNormalizadas,
+      });
+
       setShowForm(false);
 
       const updated = await getHorariosBarbero(barberoSeleccionado);
@@ -93,38 +127,23 @@ const HorariosPage = () => {
   };
 
   // ----------------------------
-  // COPIAR HORARIO (LÓGICA CORRECTA)
+  // COPIAR HORARIO
+  // 🔑 USA LA MISMA FUNCIÓN
   // ----------------------------
   const handleCopy = async (horario, nuevoDia) => {
     try {
-      // 1️⃣ mover fecha_desde al próximo día correcto
-      const nuevaFechaDesde = moverFechaAlProximoDia(
-        horario.fecha_desde,
-        nuevoDia
-      );
-
-      // 2️⃣ calcular duración original en días
-      const d1 = new Date(horario.fecha_desde);
-      const d2 = new Date(horario.fecha_hasta);
-      const duracionDias = Math.round(
-        (d2 - d1) / (1000 * 60 * 60 * 24)
-      );
-
-      // 3️⃣ nueva fecha_hasta = nueva fecha_desde + duración
-      const nuevaFechaHasta = new Date(nuevaFechaDesde);
-      nuevaFechaHasta.setDate(
-        nuevaFechaHasta.getDate() + duracionDias
-      );
+      const fechasNormalizadas = normalizarRangoPorDia({
+        fecha_desde: horario.fecha_desde,
+        fecha_hasta: horario.fecha_hasta,
+        dia_semana: nuevoDia,
+      });
 
       await crearHorario({
         id_barbero: horario.id_barbero,
-        dia_semana: nuevoDia,
+        dia_semana: Number(nuevoDia),
         hora_desde: horario.hora_desde,
         hora_hasta: horario.hora_hasta,
-        fecha_desde: nuevaFechaDesde,
-        fecha_hasta: nuevaFechaHasta
-          .toISOString()
-          .slice(0, 10),
+        ...fechasNormalizadas,
       });
 
       const updated = await getHorariosBarbero(barberoSeleccionado);
@@ -134,55 +153,58 @@ const HorariosPage = () => {
     }
   };
 
-  return (
-    <AdminLayout>
-      <div className="admin-page-header">
-        <h2>Horarios</h2>
+    return (
+    <>
+      <AdminLayout>
+        <div className="admin-page-header">
+          <h2>Horarios</h2>
 
-        <select
-          value={barberoSeleccionado ?? ""}
-          onChange={(e) =>
-            setBarberoSeleccionado(
-              e.target.value ? Number(e.target.value) : null
-            )
-          }
-        >
-          <option value="">Seleccionar barbero</option>
-          {barberos.map((b) => (
-            <option key={b.id_barbero} value={b.id_barbero}>
-              {b.nombre}
-            </option>
-          ))}
-        </select>
+          <select
+            value={barberoSeleccionado ?? ""}
+            onChange={(e) =>
+              setBarberoSeleccionado(
+                e.target.value ? Number(e.target.value) : null
+              )
+            }
+          >
+            <option value="">Seleccionar barbero</option>
+            {barberos.map((b) => (
+              <option key={b.id_barbero} value={b.id_barbero}>
+                {b.nombre}
+              </option>
+            ))}
+          </select>
 
-        {barberoSeleccionado && (
-          <button onClick={() => setShowForm(true)}>
-            + Nuevo horario
-          </button>
+          {barberoSeleccionado && (
+            <button onClick={() => setShowForm(true)}>
+              + Nuevo horario
+            </button>
+          )}
+        </div>
+
+        {error && <p className="error">{error}</p>}
+        {loading && <p>Cargando horarios…</p>}
+
+        {!loading && barberoSeleccionado && (
+          <HorarioList
+            horarios={horarios}
+            onDelete={handleDelete}
+            onCopy={handleCopy}
+          />
         )}
-      </div>
 
-      {error && <p className="error">{error}</p>}
+        {showForm && (
+          <HorarioForm
+            idBarbero={barberoSeleccionado}
+            horariosExistentes={horarios}
+            onSubmit={handleCreate}
+            onClose={() => setShowForm(false)}
+          />
+        )}
+      </AdminLayout>
 
-      {loading && <p>Cargando horarios…</p>}
-
-      {!loading && barberoSeleccionado && (
-        <HorarioList
-          horarios={horarios}
-          onDelete={handleDelete}
-          onCopy={handleCopy}
-        />
-      )}
-
-      {showForm && (
-        <HorarioForm
-          idBarbero={barberoSeleccionado}
-          horariosExistentes={horarios}
-          onSubmit={handleCreate}
-          onClose={() => setShowForm(false)}
-        />
-      )}
-    </AdminLayout>
+      <Footer />
+    </>
   );
 };
 
