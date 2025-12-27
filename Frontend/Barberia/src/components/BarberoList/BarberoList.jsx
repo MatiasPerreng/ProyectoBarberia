@@ -66,16 +66,19 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
               {barberos.map((barbero) => (
                 <div
                   key={barbero.id_barbero}
-                  className={`barbero-card ${
-                    barberoSeleccionado?.id_barbero === barbero.id_barbero
+                  className={`barbero-card ${barberoSeleccionado?.id_barbero === barbero.id_barbero
                       ? "selected"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleSelect(barbero)}
                 >
                   <div className="avatar">
                     <img
-                      src="/barbero-placeholder.png"
+                      src={
+                        barbero.foto_url
+                          ? `${API_URL}${barbero.foto_url}`
+                          : "/barbero-placeholder.png"
+                      }
                       alt={barbero.nombre}
                     />
                   </div>

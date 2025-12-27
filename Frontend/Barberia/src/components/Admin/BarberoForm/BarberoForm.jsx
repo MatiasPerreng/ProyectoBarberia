@@ -4,7 +4,6 @@ import { subirFotoBarbero } from "../../../services/barberos";
 
 const BarberoForm = ({ onSubmit, onClose }) => {
   const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -22,8 +21,8 @@ const BarberoForm = ({ onSubmit, onClose }) => {
     setLoading(true);
 
     try {
-      // 1️⃣ crear barbero
-      const barbero = await onSubmit({ nombre, email });
+      // 1️⃣ crear barbero (SOLO nombre)
+      const barbero = await onSubmit({ nombre });
 
       // 2️⃣ subir foto
       if (foto && barbero?.id_barbero) {
@@ -54,19 +53,11 @@ const BarberoForm = ({ onSubmit, onClose }) => {
           />
 
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
           />
 
-          {/* 👇 FEEDBACK VISUAL */}
           {preview && (
             <img
               src={preview}

@@ -45,7 +45,7 @@ export async function subirFotoBarbero(idBarbero, file) {
   return await res.json();
 }
 
-// 🔥 NUEVO: toggle real (sin body)
+// 🔥 toggle de estado
 export async function toggleBarbero(idBarbero) {
   const res = await fetch(
     `${API_URL}/barberos/${idBarbero}/toggle`,

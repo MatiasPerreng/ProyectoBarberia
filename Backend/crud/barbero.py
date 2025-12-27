@@ -12,7 +12,6 @@ from schemas import BarberoCreate, BarberoUpdate
 def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
     barbero = Barbero(
         nombre=barbero_in.nombre,
-        email=barbero_in.email,
         activo=True,
         foto_url=None
     )
