@@ -11,6 +11,7 @@ import AgendaPage from "../pages/Public/AgendaPage";
 ========================= */
 import LoginBarbero from "../pages/Barber/LoginBarbero";
 import BarberAgenda from "../pages/Barber/BarberAgenda";
+import BarberoDashboard from "../pages/Barbero/BarberoDashboard";
 import ProtectedRoute from "./ProtectedRoute";
 
 /* =========================
@@ -19,7 +20,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberosPage";
 import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
-import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage"; 
+import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage";
 
 export default function AppRouter() {
   return (
@@ -35,6 +36,17 @@ export default function AppRouter() {
       ========================= */}
       <Route path="/login-barbero" element={<LoginBarbero />} />
 
+      {/* Dashboard principal del barbero */}
+      <Route
+        path="/barbero"
+        element={
+          <ProtectedRoute>
+            <BarberoDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Agenda del barbero (la que ya tenías) */}
       <Route
         path="/barbero/agenda"
         element={
@@ -44,6 +56,9 @@ export default function AppRouter() {
         }
       />
 
+      {/* =========================
+         ADMIN
+      ========================= */}
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin/barberos" element={<BarberosPage />} />
       <Route path="/admin/horarios" element={<HorariosPage />} />
