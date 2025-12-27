@@ -3,7 +3,6 @@ import Footer from "../Footer/Footer";
 import "./BarberoList.css";
 import API_URL from "../../services/api";
 
-
 const BarberosList = ({ onSelectBarbero, onVolver }) => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
@@ -22,57 +21,62 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
 
   return (
     <>
-      <div className="booking-overlay">
-        <div className="booking-container">
-          <aside className="booking-sidebar">
-            <div className="logo">
+      <div className="bl-overlay">
+        <div className="bl-container">
+          {/* SIDEBAR */}
+          <aside className="bl-sidebar">
+            <div className="bl-logo">
               <img src="logo.jpg" alt="King Barber" />
             </div>
 
-            <ul className="steps">
-              <li className="step done">
-                <span className="step-number">✓</span>
-                <p className="step-text">Servicio</p>
+            <ul className="bl-steps">
+              <li className="bl-step done">
+                <span className="bl-step-number">✓</span>
+                <p className="bl-step-text">Servicio</p>
               </li>
-              <li className="step active">
-                <span className="step-number">2</span>
-                <p className="step-text">Personal</p>
+
+              <li className="bl-step active">
+                <span className="bl-step-number">2</span>
+                <p className="bl-step-text">Personal</p>
               </li>
-              <li className="step">
-                <span className="step-number">3</span>
-                <p className="step-text">Fecha y hora</p>
+
+              <li className="bl-step">
+                <span className="bl-step-number">3</span>
+                <p className="bl-step-text">Fecha y hora</p>
               </li>
-              <li className="step">
-                <span className="step-number">4</span>
-                <p className="step-text">Información</p>
+
+              <li className="bl-step">
+                <span className="bl-step-number">4</span>
+                <p className="bl-step-text">Información</p>
               </li>
             </ul>
 
-            <div className="sidebar-footer">
+            <div className="bl-sidebar-footer">
               <p>¿Tenés alguna pregunta?</p>
               <small>099 611 465</small>
             </div>
           </aside>
 
-          <section className="booking-content">
-            {/* BOTÓN VOLVER */}
-            <button className="btn-volver" onClick={onVolver}>
+          {/* CONTENT */}
+          <section className="bl-content">
+            <button className="bl-btn-volver" onClick={onVolver}>
               ← Volver
             </button>
 
             <h3>Seleccionar personal</h3>
 
-            <div className="barberos-grid">
+            <div className="bl-grid">
               {barberos.map((barbero) => (
                 <div
                   key={barbero.id_barbero}
-                  className={`barbero-card ${barberoSeleccionado?.id_barbero === barbero.id_barbero
+                  className={`bl-card ${
+                    barberoSeleccionado?.id_barbero === barbero.id_barbero
                       ? "selected"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleSelect(barbero)}
                 >
-                  <div className="avatar">
+                  <div className="bl-avatar">
                     <img
                       src={
                         barbero.foto_url
@@ -83,9 +87,9 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
                     />
                   </div>
 
-                  <div className="barbero-info">
+                  <div className="bl-info">
                     <h4>{barbero.nombre}</h4>
-                    <span className="role-text">barbero</span>
+                    <span className="bl-role">barbero</span>
                   </div>
                 </div>
               ))}

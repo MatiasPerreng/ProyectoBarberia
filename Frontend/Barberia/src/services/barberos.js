@@ -75,3 +75,14 @@ export async function getAgendaBarbero() {
 
   return await res.json();
 }
+
+export async function eliminarBarbero(idBarbero) {
+  const res = await fetch(`${API_URL}/barberos/${idBarbero}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Error al eliminar barbero");
+  }
+}

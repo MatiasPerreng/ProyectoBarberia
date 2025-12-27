@@ -5,63 +5,123 @@
 .admin-page-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 28px;
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
 .admin-page-header h2 {
-  font-size: 1.7rem;
-  font-weight: 700;
+  font-size: 1.9rem;
+  font-weight: 800;
   margin-right: auto;
+  color: #111;
+  letter-spacing: 0.5px;
 }
 
 /* Botón nuevo barbero */
 .admin-page-header button {
-  height: 38px;
-  padding: 0 18px;
-  border-radius: 10px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 14px;
   border: none;
-  background: #e6c77b;
+  background: linear-gradient(135deg, #e6c77b, #f3db9c);
   color: #000;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(230, 199, 123, 0.35);
+  transition: all 0.25s ease;
 }
 
 .admin-page-header button:hover {
-  background: #f0d58d;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(230, 199, 123, 0.45);
 }
 
 /* ======================================================
-   TABLA / LISTADO
+   LISTADO
 ====================================================== */
 
 .admin-table {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* Fila */
 .admin-row {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 16px 18px;
+  background: linear-gradient(180deg, #ffffff, #f6f7f8);
+  border-radius: 16px;
+  padding: 18px 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  gap: 18px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.25s ease;
 }
 
-/* Info barbero */
-.admin-row strong {
-  font-size: 1rem;
+.admin-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12);
 }
 
-.admin-row small {
-  display: block;
+/* ======================================================
+   AVATAR
+====================================================== */
+
+.admin-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(230, 199, 123, 0.9);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* ======================================================
+   INFO
+====================================================== */
+
+.admin-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-info strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.admin-info small {
   font-size: 0.8rem;
   color: #777;
+}
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.status {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.status.active {
+  color: #1b5e20;
+  background: rgba(46, 125, 50, 0.12);
+}
+
+.status.inactive {
+  color: #8b0000;
+  background: rgba(164, 0, 0, 0.12);
 }
 
 /* ======================================================
@@ -74,34 +134,34 @@
   gap: 10px;
 }
 
-/* Estado */
-.status {
+/* Botones base */
+.admin-actions button {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: none;
   font-size: 0.8rem;
   font-weight: 700;
-}
-
-.status.active {
-  color: #2e7d32;
-}
-
-.status.inactive {
-  color: #a40000;
-}
-
-/* Botón activar / desactivar */
-.admin-actions button {
-  padding: 7px 14px;
-  border-radius: 10px;
-  border: none;
-  font-size: 0.85rem;
   cursor: pointer;
-  background: #e6c77b;
+  background: linear-gradient(135deg, #e6c77b, #f3db9c);
   color: #000;
-  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 14px rgba(230, 199, 123, 0.35);
 }
 
 .admin-actions button:hover {
-  background: #f0d58d;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(230, 199, 123, 0.45);
+}
+
+/* Danger */
+.admin-actions button.danger {
+  background: linear-gradient(135deg, #b91c1c, #e53935);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(185, 28, 28, 0.35);
+}
+
+.admin-actions button.danger:hover {
+  box-shadow: 0 10px 22px rgba(185, 28, 28, 0.45);
 }
 
 /* ======================================================
@@ -112,7 +172,7 @@
   .admin-page-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 12px;
   }
 
   .admin-page-header button {
@@ -122,11 +182,23 @@
   .admin-row {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 14px;
+  }
+
+  .admin-avatar {
+    width: 64px;
+    height: 64px;
+    align-self: center;
+  }
+
+  .admin-info {
+    align-items: center;
+    text-align: center;
   }
 
   .admin-actions {
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .admin-actions button {

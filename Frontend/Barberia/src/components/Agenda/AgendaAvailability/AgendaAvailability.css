@@ -1,8 +1,178 @@
 /* =======================================================
+   OVERLAY & CONTAINER
+======================================================= */
+
+.aa-booking-overlay {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(230, 199, 123, 0.22) 0%,
+      rgba(0, 0, 0, 0.96) 50%
+    ),
+    #000;
+  padding: 20px;
+}
+
+.aa-booking-container {
+  width: 100%;
+  max-width: 900px;
+  height: 620px;
+  background: #f6f7f8;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+/* =======================================================
+   SIDEBAR
+======================================================= */
+
+.aa-booking-sidebar {
+  background: #1c1f24;
+  color: #fff;
+  padding: 45px 35px;
+  display: flex;
+  flex-direction: column;
+}
+
+.aa-logo {
+  margin-bottom: 45px;
+  text-align: center;
+}
+
+.aa-logo img {
+  width: 95px;
+}
+
+/* =========================
+   STEPS (ORIGINAL)
+========================= */
+
+.aa-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.aa-step {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  opacity: 0.3;
+}
+
+.aa-step-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.aa-step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2b2f36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.aa-step.active,
+.aa-step.done {
+  opacity: 1;
+}
+
+.aa-step.active {
+  color: #e6c77b;
+}
+
+.aa-step.active .aa-step-number {
+  background: #e6c77b;
+  color: #111;
+}
+
+/* ✅ FIX */
+.aa-step.done .aa-step-number {
+  background: #caa851;
+  color: #111;
+}
+
+/* =======================================================
+   CONTENT
+======================================================= */
+
+.aa-booking-content {
+  padding: 50px;
+  background: #fff;
+  overflow-y: auto;
+}
+
+.aa-booking-content h3 {
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 35px;
+  color: #111;
+}
+
+/* =======================================================
+   BOTÓN VOLVER
+======================================================= */
+
+.aa-btn-volver {
+  background: transparent;
+  border: none;
+  color: #777;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  padding: 6px 0;
+  margin-bottom: 30px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.aa-btn-volver::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #e6c77b,
+    transparent
+  );
+  transition: width 0.35s ease;
+}
+
+.aa-btn-volver:hover {
+  color: #111;
+}
+
+.aa-btn-volver:hover::after {
+  width: 100%;
+}
+
+/* =======================================================
    HEADER MES
 ======================================================= */
 
-.calendar-header {
+.aa-calendar-header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +180,7 @@
   margin-bottom: 14px;
 }
 
-.month-label {
+.aa-month-label {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -18,7 +188,7 @@
   color: #111;
 }
 
-.month-btn {
+.aa-month-btn {
   background: none;
   border: none;
   font-size: 18px;
@@ -28,7 +198,7 @@
   padding: 4px 6px;
 }
 
-.month-btn:hover {
+.aa-month-btn:hover {
   color: #111;
 }
 
@@ -36,14 +206,14 @@
    DIAS DE LA SEMANA
 ======================================================= */
 
-.calendar-weekdays {
+.aa-calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   margin-bottom: 8px;
 }
 
-.calendar-weekdays span {
+.aa-calendar-weekdays span {
   font-size: 10px;
   letter-spacing: 1.4px;
   text-transform: uppercase;
@@ -51,64 +221,56 @@
 }
 
 /* =======================================================
-   CALENDARIO
+   CALENDARIO (ORIGINAL)
 ======================================================= */
 
-.calendar-grid {
+.aa-calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
   margin-bottom: 28px;
 }
 
-.calendar-day {
+.aa-calendar-day {
   height: 34px;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
   background: #fff;
-
   font-size: 13px;
   font-weight: 600;
   color: #111;
-
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-/* Día disponible */
-.calendar-day.available {
+.aa-calendar-day.available {
   border-bottom: 3px solid #3cb371;
 }
 
-/* Hover disponible */
-.calendar-day.available:hover {
+.aa-calendar-day.available:hover {
   background: #f0fdf4;
 }
 
-/* Día seleccionado */
-.calendar-day.selected {
+.aa-calendar-day.selected {
   background: #3cb371;
   border-color: #3cb371;
   color: #fff;
 }
 
-/* Día completo (rojo – preparado para backend) */
-.calendar-day.full {
+.aa-calendar-day.full {
   border-bottom: 3px solid #dc2626;
   background: #fff5f5;
   color: #991b1b;
 }
 
-/* Día no disponible */
-.calendar-day.disabled {
+.aa-calendar-day.disabled {
   background: #f1f1f1;
   border-color: #e5e5e5;
   color: #bdbdbd;
   cursor: not-allowed;
 }
 
-/* Huecos antes del día 1 */
-.calendar-empty {
+.aa-calendar-empty {
   height: 34px;
 }
 
@@ -116,72 +278,130 @@
    HORARIOS
 ======================================================= */
 
-.horarios-grid {
+.aa-horarios-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
   gap: 8px;
   margin-top: 6px;
 }
 
-/* Botón hora */
-.hora-card {
+.aa-hora-card {
   padding: 8px 0;
   font-size: 12px;
   font-weight: 600;
   color: #111 !important;
-
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
-
   -webkit-appearance: none;
   appearance: none;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hover */
-.hora-card:hover {
+.aa-hora-card:hover {
   background: #3cb371;
   color: #fff !important;
   border-color: #3cb371;
 }
 
-/* Estados iOS */
-.hora-card:visited,
-.hora-card:active,
-.hora-card:focus {
+.aa-hora-card:visited,
+.aa-hora-card:active,
+.aa-hora-card:focus {
   color: #111 !important;
   outline: none;
 }
 
-/* Sin horarios */
-.no-horarios {
+.aa-no-horarios {
   grid-column: 1 / -1;
   font-size: 12px;
   color: #999;
   text-align: left;
 }
 
+/* =======================================================
+   MOBILE
+======================================================= */
+
 @media (max-width: 899px) {
-  .calendar-grid {
-    gap: 5px;
+  .aa-booking-overlay {
+    background: #1c1f24;
+    padding: 20px 0;
   }
 
-  .calendar-day {
+  .aa-booking-container {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 420px;
+    min-height: 580px;
+    height: auto;
+    background: #1c1f24;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  .aa-booking-sidebar {
+    padding: 30px 20px 25px;
+  }
+
+  .aa-logo {
+    margin-bottom: 20px;
+  }
+
+  .aa-logo img {
+    width: 75px;
+  }
+
+  .aa-sidebar-footer {
+    display: none;
+  }
+
+  .aa-steps {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .aa-step-text {
+    display: none;
+  }
+
+  .aa-step-number {
+    width: 32px;
     height: 32px;
     font-size: 12px;
   }
 
-  .horarios-grid {
+  .aa-booking-content {
+    background: #fff;
+    padding: 30px 18px;
+    flex: 1;
+  }
+
+  .aa-booking-content h3 {
+    font-size: 14px;
+    margin-bottom: 25px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+
+  .aa-calendar-grid {
+    gap: 5px;
+  }
+
+  .aa-calendar-day {
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .aa-horarios-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
 
-  .hora-card {
+  .aa-hora-card {
     font-size: 11px;
     padding: 7px 0;
   }

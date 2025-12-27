@@ -1,0 +1,224 @@
+/* ======================================================
+   OVERLAY
+====================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* ======================================================
+   MODAL CARD
+====================================================== */
+
+.modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, #ffffff, #f6f7f8);
+  border-radius: 22px;
+  padding: 28px 30px 32px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: modalIn 0.35s ease;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.modal-card h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 18px;
+  letter-spacing: 0.4px;
+}
+
+/* ======================================================
+   ERROR
+====================================================== */
+
+.error {
+  background: rgba(185, 28, 28, 0.1);
+  color: #8b0000;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+}
+
+/* ======================================================
+   COPIAR HORARIO
+====================================================== */
+
+.copiar-horario {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.copiar-horario select {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 0.85rem;
+}
+
+.copiar-horario button {
+  padding: 0 16px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, #e6c77b, #f3db9c);
+  color: #000;
+  box-shadow: 0 6px 16px rgba(230, 199, 123, 0.35);
+  transition: all 0.2s ease;
+}
+
+.copiar-horario button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(230, 199, 123, 0.45);
+}
+
+/* ======================================================
+   FORM GRID
+====================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 14px;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+}
+
+/* Inputs */
+.form-grid input,
+.form-grid select {
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+  background: #fff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-grid input:focus,
+.form-grid select:focus {
+  outline: none;
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.25);
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* Botón secundario */
+.btn-secondary {
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #f2f2f2;
+}
+
+/* Botón principal */
+.form-actions button[type="submit"] {
+  padding: 10px 22px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #e6c77b, #f3db9c);
+  color: #000;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(230, 199, 123, 0.4);
+  transition: all 0.2s ease;
+}
+
+.form-actions button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(230, 199, 123, 0.5);
+}
+
+.form-actions button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ======================================================
+   RESPONSIVE – MOBILE
+====================================================== */
+
+@media (max-width: 600px) {
+  .modal-card {
+    margin: 0 14px;
+    padding: 24px 20px 26px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .copiar-horario {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}

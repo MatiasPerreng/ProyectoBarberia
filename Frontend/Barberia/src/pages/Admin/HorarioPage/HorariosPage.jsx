@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
-import HorarioForm from "../../../components/Admin/HorarioForm";
+import HorarioForm from "../../../components/Admin/HorarioForm/HorarioForm";
 import HorarioList from "../../../components/Admin/HorarioList";
 import Footer from "../../../components/Footer/Footer";
 import { getBarberos } from "../../../services/barberos";

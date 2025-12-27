@@ -15,8 +15,6 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ---------------- VALIDACIONES ----------------
-
   const validarEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -26,170 +24,143 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   const validate = () => {
     const newErrors = {};
 
-    if (!form.nombre.trim()) {
-      newErrors.nombre = "El nombre es obligatorio";
-    }
-
-    if (!form.apellido.trim()) {
-      newErrors.apellido = "El apellido es obligatorio";
-    }
-
-    // email es opcional, pero si viene, debe ser válido
-    if (form.email.trim() && !validarEmail(form.email)) {
+    if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
+    if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
+    if (form.email.trim() && !validarEmail(form.email))
       newErrors.email = "Email inválido";
-    }
-
-    // teléfono es opcional, pero si viene, debe ser válido
-    if (form.telefono.trim() && !validarTelefono(form.telefono)) {
+    if (form.telefono.trim() && !validarTelefono(form.telefono))
       newErrors.telefono = "Teléfono inválido";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // ---------------- HANDLERS ----------------
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
 
     setLoading(true);
-
     try {
-      // 🔥 FIX DEFINITIVO DEL 422
       await onSubmit({
         ...form,
         email: form.email.trim() || null,
         telefono: form.telefono.trim() || null,
       });
-
       setShowSuccess(true);
-    } catch (err) {
-      console.error("Error al agendar:", err);
+    } catch {
       alert("Ocurrió un error al agendar el turno");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- RENDER ----------------
-
   return (
     <>
-      <div className="booking-overlay">
-        <div className="booking-container">
-          {/* SIDEBAR */}
-          <aside className="booking-sidebar">
-            <div className="logo">
+      <div className="af-booking-overlay">
+        <div className="af-booking-container">
+          <aside className="af-booking-sidebar">
+            <div className="af-logo">
               <img src="logo.jpg" alt="King Barber" />
             </div>
 
-            <ul className="steps">
-              <li className="step done">
-                <span className="step-number">✓</span>
-                <p className="step-text">Servicio</p>
+            <ul className="af-steps">
+              <li className="af-step done">
+                <span className="af-step-number">✓</span>
+                <p className="af-step-text">Servicio</p>
               </li>
-              <li className="step done">
-                <span className="step-number">✓</span>
-                <p className="step-text">Personal</p>
+              <li className="af-step done">
+                <span className="af-step-number">✓</span>
+                <p className="af-step-text">Personal</p>
               </li>
-              <li className="step done">
-                <span className="step-number">✓</span>
-                <p className="step-text">Fecha y hora</p>
+              <li className="af-step done">
+                <span className="af-step-number">✓</span>
+                <p className="af-step-text">Fecha y hora</p>
               </li>
-              <li className="step active">
-                <span className="step-number">4</span>
-                <p className="step-text">Información</p>
+              <li className="af-step active">
+                <span className="af-step-number">4</span>
+                <p className="af-step-text">Información</p>
               </li>
             </ul>
 
-            <div className="sidebar-footer">
+            <div className="af-sidebar-footer">
               <p>¿Tenés alguna pregunta?</p>
               <small>099 611 465</small>
             </div>
           </aside>
 
-          {/* CONTENIDO */}
-          <section className="booking-content">
-            {/* BOTÓN VOLVER */}
-            <button className="btn-volver" onClick={onVolver}>
+          <section className="af-booking-content">
+            <button className="af-btn-volver" onClick={onVolver}>
               ← Volver
             </button>
 
             <h3>Rellená la información</h3>
 
-            <form className="form-grid" onSubmit={handleSubmit} noValidate>
-              <div className="form-group">
+            <form className="af-form-grid" onSubmit={handleSubmit} noValidate>
+              <div className="af-form-group">
                 <label>Email</label>
                 <input
                   type="email"
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  className={errors.email ? "input-error" : ""}
+                  className={errors.email ? "af-input-error" : ""}
                 />
                 {errors.email && (
-                  <small className="error">{errors.email}</small>
+                  <small className="af-error">{errors.email}</small>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="af-form-group">
                 <label>Teléfono</label>
                 <input
                   type="text"
                   name="telefono"
                   value={form.telefono}
                   onChange={handleChange}
-                  className={errors.telefono ? "input-error" : ""}
+                  className={errors.telefono ? "af-input-error" : ""}
                 />
                 {errors.telefono && (
-                  <small className="error">{errors.telefono}</small>
+                  <small className="af-error">{errors.telefono}</small>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="af-form-group">
                 <label>Nombre *</label>
                 <input
                   type="text"
                   name="nombre"
                   value={form.nombre}
                   onChange={handleChange}
-                  className={errors.nombre ? "input-error" : ""}
+                  className={errors.nombre ? "af-input-error" : ""}
                 />
                 {errors.nombre && (
-                  <small className="error">{errors.nombre}</small>
+                  <small className="af-error">{errors.nombre}</small>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="af-form-group">
                 <label>Apellido *</label>
                 <input
                   type="text"
                   name="apellido"
                   value={form.apellido}
                   onChange={handleChange}
-                  className={errors.apellido ? "input-error" : ""}
+                  className={errors.apellido ? "af-input-error" : ""}
                 />
                 {errors.apellido && (
-                  <small className="error">{errors.apellido}</small>
+                  <small className="af-error">{errors.apellido}</small>
                 )}
               </div>
 
-              <div className="form-actions">
+              <div className="af-form-actions">
                 <button
                   type="submit"
-                  className="btn-confirmar"
+                  className="af-btn-confirmar"
                   disabled={loading}
                 >
                   {loading ? "Agendando..." : "Confirmar turno"}

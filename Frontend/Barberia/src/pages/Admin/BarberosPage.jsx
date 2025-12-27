@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AdminLayout from "../../components/Admin/AdminLayout/AdminLayout";
 import BarberoForm from "../../components/Admin/BarberoForm/BarberoForm";
 import Footer from "../../components/Footer/Footer";
@@ -8,12 +8,18 @@ import {
   getBarberos,
   crearBarbero,
   toggleBarbero,
+  subirFotoBarbero,
+  eliminarBarbero,
 } from "../../services/barberos";
+
+import API_URL from "../../services/api";
 
 const BarberosPage = () => {
   const [barberos, setBarberos] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+  const [barberoFotoTarget, setBarberoFotoTarget] = useState(null);
 
   // ----------------------------
   // Cargar barberos
@@ -23,7 +29,7 @@ const BarberosPage = () => {
       const data = await getBarberos();
       setBarberos(data);
     } catch (err) {
-      console.error("Error cargando barberos:", err);
+      console.error(err);
       setError("No se pudieron cargar los barberos");
     }
   };
@@ -36,37 +42,70 @@ const BarberosPage = () => {
   // Crear barbero
   // ----------------------------
   const handleCreate = async (data) => {
+    const barbero = await crearBarbero(data);
+    await loadBarberos();
+    setShowForm(false);
+    return barbero;
+  };
+
+  // ----------------------------
+  // Toggle activo
+  // ----------------------------
+  const handleToggle = async (barbero) => {
+    setBarberos((prev) =>
+      prev.map((b) =>
+        b.id_barbero === barbero.id_barbero
+          ? { ...b, activo: !b.activo }
+          : b
+      )
+    );
+
     try {
-      const barbero = await crearBarbero(data);
-      await loadBarberos();
-      setShowForm(false);
-      return barbero;
-    } catch (err) {
-      console.error("Error creando barbero:", err);
-      setError("No se pudo crear el barbero");
-      throw err;
+      await toggleBarbero(barbero.id_barbero);
+    } catch {
+      loadBarberos();
     }
   };
 
   // ----------------------------
-  // Activar / Desactivar barbero
+  // Eliminar barbero
   // ----------------------------
-  const handleToggle = async (barbero) => {
-    try {
-      // optimista
-      setBarberos((prev) =>
-        prev.map((b) =>
-          b.id_barbero === barbero.id_barbero
-            ? { ...b, activo: !b.activo }
-            : b
-        )
-      );
+  const handleDelete = async (barbero) => {
+    if (
+      !confirm(
+        `¿Eliminar definitivamente al barbero "${barbero.nombre}"?`
+      )
+    )
+      return;
 
-      await toggleBarbero(barbero.id_barbero);
-    } catch (err) {
-      console.error("Error actualizando barbero:", err);
-      setError("No se pudo actualizar el barbero");
+    try {
+      await eliminarBarbero(barbero.id_barbero);
       loadBarberos();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // ----------------------------
+  // Cambiar foto
+  // ----------------------------
+  const handleSelectFoto = (barbero) => {
+    setBarberoFotoTarget(barbero);
+    fileInputRef.current.click();
+  };
+
+  const handleUploadFoto = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !barberoFotoTarget) return;
+
+    try {
+      await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
+      loadBarberos();
+    } catch (err) {
+      alert("Error al subir foto");
+    } finally {
+      e.target.value = "";
+      setBarberoFotoTarget(null);
     }
   };
 
@@ -75,7 +114,6 @@ const BarberosPage = () => {
       <AdminLayout>
         <div className="admin-page-header">
           <h2>Barberos</h2>
-
           <button onClick={() => setShowForm(true)}>
             + Nuevo barbero
           </button>
@@ -86,11 +124,23 @@ const BarberosPage = () => {
         <div className="admin-table">
           {barberos.map((b) => (
             <div className="admin-row" key={b.id_barbero}>
-              <div>
+              {/* FOTO */}
+              <img
+                className="admin-avatar"
+                src={
+                  b.foto_url
+                    ? `${API_URL}${b.foto_url}`
+                    : "/barbero-placeholder.png"
+                }
+                alt={b.nombre}
+              />
+
+              {/* INFO */}
+              <div className="admin-info">
                 <strong>{b.nombre}</strong>
-                {b.email && <small>{b.email}</small>}
               </div>
 
+              {/* ACCIONES */}
               <div className="admin-actions">
                 <span
                   className={`status ${
@@ -103,6 +153,17 @@ const BarberosPage = () => {
                 <button onClick={() => handleToggle(b)}>
                   {b.activo ? "Desactivar" : "Activar"}
                 </button>
+
+                <button onClick={() => handleSelectFoto(b)}>
+                  Cambiar foto
+                </button>
+
+                <button
+                  className="danger"
+                  onClick={() => handleDelete(b)}
+                >
+                  Eliminar
+                </button>
               </div>
             </div>
           ))}
@@ -114,6 +175,15 @@ const BarberosPage = () => {
             onClose={() => setShowForm(false)}
           />
         )}
+
+        {/* INPUT FILE OCULTO */}
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleUploadFoto}
+        />
       </AdminLayout>
 
       <Footer />

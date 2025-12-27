@@ -20,24 +20,19 @@ const AgendaAvailability = ({
   const [horarios, setHorarios] = useState([]);
 
   const meses = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
   ];
 
   const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-  /* =========================
-     GENERAR DÍAS DEL MES
-  ========================= */
   useEffect(() => {
     const primerDiaMes = new Date(anioActual, mesActual, 1);
-    const offset = (primerDiaMes.getDay() + 6) % 7; // lunes = 0
+    const offset = (primerDiaMes.getDay() + 6) % 7;
 
     const totalDias = new Date(anioActual, mesActual + 1, 0).getDate();
-
     const diasMes = [];
 
-    // huecos antes del día 1
     for (let i = 0; i < offset; i++) {
       diasMes.push({ empty: true });
     }
@@ -58,9 +53,6 @@ const AgendaAvailability = ({
     setHorarios([]);
   }, [mesActual, anioActual]);
 
-  /* =========================
-     FETCH HORARIOS
-  ========================= */
   const fetchHorarios = async (fecha) => {
     try {
       const data = await getDisponibilidad({
@@ -80,9 +72,6 @@ const AgendaAvailability = ({
     fetchHorarios(fecha);
   };
 
-  /* =========================
-     CAMBIO DE MES
-  ========================= */
   const mesAnterior = () => {
     if (mesActual === 0) {
       setMesActual(11);
@@ -103,70 +92,67 @@ const AgendaAvailability = ({
 
   return (
     <>
-      <div className="booking-overlay">
-        <div className="booking-container">
-          <aside className="booking-sidebar">
-            <div className="logo">
+      <div className="aa-booking-overlay">
+        <div className="aa-booking-container">
+          <aside className="aa-booking-sidebar">
+            <div className="aa-logo">
               <img src="/logo.jpg" alt="King Barber" />
             </div>
-            <ul className="steps">
-              <li className="step done">
-                <span className="step-number">✓</span>
-                <p className="step-text">Servicio</p>
+
+            <ul className="aa-steps">
+              <li className="aa-step done">
+                <span className="aa-step-number">✓</span>
+                <p className="aa-step-text">Servicio</p>
               </li>
-              <li className="step done">
-                <span className="step-number">✓</span>
-                <p className="step-text">Personal</p>
+              <li className="aa-step done">
+                <span className="aa-step-number">✓</span>
+                <p className="aa-step-text">Personal</p>
               </li>
-              <li className="step active">
-                <span className="step-number">3</span>
-                <p className="step-text">Fecha y hora</p>
+              <li className="aa-step active">
+                <span className="aa-step-number">3</span>
+                <p className="aa-step-text">Fecha y hora</p>
               </li>
-              <li className="step">
-                <span className="step-number">4</span>
-                <p className="step-text">Información</p>
+              <li className="aa-step">
+                <span className="aa-step-number">4</span>
+                <p className="aa-step-text">Información</p>
               </li>
             </ul>
 
-            <div className="sidebar-footer">
+            <div className="aa-sidebar-footer">
               <p>¿Tenés alguna pregunta?</p>
               <small>099 611 465</small>
             </div>
-
           </aside>
 
-          <section className="booking-content">
-            <button className="btn-volver" onClick={onVolver}>
+          <section className="aa-booking-content">
+            <button className="aa-btn-volver" onClick={onVolver}>
               ← Volver
             </button>
 
             <h3>Selecciona la fecha y hora</h3>
 
-            {/* HEADER MES */}
-            <div className="calendar-header">
-              <button className="month-btn" onClick={mesAnterior}>‹</button>
-              <span className="month-label">
+            <div className="aa-calendar-header">
+              <button className="aa-month-btn" onClick={mesAnterior}>‹</button>
+              <span className="aa-month-label">
                 {meses[mesActual]} {anioActual}
               </span>
-              <button className="month-btn" onClick={mesSiguiente}>›</button>
+              <button className="aa-month-btn" onClick={mesSiguiente}>›</button>
             </div>
 
-            {/* HEADER DIAS SEMANA */}
-            <div className="calendar-weekdays">
+            <div className="aa-calendar-weekdays">
               {diasSemana.map((d) => (
                 <span key={d}>{d}</span>
               ))}
             </div>
 
-            {/* CALENDARIO */}
-            <div className="calendar-grid">
+            <div className="aa-calendar-grid">
               {dias.map((d, idx) =>
                 d.empty ? (
-                  <div key={idx} className="calendar-empty" />
+                  <div key={idx} className="aa-calendar-empty" />
                 ) : (
                   <button
                     key={d.fecha}
-                    className={`calendar-day
+                    className={`aa-calendar-day
                       ${d.disponible ? "available" : "disabled"}
                       ${fechaSeleccionada === d.fecha ? "selected" : ""}
                     `}
@@ -179,18 +165,17 @@ const AgendaAvailability = ({
               )}
             </div>
 
-            {/* HORARIOS */}
             {fechaSeleccionada && (
-              <div className="horarios-grid">
+              <div className="aa-horarios-grid">
                 {horarios.length === 0 && (
-                  <p className="no-horarios">
+                  <p className="aa-no-horarios">
                     No hay horarios disponibles
                   </p>
                 )}
                 {horarios.map((hora) => (
                   <button
                     key={hora}
-                    className="hora-card"
+                    className="aa-hora-card"
                     onClick={() =>
                       onSelectFechaHora(`${fechaSeleccionada} ${hora}`)
                     }
