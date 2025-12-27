@@ -1,29 +1,57 @@
+import { useEffect, useState } from "react";
+
 import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import Footer from "../../../components/Footer/Footer";
+
+import { getAdminDashboard } from "../../../services/dashboard";
+
+import DashboardCards from "../../../components/Admin/AdminDashboard/DashboardCards";
+import DashboardDrawer from "../../../components/Admin/AdminDashboard/DashboardDrawer";
+
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerType, setDrawerType] = useState(null);
+
+  useEffect(() => {
+    getAdminDashboard()
+      .then(setStats)
+      .catch(() => setError("No se pudo cargar el dashboard"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const openDrawer = (type) => {
+    setDrawerType(type);
+    setDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    setDrawerType(null);
+  };
+
   return (
     <>
       <AdminLayout>
         <h1>Dashboard</h1>
 
-        <div className="admin-cards">
-          <div className="admin-card">
-            <h3>Barberos</h3>
-            <p>3 activos</p>
-          </div>
+        {loading && <p>Cargando métricas…</p>}
+        {error && <p className="error">{error}</p>}
 
-          <div className="admin-card">
-            <h3>Turnos hoy</h3>
-            <p>5</p>
-          </div>
+        {stats && (
+          <DashboardCards stats={stats} onOpen={openDrawer} />
+        )}
 
-          <div className="admin-card">
-            <h3>Pendientes</h3>
-            <p>2</p>
-          </div>
-        </div>
+        <DashboardDrawer
+          open={drawerOpen}
+          type={drawerType}
+          onClose={closeDrawer}
+        />
       </AdminLayout>
 
       <Footer />
