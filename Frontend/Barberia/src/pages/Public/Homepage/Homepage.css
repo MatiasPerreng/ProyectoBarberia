@@ -1,18 +1,19 @@
 /* =======================================================
-   HERO – BASE (DESKTOP FIRST, RESPONSIVE REAL)
+   GLOBAL
 ======================================================= */
 
 section {
   scroll-margin-top: 80px;
 }
 
+/* =======================================================
+   HERO – BASE (DESKTOP FIRST)
+======================================================= */
+
 .hero-section {
   position: relative;
-
-  /* 🔑 CLAVE: no height fijo */
   min-height: calc(100vh - 68px);
 
-  /* aire real respecto al navbar */
   padding-top: calc(68px + 60px);
   padding-bottom: 90px;
 
@@ -86,16 +87,23 @@ section {
   transform: translateY(-2px);
 }
 
-/* indicador scroll */
-.hero-scroll {
-  position: absolute;
-  bottom: 24px;
-  opacity: 0.4;
+/* =======================================================
+   MAPA + CONTACTO (BLOQUE UNIFICADO)
+======================================================= */
+
+#ubicacion {
+  background: #f8f9fa;
 }
 
+.contact-section {
+  background: #f8f9fa;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+
+
 /* =======================================================
-   DESKTOP BAJO (NOTEBOOKS 1366x768, ZOOM, ETC)
-   👉 responsive por ALTURA (clave)
+   DESKTOP BAJO (ALTURA)
 ======================================================= */
 
 @media (max-height: 820px) {
@@ -124,7 +132,7 @@ section {
 }
 
 /* =======================================================
-   DESKTOP MUY BAJO (NETBOOK / WINDOW SMALL)
+   DESKTOP MUY BAJO
 ======================================================= */
 
 @media (max-height: 720px) {
@@ -135,19 +143,14 @@ section {
   .hero-title {
     font-size: 1.7rem;
   }
-
-  .hero-scroll {
-    display: none;
-  }
 }
 
 /* =======================================================
-   MOBILE (ESTILO AGENDORO / PREMIUM)
+   MOBILE
 ======================================================= */
 
 @media (max-width: 600px) {
   .hero-section {
-    min-height: calc(100vh - 68px);
     padding-top: calc(68px + 24px);
     padding-bottom: 50px;
     background: #1c1f24;
@@ -173,9 +176,5 @@ section {
   .hero-section .btn {
     padding: 12px 28px;
     font-size: 0.75rem;
-  }
-
-  .hero-scroll {
-    bottom: 14px;
   }
 }

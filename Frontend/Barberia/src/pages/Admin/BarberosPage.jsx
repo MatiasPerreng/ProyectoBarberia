@@ -32,19 +32,14 @@ const BarberosPage = () => {
   }, []);
 
   // ----------------------------
-  // Crear barbero (DEVUELVE EL BARBERO)
+  // Crear barbero
   // ----------------------------
   const handleCreate = async (data) => {
     try {
       const barbero = await crearBarbero(data);
-
-      console.log("🧔‍♂️ Barbero creado:", barbero);
-
       await loadBarberos();
       setShowForm(false);
-
-      // 🔑 CLAVE: devolver el barbero para que BarberoForm suba la foto
-      return barbero;
+      return barbero; // 👈 para subir foto
     } catch (err) {
       console.error("Error creando barbero:", err);
       setError("No se pudo crear el barbero");
@@ -57,11 +52,20 @@ const BarberosPage = () => {
   // ----------------------------
   const handleToggle = async (barbero) => {
     try {
-      await toggleBarbero(barbero.id_barbero, !barbero.activo);
-      loadBarberos();
+      // 🔥 optimista (opcional pero pro)
+      setBarberos((prev) =>
+        prev.map((b) =>
+          b.id_barbero === barbero.id_barbero
+            ? { ...b, activo: !b.activo }
+            : b
+        )
+      );
+
+      await toggleBarbero(barbero.id_barbero);
     } catch (err) {
       console.error("Error actualizando barbero:", err);
       setError("No se pudo actualizar el barbero");
+      loadBarberos(); // rollback si falla
     }
   };
 

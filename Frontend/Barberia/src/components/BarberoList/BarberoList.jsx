@@ -9,7 +9,7 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/barberos`)
+    fetch(`${API_URL}/barberos/activos`)
       .then((res) => res.json())
       .then((data) => setBarberos(data))
       .catch((err) => console.error(err));

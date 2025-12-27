@@ -1,5 +1,9 @@
 import API_URL from "./api";
 
+// ---------------------------
+// BARBEROS
+// ---------------------------
+
 export async function getBarberos() {
   const res = await fetch(`${API_URL}/barberos/`);
   if (!res.ok) throw new Error("Error al cargar barberos");
@@ -41,17 +45,22 @@ export async function subirFotoBarbero(idBarbero, file) {
   return await res.json();
 }
 
-export async function toggleBarbero(idBarbero, activo) {
-  const res = await fetch(`${API_URL}/barberos/${idBarbero}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ activo }),
-  });
+// 🔥 NUEVO: toggle real (sin body)
+export async function toggleBarbero(idBarbero) {
+  const res = await fetch(
+    `${API_URL}/barberos/${idBarbero}/toggle`,
+    {
+      method: "PATCH",
+    }
+  );
 
-  if (!res.ok) throw new Error("Error al actualizar barbero");
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Error al cambiar estado del barbero");
+  }
+
   return await res.json();
 }
-
 
 // ---------------------------
 // AGENDA DEL BARBERO

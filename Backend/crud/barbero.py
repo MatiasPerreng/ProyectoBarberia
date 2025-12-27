@@ -13,18 +13,23 @@ def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
     barbero = Barbero(
         nombre=barbero_in.nombre,
         email=barbero_in.email,
-        foto_url=None 
+        activo=True,
+        foto_url=None
     )
 
     db.add(barbero)
     db.commit()
     db.refresh(barbero)
-
     return barbero
 
 
-def get_barberos(db: Session) -> List[Barbero]:
-    return db.query(Barbero).all()
+def get_barberos(db: Session, solo_activos: bool = False) -> List[Barbero]:
+    query = db.query(Barbero)
+
+    if solo_activos:
+        query = query.filter(Barbero.activo == True)
+
+    return query.order_by(Barbero.nombre).all()
 
 
 def get_barbero_by_id(db: Session, barbero_id: int) -> Optional[Barbero]:
@@ -47,9 +52,18 @@ def update_barbero(
     if barbero_in.foto_url is not None:
         barbero.foto_url = barbero_in.foto_url
 
+    if barbero_in.activo is not None:
+        barbero.activo = barbero_in.activo
+
     db.commit()
     db.refresh(barbero)
+    return barbero
 
+
+def toggle_barbero_estado(db: Session, barbero: Barbero) -> Barbero:
+    barbero.activo = not barbero.activo
+    db.commit()
+    db.refresh(barbero)
     return barbero
 
 

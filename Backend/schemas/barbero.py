@@ -14,16 +14,14 @@ class BarberoCreate(BarberoBase):
 
 class BarberoUpdate(BaseModel):
     nombre: Optional[str] = None
+    foto_url: Optional[str] = None
     activo: Optional[bool] = None
 
 
 class BarberoOut(BarberoBase):
     id_barbero: int
-    activo: Optional[bool] = True
-
-    # 👇 CLAVE
+    activo: bool
     foto_url: Optional[str] = None
-
     created_at: Optional[datetime.datetime]
 
     class Config:

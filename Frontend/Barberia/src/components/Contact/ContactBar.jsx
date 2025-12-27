@@ -9,8 +9,6 @@ export default function ContactBar() {
       </p>
 
       <div className="contact-divider" />
-
-      {/* DIRECCIÓN */}
       <div className="contact-item">
         <span className="contact-label">
           <span className="contact-icon">📍</span>
@@ -22,17 +20,14 @@ export default function ContactBar() {
       </div>
 
       <div className="contact-divider" />
-
-      {/* CONTACTO */}
       <div className="contact-item">
         <span className="contact-label">
           <span className="contact-icon">📞</span>
           Contacto
         </span>
-        <span className="contact-text">09 961 1465</span>
+        <span className="contact-text">099 611 465</span>
       </div>
 
-      {/* ICONOS */}
       <div className="contact-socials">
         <a
           href="https://wa.me/59899611465"
@@ -44,7 +39,7 @@ export default function ContactBar() {
         </a>
 
         <a
-          href="https://www.instagram.com/kingbarber"
+          href="https://www.instagram.com/kingbarberuy"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram"

@@ -22,6 +22,7 @@ export default function Navbar() {
       <div className="nav-right">
         <a href="#servicios">Servicios</a>
         <a href="#ubicacion">Ubicación</a>
+        <a href="#contacto">Contacto</a>
       </div>
     </nav>
   );

@@ -32,6 +32,11 @@ def listar_barberos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db)
 
 
+@router.get("/activos", response_model=List[BarberoOut])
+def listar_barberos_activos(db: Session = Depends(get_db)):
+    return crud_barbero.get_barberos(db, solo_activos=True)
+
+
 @router.get("/{barbero_id}", response_model=BarberoOut)
 def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
@@ -63,6 +68,18 @@ def actualizar_barbero(
         raise HTTPException(404, "Barbero no encontrado")
 
     return crud_barbero.update_barbero(db, barbero, barbero_in)
+
+
+@router.patch("/{barbero_id}/toggle", response_model=BarberoOut)
+def toggle_barbero(
+    barbero_id: int,
+    db: Session = Depends(get_db),
+):
+    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+    if not barbero:
+        raise HTTPException(404, "Barbero no encontrado")
+
+    return crud_barbero.toggle_barbero_estado(db, barbero)
 
 
 @router.delete("/{barbero_id}", status_code=204)
