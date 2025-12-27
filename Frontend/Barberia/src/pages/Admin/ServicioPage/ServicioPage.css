@@ -1,0 +1,29 @@
+/* =======================================================
+   SERVICIOS – GRID ANCHO Y CENTRADO
+======================================================= */
+
+.servicios-section {
+  display: flex;
+  justify-content: center; /* 🔥 centra el bloque */
+  width: 100%;
+}
+
+.servicios-grid {
+  width: 100%;
+  max-width: 1500px; /* 🔥 cards más anchas sin exagerar */
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .servicios-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+}

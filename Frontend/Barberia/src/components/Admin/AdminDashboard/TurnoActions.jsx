@@ -1,8 +1,12 @@
 import API_URL from "../../../services/api";
+import './TurnoActions.css'
 
 const TurnoActions = ({ turno }) => {
   const cancelar = async () => {
-    if (!confirm("¿Cancelar este turno?")) return;
+    const ok = confirm(
+      `¿Cancelar el turno de ${turno.cliente_nombre}?`
+    );
+    if (!ok) return;
 
     await fetch(`${API_URL}/visitas/${turno.id_visita}`, {
       method: "DELETE",
@@ -13,8 +17,12 @@ const TurnoActions = ({ turno }) => {
 
   return (
     <div className="turno-actions">
-      <button title="Cancelar" onClick={cancelar}>
-        ❌
+      <button
+        className="turno-btn-cancel"
+        title="Cancelar turno"
+        onClick={cancelar}
+      >
+        ✕
       </button>
     </div>
   );

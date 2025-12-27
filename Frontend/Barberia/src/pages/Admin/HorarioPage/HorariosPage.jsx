@@ -3,6 +3,7 @@ import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import HorarioForm from "../../../components/Admin/HorarioForm/HorarioForm";
 import HorarioList from "../../../components/Admin/HorarioList";
 import Footer from "../../../components/Footer/Footer";
+
 import { getBarberos } from "../../../services/barberos";
 import {
   getHorariosBarbero,
@@ -10,12 +11,14 @@ import {
   eliminarHorario,
 } from "../../../services/horarios";
 
+/* =========================
+   UTILS FECHA
+========================= */
 
 const parseFechaLocal = (isoDate) => {
   const [y, m, d] = isoDate.split("-").map(Number);
   return new Date(y, m - 1, d);
 };
-
 
 const normalizarRangoPorDia = ({
   fecha_desde,
@@ -47,6 +50,10 @@ const normalizarRangoPorDia = ({
   };
 };
 
+/* =========================
+   PAGE
+========================= */
+
 const HorariosPage = () => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
@@ -57,18 +64,18 @@ const HorariosPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ----------------------------
-  // Cargar barberos
-  // ----------------------------
+  /* -------------------------
+     CARGAR BARBEROS
+  -------------------------- */
   useEffect(() => {
     getBarberos()
       .then(setBarberos)
       .catch(() => setError("Error al cargar barberos"));
   }, []);
 
-  // ----------------------------
-  // Cargar horarios
-  // ----------------------------
+  /* -------------------------
+     CARGAR HORARIOS
+  -------------------------- */
   useEffect(() => {
     if (!barberoSeleccionado) {
       setHorarios([]);
@@ -84,10 +91,9 @@ const HorariosPage = () => {
       .finally(() => setLoading(false));
   }, [barberoSeleccionado]);
 
-  // ----------------------------
-  // CREAR HORARIO (MODAL)
-  // 🔑 PASA POR NORMALIZACIÓN
-  // ----------------------------
+  /* -------------------------
+     CREAR HORARIO
+  -------------------------- */
   const handleCreate = async (data) => {
     try {
       const fechasNormalizadas = normalizarRangoPorDia({
@@ -111,9 +117,9 @@ const HorariosPage = () => {
     }
   };
 
-  // ----------------------------
-  // Eliminar horario
-  // ----------------------------
+  /* -------------------------
+     ELIMINAR HORARIO
+  -------------------------- */
   const handleDelete = async (idHorario) => {
     if (!confirm("¿Eliminar este horario?")) return;
 
@@ -126,10 +132,9 @@ const HorariosPage = () => {
     }
   };
 
-  // ----------------------------
-  // COPIAR HORARIO
-  // 🔑 USA LA MISMA FUNCIÓN
-  // ----------------------------
+  /* -------------------------
+     COPIAR HORARIO
+  -------------------------- */
   const handleCopy = async (horario, nuevoDia) => {
     try {
       const fechasNormalizadas = normalizarRangoPorDia({
@@ -153,13 +158,14 @@ const HorariosPage = () => {
     }
   };
 
-    return (
+  return (
     <>
       <AdminLayout>
         <div className="admin-page-header">
           <h2>Horarios</h2>
 
           <select
+            className="admin-select-barbero"
             value={barberoSeleccionado ?? ""}
             onChange={(e) =>
               setBarberoSeleccionado(

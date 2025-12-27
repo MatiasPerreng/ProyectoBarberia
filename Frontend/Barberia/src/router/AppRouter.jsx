@@ -19,6 +19,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberosPage";
 import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
+import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage"; 
 
 export default function AppRouter() {
   return (
@@ -43,13 +44,10 @@ export default function AppRouter() {
         }
       />
 
-      {/* =========================
-         ADMIN
-         (por ahora SIN auth)
-      ========================= */}
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin/barberos" element={<BarberosPage />} />
       <Route path="/admin/horarios" element={<HorariosPage />} />
+      <Route path="/admin/servicios" element={<ServicioPage />} />
     </Routes>
   );
 }

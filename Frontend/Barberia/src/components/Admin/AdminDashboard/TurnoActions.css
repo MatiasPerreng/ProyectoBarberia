@@ -1,0 +1,134 @@
+/* =======================================================
+   TURNOS LIST
+======================================================= */
+
+.turnos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+/* =======================================================
+   TURNO ROW / CARD
+======================================================= */
+
+.turno-row {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #e6c77b;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.turno-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* =======================================================
+   INFO DEL TURNO
+======================================================= */
+
+.turno-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.turno-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #111;
+  line-height: 1.45;
+}
+
+.turno-info p strong {
+  font-weight: 700;
+}
+
+.turno-info small {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* =======================================================
+   ACTIONS
+======================================================= */
+
+.turno-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* Botón cancelar */
+.turno-btn-cancel {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+
+  background: #fee2e2;
+  border: none;
+
+  color: #b91c1c;
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.turno-btn-cancel:hover {
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
+/* =======================================================
+   EMPTY / LOADING STATES
+======================================================= */
+
+.turnos-list p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* =======================================================
+   MOBILE
+======================================================= */
+
+@media (max-width: 600px) {
+  .turno-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .turno-actions {
+    align-self: flex-end;
+  }
+
+  .turno-btn-cancel {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .turno-info p {
+    font-size: 13px;
+  }
+
+  .turno-info small {
+    font-size: 11px;
+  }
+}

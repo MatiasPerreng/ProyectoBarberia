@@ -1,0 +1,128 @@
+/* =========================
+   SERVICIO CARD – ADMIN
+========================= */
+
+.servicio-card {
+  background: #111;
+  color: #f5f5f5;
+  border-radius: 14px;
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.servicio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
+}
+
+/* =========================
+   IMAGEN (✔ AISLADA)
+========================= */
+
+.servicio-image {
+  width: 100%;
+  height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+
+.servicio-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* =========================
+   TEXTO
+========================= */
+
+.servicio-card h4 {
+  margin: 6px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #e6c77b;
+  text-align: center;
+}
+
+.servicio-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #eaeaea;
+  text-align: center;
+}
+
+.servicio-card small {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-align: center;
+}
+
+/* =========================
+   ACTIONS (✔ CORRECTO)
+========================= */
+
+.servicio-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+}
+
+/* EDITAR */
+.btn-edit {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-edit:hover {
+  background: linear-gradient(135deg, #f0d88f, #d9b86c);
+  transform: translateY(-1px);
+}
+
+/* ELIMINAR */
+.btn-delete {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+
+  background: #b91c1c;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+  .servicio-image {
+    height: 120px;
+  }
+}
