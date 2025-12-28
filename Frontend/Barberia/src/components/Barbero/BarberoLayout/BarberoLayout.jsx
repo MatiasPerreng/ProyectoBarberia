@@ -1,17 +1,14 @@
 import "./BarberoLayout.css";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import { useAuthContext } from "../../../auth/AuthContext";
 
 const BarberoLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { logout} = useAuthContext();
 
   const usuario = {
     nombre: "Matías Perreng",
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
   };
 
   return (
@@ -62,7 +59,7 @@ const BarberoLayout = ({ children }) => {
               <span className="barbero-user-role">Barbero</span>
             </div>
 
-            <button className="barbero-logout" onClick={handleLogout}>
+            <button className="barbero-logout" onClick={logout}>
               Cerrar sesión
             </button>
           </div>

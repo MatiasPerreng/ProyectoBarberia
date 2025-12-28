@@ -12,26 +12,20 @@ export const AuthProvider = ({ children }) => {
     console.log("🟡 AuthContext INIT");
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-
-    console.log("🟡 localStorage:", { token, role });
-
     if (token && role) {
       setUser({ token, role });
-      console.log("🟢 USER HIDRATADO:", { token, role });
     }
 
     setLoading(false);
   }, []);
 
   const login = ({ token, role }) => {
-    console.log("🟢 LOGIN CONTEXT:", { token, role });
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     setUser({ token, role });
   };
 
   const logout = () => {
-    console.log("🔴 LOGOUT CONTEXT");
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     setUser(null);
