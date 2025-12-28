@@ -103,19 +103,28 @@ const BarberosPage = () => {
   };
 
   /* ----------------------------
-     CREAR ACCESO
+     CREAR ACCESO (CORREGIDO)
   ---------------------------- */
   const handleCreateAccount = async (e) => {
     e.preventDefault();
 
-    await crearCuentaBarbero({
-      barbero_id: accountTarget.id_barbero,
-      nombre: accountTarget.nombre,
-      ...accountForm,
-    });
+    await crearCuentaBarbero(
+      accountTarget.id_barbero, // 👈 SOLO EL ID
+      {
+        nombre: accountTarget.nombre,
+        email: accountForm.email,
+        password: accountForm.password,
+        rol: accountForm.rol,
+      }
+    );
 
     setAccountTarget(null);
-    setAccountForm({ email: "", password: "", rol: "barbero" });
+    setAccountForm({
+      email: "",
+      password: "",
+      rol: "barbero",
+    });
+
     loadBarberos();
   };
 
@@ -194,10 +203,10 @@ const BarberosPage = () => {
           />
         )}
 
-        {/* MODAL ACCESO */}
+        {/* MODAL CREAR ACCESO */}
         {accountTarget && (
-          <div className="barberos-modal-overlay">
-            <div className="barberos-modal-card">
+          <div className="barberos-access-modal-overlay">
+            <div className="barberos-access-modal-card">
               <h3>Crear acceso</h3>
               <p>
                 Barbero: <strong>{accountTarget.nombre}</strong>
@@ -243,14 +252,15 @@ const BarberosPage = () => {
                   <option value="admin">Admin</option>
                 </select>
 
-                <div className="barberos-modal-actions">
-                  <button type="submit">Crear</button>
+                <div className="barberos-access-modal-actions">
                   <button
                     type="button"
                     onClick={() => setAccountTarget(null)}
                   >
                     Cancelar
                   </button>
+
+                  <button type="submit">Crear</button>
                 </div>
               </form>
             </div>

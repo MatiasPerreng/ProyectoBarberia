@@ -3,6 +3,7 @@ import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import ServicioCard from "../../../components/Admin/ServicioCard/ServicioCard";
 import ServicioForm from "../../../components/Admin/ServicioForm/ServicioForm";
 import AdminHeader from "../AdminHeader/AdminHeader";
+
 import {
   getServicios,
   createServicio,
@@ -78,20 +79,20 @@ const ServicioPage = () => {
       />
 
       {loading && (
-        <p className="servicios-page-loading">
+        <p className="servicios-page__loading">
           Cargando servicios…
         </p>
       )}
 
       {!loading && servicios.length === 0 && (
-        <p className="servicios-page-empty">
+        <p className="servicios-page__empty">
           No hay servicios cargados
         </p>
       )}
 
       {!loading && servicios.length > 0 && (
-        <section className="servicios-page-section">
-          <div className="servicios-page-grid">
+        <section className="servicios-page__section">
+          <div className="servicios-page__grid">
             {servicios.map((servicio) => (
               <ServicioCard
                 key={servicio.id_servicio}

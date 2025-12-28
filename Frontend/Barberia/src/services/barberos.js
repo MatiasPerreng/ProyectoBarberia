@@ -6,14 +6,20 @@ import API_URL from "./api";
 
 export async function getBarberos() {
   const res = await fetch(`${API_URL}/barberos/`);
-  if (!res.ok) throw new Error("Error al cargar barberos");
+
+  if (!res.ok) {
+    throw new Error("Error al cargar barberos");
+  }
+
   return await res.json();
 }
 
 export async function crearBarbero(data) {
   const res = await fetch(`${API_URL}/barberos/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(data),
   });
 
@@ -64,6 +70,9 @@ export async function eliminarBarbero(idBarbero) {
     const err = await res.json();
     throw new Error(err.detail || "Error al eliminar barbero");
   }
+
+  // no siempre devuelve body, por las dudas:
+  return res.status === 204 ? true : await res.json();
 }
 
 // =======================================================
@@ -89,7 +98,15 @@ export async function getAgendaBarbero() {
 // CREAR CUENTA (LOGIN) PARA BARBERO — ADMIN
 // =======================================================
 
+/**
+ * @param {number} barberoId  -> ID del barbero (VA EN LA URL)
+ * @param {object} data       -> { nombre, email, password, rol }
+ */
 export async function crearCuentaBarbero(barberoId, data) {
+  if (!barberoId) {
+    throw new Error("ID de barbero inválido");
+  }
+
   const res = await fetch(
     `${API_URL}/barberos/${barberoId}/crear-acceso`,
     {

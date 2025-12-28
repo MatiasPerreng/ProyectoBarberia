@@ -2,7 +2,7 @@
    SERVICIOS PAGE – CONTENEDOR
 ====================================================== */
 
-.servicios-page-section {
+.servicios-page__section {
   display: flex;
   justify-content: center;
   width: 100%;
@@ -12,7 +12,7 @@
    GRID
 ====================================================== */
 
-.servicios-page-grid {
+.servicios-page__grid {
   width: 100%;
   max-width: 1500px;
 
@@ -25,8 +25,8 @@
    ESTADOS
 ====================================================== */
 
-.servicios-page-loading,
-.servicios-page-empty {
+.servicios-page__loading,
+.servicios-page__empty {
   font-size: 0.95rem;
   font-weight: 500;
   color: #555;
@@ -39,7 +39,7 @@
 ====================================================== */
 
 @media (max-width: 900px) {
-  .servicios-page-grid {
+  .servicios-page__grid {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
   }
