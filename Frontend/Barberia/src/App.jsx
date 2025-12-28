@@ -1,12 +1,10 @@
-import './App.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import AppRouter from './router/AppRouter'
-
-
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import AppRouter from "./router/AppRouter";
 
 function App() {
-  return <AppRouter />
+  return <AppRouter />;
 }
 
-export default App
+export default App;

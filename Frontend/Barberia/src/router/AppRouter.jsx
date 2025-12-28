@@ -9,13 +9,14 @@ import AgendaPage from "../pages/Public/AgendaPage";
 /* =========================
    BARBERO
 ========================= */
-import LoginBarbero from "../pages/Barber/LoginBarbero";
+import LoginBarbero from "../pages/Public/Homepage/LoginBarbero/LoginBarbero";
 import BarberAgenda from "../pages/Barber/BarberAgenda";
 import BarberoDashboard from "../pages/Barbero/BarberoDashboard";
 import BarberoLayout from "../components/Barbero/BarberoLayout/BarberoLayout";
+import ProtectedRoute from "../router/ProtectedRoute";
 
 /* =========================
-   ADMIN
+   ADMIN (sin auth por ahora)
 ========================= */
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberosPage";
@@ -32,30 +33,37 @@ export default function AppRouter() {
       <Route path="/agenda" element={<AgendaPage />} />
 
       {/* =========================
-         BARBERO (DEV SIN AUTH)
+         LOGIN BARBERO
       ========================= */}
       <Route path="/login-barbero" element={<LoginBarbero />} />
 
+      {/* =========================
+         BARBERO (PROTEGIDO)
+      ========================= */}
       <Route
         path="/barbero"
         element={
-          <BarberoLayout>
-            <BarberoDashboard />
-          </BarberoLayout>
+          <ProtectedRoute>
+            <BarberoLayout>
+              <BarberoDashboard />
+            </BarberoLayout>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/barbero/agenda"
         element={
-          <BarberoLayout>
-            <BarberAgenda />
-          </BarberoLayout>
+          <ProtectedRoute>
+            <BarberoLayout>
+              <BarberAgenda />
+            </BarberoLayout>
+          </ProtectedRoute>
         }
       />
 
       {/* =========================
-         ADMIN
+         ADMIN (DEV)
       ========================= */}
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin/barberos" element={<BarberosPage />} />
