@@ -6,8 +6,19 @@ import shutil
 
 from database import get_db
 import crud.barbero as crud_barbero
-from schemas import BarberoCreate, BarberoUpdate, BarberoOut, AgendaBarberoOut
+
+from models import LoginBarbero
+from schemas import (
+    BarberoCreate,
+    BarberoUpdate,
+    BarberoOut,
+    AgendaBarberoOut,
+    CrearCuentaBarberoIn
+)
+
 from core.dependencias import get_current_login_barbero
+from core.security import hash_password
+
 
 router = APIRouter(
     prefix="/barberos",
@@ -62,7 +73,7 @@ def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     return barbero
 
 # ---------------------------------------------------------
-# ADMIN (RECOMENDADO: PROTEGER CON require_admin)
+# ADMIN
 # ---------------------------------------------------------
 
 @router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
@@ -100,6 +111,55 @@ def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
 
     crud_barbero.delete_barbero(db, barbero)
     return None
+
+# ---------------------------------------------------------
+# CREAR ACCESO PARA BARBERO (ADMIN)
+# ---------------------------------------------------------
+
+@router.post("/{barbero_id}/crear-acceso", status_code=status.HTTP_201_CREATED)
+def crear_acceso_barbero(
+    barbero_id: int,
+    data: CrearCuentaBarberoIn,
+    db: Session = Depends(get_db),
+    admin = Depends(get_current_login_barbero),
+):
+    # validar admin
+    if admin.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No autorizado"
+        )
+
+    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+    if not barbero:
+        raise HTTPException(404, "Barbero no encontrado")
+
+    # evitar duplicado
+    existe = (
+        db.query(LoginBarbero)
+        .filter(LoginBarbero.barbero_id == barbero_id)
+        .first()
+    )
+    if existe:
+        raise HTTPException(
+            status_code=400,
+            detail="El barbero ya tiene acceso"
+        )
+
+    login = LoginBarbero(
+        nombre=barbero.nombre,
+        email=data.email,
+        password_hash=hash_password(data.password),
+        role=data.rol,              # ✅ CORRECTO
+        barbero_id=barbero_id,
+        is_active=True
+    )
+
+    db.add(login)
+    db.commit()
+    db.refresh(login)
+
+    return {"ok": True}
 
 # ---------------------------------------------------------
 # SUBIR FOTO BARBERO (ADMIN)

@@ -10,6 +10,7 @@ import {
   toggleBarbero,
   subirFotoBarbero,
   eliminarBarbero,
+  crearCuentaBarbero,
 } from "../../services/barberos";
 
 import API_URL from "../../services/api";
@@ -18,8 +19,17 @@ const BarberosPage = () => {
   const [barberos, setBarberos] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState(null);
+
   const fileInputRef = useRef(null);
   const [barberoFotoTarget, setBarberoFotoTarget] = useState(null);
+
+  // Barbero seleccionado para crear acceso
+  const [accountTarget, setAccountTarget] = useState(null);
+  const [accountForm, setAccountForm] = useState({
+    email: "",
+    password: "",
+    rol: "barbero",
+  });
 
   // ----------------------------
   // Cargar barberos
@@ -39,7 +49,7 @@ const BarberosPage = () => {
   }, []);
 
   // ----------------------------
-  // Crear barbero
+  // Crear barbero (persona)
   // ----------------------------
   const handleCreate = async (data) => {
     const barbero = await crearBarbero(data);
@@ -71,11 +81,7 @@ const BarberosPage = () => {
   // Eliminar barbero
   // ----------------------------
   const handleDelete = async (barbero) => {
-    if (
-      !confirm(
-        `¿Eliminar definitivamente al barbero "${barbero.nombre}"?`
-      )
-    )
+    if (!confirm(`¿Eliminar definitivamente al barbero "${barbero.nombre}"?`))
       return;
 
     try {
@@ -101,12 +107,32 @@ const BarberosPage = () => {
     try {
       await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
       loadBarberos();
-    } catch (err) {
+    } catch {
       alert("Error al subir foto");
     } finally {
       e.target.value = "";
       setBarberoFotoTarget(null);
     }
+  };
+
+  // ----------------------------
+  // Crear cuenta de acceso (LOGIN)
+  // ----------------------------
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+
+    await crearCuentaBarbero(
+      accountTarget.id_barbero, // ✅ SOLO EL ID
+      {
+        email: accountForm.email,
+        password: accountForm.password,
+        rol: accountForm.rol,
+      }
+    );
+
+    setAccountTarget(null);
+    setAccountForm({ email: "", password: "", rol: "barbero" });
+    loadBarberos();
   };
 
   return (
@@ -150,6 +176,12 @@ const BarberosPage = () => {
                   {b.activo ? "Activo" : "Inactivo"}
                 </span>
 
+                {!b.tiene_usuario && (
+                  <button onClick={() => setAccountTarget(b)}>
+                    Crear acceso
+                  </button>
+                )}
+
                 <button onClick={() => handleToggle(b)}>
                   {b.activo ? "Desactivar" : "Activar"}
                 </button>
@@ -174,6 +206,69 @@ const BarberosPage = () => {
             onSubmit={handleCreate}
             onClose={() => setShowForm(false)}
           />
+        )}
+
+        {/* MODAL CREAR ACCESO */}
+        {accountTarget && (
+          <div className="modal-overlay">
+            <div className="modal-card">
+              <h3>Crear acceso</h3>
+              <p>
+                Barbero: <strong>{accountTarget.nombre}</strong>
+              </p>
+
+              <form onSubmit={handleCreateAccount}>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  required
+                  value={accountForm.email}
+                  onChange={(e) =>
+                    setAccountForm({
+                      ...accountForm,
+                      email: e.target.value,
+                    })
+                  }
+                />
+
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  required
+                  value={accountForm.password}
+                  onChange={(e) =>
+                    setAccountForm({
+                      ...accountForm,
+                      password: e.target.value,
+                    })
+                  }
+                />
+
+                <select
+                  value={accountForm.rol}
+                  onChange={(e) =>
+                    setAccountForm({
+                      ...accountForm,
+                      rol: e.target.value,
+                    })
+                  }
+                >
+                  <option value="barbero">Barbero</option>
+                  <option value="admin">Admin</option>
+                </select>
+
+                <div className="modal-actions">
+                  <button type="submit">Crear</button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountTarget(null)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
 
         {/* INPUT FILE OCULTO */}

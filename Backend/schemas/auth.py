@@ -1,5 +1,10 @@
 from pydantic import BaseModel, EmailStr
+from typing import Literal
 
+
+# ---------------------------------------------------------
+# LOGIN
+# ---------------------------------------------------------
 
 class LoginBarberoIn(BaseModel):
     email: EmailStr
@@ -19,3 +24,13 @@ class LoginBarberoOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
     barbero: BarberoAuthOut
+
+
+# ---------------------------------------------------------
+# ADMIN · CREAR CUENTA BARBERO
+# ---------------------------------------------------------
+
+class CrearCuentaBarberoIn(BaseModel):
+    email: EmailStr
+    password: str
+    rol: Literal["admin", "barbero"]

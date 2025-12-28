@@ -1,7 +1,7 @@
 import API_URL from "./api";
 
 // =======================================================
-// BARBEROS (ADMIN)
+// BARBEROS
 // =======================================================
 
 export async function getBarberos() {
@@ -67,15 +67,44 @@ export async function eliminarBarbero(idBarbero) {
 }
 
 // =======================================================
-// AGENDA DEL BARBERO — DEV (SIN AUTH)
+// AGENDA DEL BARBERO (CON AUTH)
 // =======================================================
 
 export async function getAgendaBarbero() {
-  const res = await fetch(`${API_URL}/barberos/mi-agenda-dev`);
+  const res = await fetch(`${API_URL}/barberos/mi-agenda`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
 
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || "Error al cargar agenda del barbero");
+  }
+
+  return await res.json();
+}
+
+// =======================================================
+// CREAR CUENTA (LOGIN) PARA BARBERO — ADMIN
+// =======================================================
+
+export async function crearCuentaBarbero(barberoId, data) {
+  const res = await fetch(
+    `${API_URL}/barberos/${barberoId}/crear-acceso`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Error al crear la cuenta del barbero");
   }
 
   return await res.json();

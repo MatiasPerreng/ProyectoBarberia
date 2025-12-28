@@ -11,10 +11,20 @@ from .base import Base
 class Barbero(Base):
     __tablename__ = "barbero"
 
-    id_barbero: Mapped[int] = mapped_column(INTEGER, primary_key=True)
-    nombre: Mapped[str] = mapped_column(String(100), nullable=False)
+    # -------------------------
+    # CAMPOS BÁSICOS
+    # -------------------------
 
-    # 👇 NUEVO ESTADO
+    id_barbero: Mapped[int] = mapped_column(
+        INTEGER,
+        primary_key=True
+    )
+
+    nombre: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False
+    )
+
     activo: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
@@ -30,6 +40,20 @@ class Barbero(Base):
         TIMESTAMP,
         server_default=text("CURRENT_TIMESTAMP")
     )
+
+    # -------------------------
+    # RELACIÓN LOGIN (1–1)
+    # -------------------------
+
+    login: Mapped[Optional["LoginBarbero"]] = relationship(
+        "LoginBarbero",
+        back_populates="barbero",
+        uselist=False
+    )
+
+    # -------------------------
+    # RELACIONES DE AGENDA
+    # -------------------------
 
     horario_barbero: Mapped[List["HorarioBarbero"]] = relationship(
         "HorarioBarbero",

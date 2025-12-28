@@ -1,7 +1,6 @@
 from .base import Base
-
 from .barbero import Barbero
-from .auth import LoginBarberos
+from .auth import LoginBarbero
 from .cliente import Cliente
 from .servicio import Servicio
 from .horario_barbero import HorarioBarbero
@@ -11,7 +10,7 @@ from .visita import Visita
 __all__ = [
     "Base",
     "Barbero",
-    "LoginBarberos",
+    "LoginBarbero",
     "Cliente",
     "Servicio",
     "HorarioBarbero",

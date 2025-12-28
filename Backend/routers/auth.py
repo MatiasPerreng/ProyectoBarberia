@@ -36,6 +36,7 @@ def login_barbero(
             detail="Credenciales incorrectas"
         )
 
+    # JWT lleva role (backend)
     token = create_access_token({
         "sub": str(barbero.id),
         "role": barbero.role
@@ -47,6 +48,6 @@ def login_barbero(
         "barbero": {
             "id_barbero": barbero.id,
             "nombre": barbero.nombre,
-            "rol": barbero.role   # 👈 mapeamos role → rol para el frontend
+            "rol": barbero.role
         }
     }

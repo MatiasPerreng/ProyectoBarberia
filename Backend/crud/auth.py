@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import LoginBarberos
+from models import LoginBarbero
 from core.security import verify_password
 
 
@@ -9,10 +9,10 @@ def authenticate_barbero(
     password: str
 ):
     barbero = (
-        db.query(LoginBarberos)
+        db.query(LoginBarbero)
         .filter(
-            LoginBarberos.email == email,
-            LoginBarberos.is_active == True
+            LoginBarbero.email == email,
+            LoginBarbero.is_active == True
         )
         .first()
     )

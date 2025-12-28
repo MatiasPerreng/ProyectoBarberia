@@ -5,7 +5,7 @@ from jose import JWTError
 
 from database import get_db
 from auth_jwt import decode_access_token
-from models import LoginBarberos
+from models import LoginBarbero  # ✅ modelo correcto
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login-barbero")
 
@@ -16,10 +16,9 @@ def get_current_login_barbero(
 ):
     try:
         payload = decode_access_token(token)
+        user_id = payload.get("sub")
 
-        barbero_id = payload.get("sub")
-
-        if barbero_id is None:
+        if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token inválido"
@@ -31,19 +30,19 @@ def get_current_login_barbero(
             detail="Token inválido"
         )
 
-    barbero = (
-        db.query(LoginBarberos)
+    login_barbero = (
+        db.query(LoginBarbero)
         .filter(
-            LoginBarberos.id == int(barbero_id),
-            LoginBarberos.is_active == True
+            LoginBarbero.id == int(user_id),
+            LoginBarbero.is_active == True
         )
         .first()
     )
 
-    if not barbero:
+    if not login_barbero:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuario no válido"
         )
 
-    return barbero
+    return login_barbero

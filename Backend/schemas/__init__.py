@@ -1,3 +1,11 @@
+# AUTH
+from .auth import (
+    LoginBarberoIn,
+    LoginBarberoOut,
+    BarberoAuthOut,
+    CrearCuentaBarberoIn
+)
+
 # CLIENTES
 from .cliente import (
     ClienteCreate,
@@ -35,4 +43,3 @@ from .visita import (
 # AGENDA / DISPONIBILIDAD
 from .agenda import AgendaBarberoOut
 from .disponibilidad import *
-from .auth import *

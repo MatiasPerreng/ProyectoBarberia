@@ -4,10 +4,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
 
-class LoginBarberos(Base):
+class LoginBarbero(Base):
     __tablename__ = "barberos"
+
     __table_args__ = (
-        Index("email", "email", unique=True),
+        Index("ux_barberos_email", "email", unique=True),
     )
 
     id: Mapped[int] = mapped_column(
@@ -23,7 +24,8 @@ class LoginBarberos(Base):
 
     email: Mapped[str] = mapped_column(
         String(100),
-        nullable=False
+        nullable=False,
+        unique=True
     )
 
     password_hash: Mapped[str] = mapped_column(
@@ -43,12 +45,15 @@ class LoginBarberos(Base):
         default=True
     )
 
-    # 🔗 FK hacia barbero (agenda / negocio)
+    # FK al barbero (persona / funcionario)
     barbero_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("barbero.id_barbero"),
         nullable=True
     )
 
-    # relación ORM (opcional pero muy útil)
-    barbero = relationship("Barbero")
+    barbero = relationship(
+        "Barbero",
+        back_populates="login",
+        uselist=False
+    )
