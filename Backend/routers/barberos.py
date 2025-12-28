@@ -27,20 +27,16 @@ router = APIRouter(
 
 MEDIA_DIR = Path("media/barberos")
 
+
 # ---------------------------------------------------------
-# AGENDA BARBERO (PRODUCCIÓN · CON AUTH + FK)
+# AGENDA BARBERO
 # ---------------------------------------------------------
 
 @router.get("/mi-agenda", response_model=List[AgendaBarberoOut])
 def mi_agenda(
-    login = Depends(get_current_login_barbero),
+    login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db),
 ):
-    """
-    Devuelve la agenda del barbero logueado.
-    Usa la FK: login.barbero_id
-    """
-
     if login.role != "barbero" or not login.barbero_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -51,6 +47,7 @@ def mi_agenda(
         db,
         barbero_id=login.barbero_id
     )
+
 
 # ---------------------------------------------------------
 # PÚBLICO
@@ -73,6 +70,7 @@ def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Barbero no encontrado")
 
     return crud_barbero.serialize_barbero(barbero)
+
 
 # ---------------------------------------------------------
 # ADMIN
@@ -117,11 +115,21 @@ def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
 
-    crud_barbero.delete_barbero(db, barbero)
+    try:
+        crud_barbero.delete_barbero(db, barbero)
+    except ValueError as e:
+        if str(e) == "BARBERO_CON_VISITAS":
+            raise HTTPException(
+                status_code=400,
+                detail="No se puede eliminar un barbero con visitas asociadas"
+            )
+        raise
+
     return None
 
+
 # ---------------------------------------------------------
-# CREAR ACCESO PARA BARBERO (ADMIN)
+# CREAR ACCESO PARA BARBERO
 # ---------------------------------------------------------
 
 @router.post("/{barbero_id}/crear-acceso", status_code=status.HTTP_201_CREATED)
@@ -129,7 +137,7 @@ def crear_acceso_barbero(
     barbero_id: int,
     data: CrearCuentaBarberoIn,
     db: Session = Depends(get_db),
-    admin = Depends(get_current_login_barbero),
+    admin=Depends(get_current_login_barbero),
 ):
     if admin.role != "admin":
         raise HTTPException(
@@ -167,8 +175,9 @@ def crear_acceso_barbero(
 
     return {"ok": True}
 
+
 # ---------------------------------------------------------
-# SUBIR FOTO BARBERO (ADMIN)
+# SUBIR FOTO BARBERO
 # ---------------------------------------------------------
 
 @router.post("/{barbero_id}/foto")

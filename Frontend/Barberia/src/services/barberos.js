@@ -19,6 +19,8 @@ export async function crearBarbero(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      // ⚠️ si este endpoint es solo admin, debería llevar token
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify(data),
   });
@@ -32,11 +34,19 @@ export async function crearBarbero(data) {
 }
 
 export async function subirFotoBarbero(idBarbero, file) {
+  if (!idBarbero) {
+    throw new Error("ID de barbero inválido");
+  }
+
   const formData = new FormData();
   formData.append("file", file);
 
   const res = await fetch(`${API_URL}/barberos/${idBarbero}/foto`, {
     method: "POST",
+    headers: {
+      // ⚠️ NO setear Content-Type con FormData
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
     body: formData,
   });
 
@@ -49,21 +59,37 @@ export async function subirFotoBarbero(idBarbero, file) {
 }
 
 export async function toggleBarbero(idBarbero) {
+  if (!idBarbero) {
+    throw new Error("ID de barbero inválido");
+  }
+
   const res = await fetch(`${API_URL}/barberos/${idBarbero}/toggle`, {
     method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   });
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail || "Error al cambiar estado del barbero");
+    throw new Error(
+      err.detail || "Error al cambiar estado del barbero"
+    );
   }
 
   return await res.json();
 }
 
 export async function eliminarBarbero(idBarbero) {
+  if (!idBarbero) {
+    throw new Error("ID de barbero inválido");
+  }
+
   const res = await fetch(`${API_URL}/barberos/${idBarbero}`, {
     method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   });
 
   if (!res.ok) {
@@ -71,7 +97,7 @@ export async function eliminarBarbero(idBarbero) {
     throw new Error(err.detail || "Error al eliminar barbero");
   }
 
-  // no siempre devuelve body, por las dudas:
+  // DELETE suele devolver 204 sin body
   return res.status === 204 ? true : await res.json();
 }
 
@@ -121,7 +147,9 @@ export async function crearCuentaBarbero(barberoId, data) {
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail || "Error al crear la cuenta del barbero");
+    throw new Error(
+      err.detail || "Error al crear la cuenta del barbero"
+    );
   }
 
   return await res.json();

@@ -20,6 +20,9 @@ const BarberosPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState(null);
 
+  // 🔴 error proveniente del backend
+  const [alertError, setAlertError] = useState(null);
+
   const fileInputRef = useRef(null);
   const [barberoFotoTarget, setBarberoFotoTarget] = useState(null);
 
@@ -50,9 +53,10 @@ const BarberosPage = () => {
      CREAR BARBERO
   ---------------------------- */
   const handleCreate = async (data) => {
-    await crearBarbero(data);
+    const nuevoBarbero = await crearBarbero(data);
     await loadBarberos();
     setShowForm(false);
+    return nuevoBarbero;
   };
 
   /* ----------------------------
@@ -75,13 +79,17 @@ const BarberosPage = () => {
   };
 
   /* ----------------------------
-     ELIMINAR
+     ELIMINAR (CON ERROR BACKEND)
   ---------------------------- */
-  const handleDelete = async (barbero) => {
-    if (!confirm(`¿Eliminar definitivamente a "${barbero.nombre}"?`)) return;
+ const handleDelete = async (barbero) => {
+  try {
     await eliminarBarbero(barbero.id_barbero);
     loadBarberos();
-  };
+  } catch (err) {
+    setAlertError(err.message);
+  }
+};
+
 
   /* ----------------------------
      FOTO
@@ -96,27 +104,24 @@ const BarberosPage = () => {
     if (!file || !barberoFotoTarget) return;
 
     await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
-    loadBarberos();
+    await loadBarberos();
 
     e.target.value = "";
     setBarberoFotoTarget(null);
   };
 
   /* ----------------------------
-     CREAR ACCESO (CORREGIDO)
+     CREAR ACCESO
   ---------------------------- */
   const handleCreateAccount = async (e) => {
     e.preventDefault();
 
-    await crearCuentaBarbero(
-      accountTarget.id_barbero, // 👈 SOLO EL ID
-      {
-        nombre: accountTarget.nombre,
-        email: accountForm.email,
-        password: accountForm.password,
-        rol: accountForm.rol,
-      }
-    );
+    await crearCuentaBarbero(accountTarget.id_barbero, {
+      nombre: accountTarget.nombre,
+      email: accountForm.email,
+      password: accountForm.password,
+      rol: accountForm.rol,
+    });
 
     setAccountTarget(null);
     setAccountForm({
@@ -150,11 +155,7 @@ const BarberosPage = () => {
             <div className="barberos-row" key={b.id_barbero}>
               <img
                 className="barberos-avatar"
-                src={
-                  b.foto_url
-                    ? `${API_URL}${b.foto_url}`
-                    : "/barbero-placeholder.png"
-                }
+                src={`${API_URL}${b.foto_url}`}
                 alt={b.nombre}
               />
 
@@ -263,6 +264,29 @@ const BarberosPage = () => {
                   <button type="submit">Crear</button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* 🔴 MODAL ERROR BACKEND */}
+        {alertError && (
+          <div className="modal-overlay">
+            <div className="modal-card">
+              <h3>No se puede eliminar</h3>
+
+              <p style={{ textAlign: "center", marginBottom: "18px" }}>
+                {alertError}
+              </p>
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setAlertError(null)}
+                >
+                  Entendido
+                </button>
+              </div>
             </div>
           </div>
         )}

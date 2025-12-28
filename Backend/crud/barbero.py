@@ -18,7 +18,6 @@ def serialize_barbero(barbero: Barbero) -> dict:
         "id_barbero": barbero.id_barbero,
         "nombre": barbero.nombre,
         "activo": barbero.activo,
-        # 🔥 BLINDAJE CLAVE
         "foto_url": barbero.foto_url or "/media/barberos/default.jpg",
         "created_at": barbero.created_at,
         "tiene_usuario": barbero.login is not None
@@ -33,7 +32,6 @@ def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
     barbero = Barbero(
         nombre=barbero_in.nombre,
         activo=True,
-        # 🔥 DEFAULT REAL DESDE EL BACKEND
         foto_url="/media/barberos/default.jpg"
     )
 
@@ -47,19 +45,12 @@ def get_barberos(
     db: Session,
     solo_activos: bool = False
 ) -> List[dict]:
-    """
-    Devuelve barberos con campo calculado:
-    - tiene_usuario
-    - foto_url siempre válida
-    """
-
     query = db.query(Barbero)
 
     if solo_activos:
         query = query.filter(Barbero.activo == True)
 
     barberos = query.order_by(Barbero.nombre).all()
-
     return [serialize_barbero(b) for b in barberos]
 
 
@@ -98,7 +89,24 @@ def toggle_barbero_estado(db: Session, barbero: Barbero) -> Barbero:
     return barbero
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# ELIMINAR BARBERO (PROTEGIDO)
+# ----------------------------------------------------------------------------------------------------------------------
+
 def delete_barbero(db: Session, barbero: Barbero) -> None:
+    """
+    Elimina un barbero SOLO si no tiene visitas asociadas.
+    """
+
+    tiene_visitas = (
+        db.query(Visita)
+        .filter(Visita.id_barbero == barbero.id_barbero)
+        .first()
+    )
+
+    if tiene_visitas:
+        raise ValueError("BARBERO_CON_VISITAS")
+
     db.delete(barbero)
     db.commit()
 
