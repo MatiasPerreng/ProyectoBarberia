@@ -22,5 +22,7 @@ class BarberoOut(BarberoBase):
     foto_url: Optional[str] = None
     created_at: Optional[datetime.datetime]
 
+    tiene_usuario: bool
+
     class Config:
         from_attributes = True

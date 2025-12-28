@@ -22,13 +22,34 @@ def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
     return barbero
 
 
-def get_barberos(db: Session, solo_activos: bool = False) -> List[Barbero]:
+def get_barberos(
+    db: Session,
+    solo_activos: bool = False
+) -> List[dict]:
+    """
+    Devuelve barberos con campo calculado:
+    - tiene_usuario (si ya tiene login creado)
+    """
+
     query = db.query(Barbero)
 
     if solo_activos:
         query = query.filter(Barbero.activo == True)
 
-    return query.order_by(Barbero.nombre).all()
+    barberos = query.order_by(Barbero.nombre).all()
+
+    return [
+        {
+            "id_barbero": b.id_barbero,
+            "nombre": b.nombre,
+            "activo": b.activo,
+            "foto_url": b.foto_url,
+            "created_at": b.created_at,
+            # 🔥 CLAVE PARA EL FRONTEND
+            "tiene_usuario": b.login is not None
+        }
+        for b in barberos
+    ]
 
 
 def get_barbero_by_id(db: Session, barbero_id: int) -> Optional[Barbero]:

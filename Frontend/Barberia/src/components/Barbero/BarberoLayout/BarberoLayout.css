@@ -122,6 +122,13 @@
   gap: 14px;
 }
 
+.barbero-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
 .barbero-user-name {
   font-size: 13px;
   font-weight: 700;

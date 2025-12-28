@@ -5,15 +5,13 @@ import { useAuthContext } from "../../../auth/AuthContext";
 
 const BarberoLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { logout} = useAuthContext();
-
-  const usuario = {
-    nombre: "Matías Perreng",
-  };
+  const { user, logout } = useAuthContext(); // ⬅️ usuario real
 
   return (
     <>
-      {/* HEADER MOBILE */}
+      {/* =========================
+         HEADER MOBILE
+      ========================= */}
       <header className="barbero-mobile-header">
         <button
           className="barbero-hamburger"
@@ -25,7 +23,9 @@ const BarberoLayout = ({ children }) => {
         <img src="/logo.jpg" alt="King Barber" />
       </header>
 
-      {/* OVERLAY */}
+      {/* =========================
+         OVERLAY
+      ========================= */}
       {sidebarOpen && (
         <div
           className="barbero-overlay"
@@ -33,30 +33,46 @@ const BarberoLayout = ({ children }) => {
         />
       )}
 
+      {/* =========================
+         LAYOUT
+      ========================= */}
       <div className="barbero-layout">
         <aside className={`barbero-sidebar ${sidebarOpen ? "open" : ""}`}>
+          {/* LOGO */}
           <div className="barbero-logo">
             <img src="/logo.jpg" alt="King Barber" />
           </div>
 
+          {/* NAV */}
           <nav className="barbero-nav">
             <NavLink to="/barbero" end onClick={() => setSidebarOpen(false)}>
               Mi agenda
             </NavLink>
 
-            <NavLink to="/barbero/historial" onClick={() => setSidebarOpen(false)}>
+            <NavLink
+              to="/barbero/historial"
+              onClick={() => setSidebarOpen(false)}
+            >
               Historial
             </NavLink>
 
-            <NavLink to="/barbero/perfil" onClick={() => setSidebarOpen(false)}>
+            <NavLink
+              to="/barbero/perfil"
+              onClick={() => setSidebarOpen(false)}
+            >
               Mi perfil
             </NavLink>
           </nav>
 
+          {/* USER */}
           <div className="barbero-user">
             <div className="barbero-user-info">
-              <span className="barbero-user-name">{usuario.nombre}</span>
-              <span className="barbero-user-role">Barbero</span>
+              <span className="barbero-user-name">
+                {user?.nombre} {user?.apellido}
+              </span>
+              <span className="barbero-user-role">
+                {user?.rol || "Barbero"}
+              </span>
             </div>
 
             <button className="barbero-logout" onClick={logout}>
@@ -65,6 +81,7 @@ const BarberoLayout = ({ children }) => {
           </div>
         </aside>
 
+        {/* CONTENT */}
         <main className="barbero-content">
           {children}
         </main>
