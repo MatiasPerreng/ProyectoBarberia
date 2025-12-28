@@ -1,0 +1,80 @@
+/* =========================
+   ADMIN HEADER
+========================= */
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 32px;
+  padding: 6px 4px;
+}
+
+/* =========================
+   TÍTULO
+========================= */
+
+.admin-header-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #111;
+}
+
+/* =========================
+   BOTÓN AGREGAR SERVICIO
+========================= */
+
+.admin-header-btn {
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
+  color: #111;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(230, 199, 123, 0.45);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+/* HOVER */
+.admin-header-btn:hover {
+  background: linear-gradient(135deg, #f0d88f, #d9b86c);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(230, 199, 123, 0.65);
+}
+
+/* ACTIVE */
+.admin-header-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(230, 199, 123, 0.35);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .admin-header-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

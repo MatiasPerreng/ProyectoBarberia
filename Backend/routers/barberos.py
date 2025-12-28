@@ -41,7 +41,6 @@ def mi_agenda(
     Usa la FK: login.barbero_id
     """
 
-    # 👑 Admin no tiene agenda
     if login.role != "barbero" or not login.barbero_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -61,16 +60,19 @@ def mi_agenda(
 def listar_barberos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db)
 
+
 @router.get("/activos", response_model=List[BarberoOut])
 def listar_barberos_activos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db, solo_activos=True)
+
 
 @router.get("/{barbero_id}", response_model=BarberoOut)
 def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
-    return barbero
+
+    return crud_barbero.serialize_barbero(barbero)
 
 # ---------------------------------------------------------
 # ADMIN
@@ -81,7 +83,9 @@ def crear_barbero(
     barbero_in: BarberoCreate,
     db: Session = Depends(get_db),
 ):
-    return crud_barbero.create_barbero(db, barbero_in)
+    barbero = crud_barbero.create_barbero(db, barbero_in)
+    return crud_barbero.serialize_barbero(barbero)
+
 
 @router.put("/{barbero_id}", response_model=BarberoOut)
 def actualizar_barbero(
@@ -93,7 +97,9 @@ def actualizar_barbero(
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
 
-    return crud_barbero.update_barbero(db, barbero, barbero_in)
+    barbero = crud_barbero.update_barbero(db, barbero, barbero_in)
+    return crud_barbero.serialize_barbero(barbero)
+
 
 @router.patch("/{barbero_id}/toggle", response_model=BarberoOut)
 def toggle_barbero(barbero_id: int, db: Session = Depends(get_db)):
@@ -101,7 +107,9 @@ def toggle_barbero(barbero_id: int, db: Session = Depends(get_db)):
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
 
-    return crud_barbero.toggle_barbero_estado(db, barbero)
+    barbero = crud_barbero.toggle_barbero_estado(db, barbero)
+    return crud_barbero.serialize_barbero(barbero)
+
 
 @router.delete("/{barbero_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
@@ -123,7 +131,6 @@ def crear_acceso_barbero(
     db: Session = Depends(get_db),
     admin = Depends(get_current_login_barbero),
 ):
-    # validar admin
     if admin.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -134,7 +141,6 @@ def crear_acceso_barbero(
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
 
-    # evitar duplicado
     existe = (
         db.query(LoginBarbero)
         .filter(LoginBarbero.barbero_id == barbero_id)
@@ -150,7 +156,7 @@ def crear_acceso_barbero(
         nombre=barbero.nombre,
         email=data.email,
         password_hash=hash_password(data.password),
-        role=data.rol,              # ✅ CORRECTO
+        role=data.rol,
         barbero_id=barbero_id,
         is_active=True
     )

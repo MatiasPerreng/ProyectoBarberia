@@ -6,6 +6,26 @@ from schemas import BarberoCreate, BarberoUpdate
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# SERIALIZER (BLINDADO)
+# ----------------------------------------------------------------------------------------------------------------------
+
+def serialize_barbero(barbero: Barbero) -> dict:
+    """
+    Convierte un Barbero ORM en dict compatible con BarberoOut.
+    Garantiza que foto_url NUNCA sea null.
+    """
+    return {
+        "id_barbero": barbero.id_barbero,
+        "nombre": barbero.nombre,
+        "activo": barbero.activo,
+        # 🔥 BLINDAJE CLAVE
+        "foto_url": barbero.foto_url or "/media/barberos/default.jpg",
+        "created_at": barbero.created_at,
+        "tiene_usuario": barbero.login is not None
+    }
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # BARBEROS
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -13,7 +33,8 @@ def create_barbero(db: Session, barbero_in: BarberoCreate) -> Barbero:
     barbero = Barbero(
         nombre=barbero_in.nombre,
         activo=True,
-        foto_url=None
+        # 🔥 DEFAULT REAL DESDE EL BACKEND
+        foto_url="/media/barberos/default.jpg"
     )
 
     db.add(barbero)
@@ -28,7 +49,8 @@ def get_barberos(
 ) -> List[dict]:
     """
     Devuelve barberos con campo calculado:
-    - tiene_usuario (si ya tiene login creado)
+    - tiene_usuario
+    - foto_url siempre válida
     """
 
     query = db.query(Barbero)
@@ -38,18 +60,7 @@ def get_barberos(
 
     barberos = query.order_by(Barbero.nombre).all()
 
-    return [
-        {
-            "id_barbero": b.id_barbero,
-            "nombre": b.nombre,
-            "activo": b.activo,
-            "foto_url": b.foto_url,
-            "created_at": b.created_at,
-            # 🔥 CLAVE PARA EL FRONTEND
-            "tiene_usuario": b.login is not None
-        }
-        for b in barberos
-    ]
+    return [serialize_barbero(b) for b in barberos]
 
 
 def get_barbero_by_id(db: Session, barbero_id: int) -> Optional[Barbero]:
@@ -100,13 +111,10 @@ def get_agenda_barbero(db: Session, barbero_id: int):
     return (
         db.query(
             Visita.fecha_hora.label("fecha_hora"),
-
             Cliente.nombre.label("cliente_nombre"),
             Cliente.telefono.label("cliente_telefono"),
-
             Servicio.nombre.label("servicio_nombre"),
             Servicio.duracion_min.label("servicio_duracion"),
-
             Visita.estado.label("estado"),
         )
         .join(Cliente, Cliente.id_cliente == Visita.id_cliente)

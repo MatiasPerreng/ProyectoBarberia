@@ -9,7 +9,7 @@ import BarberoDashboard from "../pages/Barbero/BarberoDashboard";
 import BarberoLayout from "../components/Barbero/BarberoLayout/BarberoLayout";
 
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
-import BarberosPage from "../pages/Admin/BarberosPage";
+import BarberosPage from "../pages/Admin/BarberoPage/BarberosPage";
 import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
 import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage";
 

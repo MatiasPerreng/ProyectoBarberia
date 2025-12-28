@@ -3,7 +3,7 @@ import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import ServicioCard from "../../../components/Admin/ServicioCard/ServicioCard";
 import ServicioForm from "../../../components/Admin/ServicioForm/ServicioForm";
 
-import AdminHeader from "../AdminHeader";
+import AdminHeader from "../AdminHeader/AdminHeader";
 
 import {
   getServicios,

@@ -17,7 +17,8 @@ class Barbero(Base):
 
     id_barbero: Mapped[int] = mapped_column(
         INTEGER,
-        primary_key=True
+        primary_key=True,
+        autoincrement=True  # 🔥 CLAVE
     )
 
     nombre: Mapped[str] = mapped_column(
@@ -48,7 +49,8 @@ class Barbero(Base):
     login: Mapped[Optional["LoginBarbero"]] = relationship(
         "LoginBarbero",
         back_populates="barbero",
-        uselist=False
+        uselist=False,
+        cascade="all, delete-orphan"  # ✅ necesario para borrar
     )
 
     # -------------------------
@@ -58,16 +60,17 @@ class Barbero(Base):
     horario_barbero: Mapped[List["HorarioBarbero"]] = relationship(
         "HorarioBarbero",
         back_populates="barbero",
-        cascade="all, delete"
+        cascade="all, delete-orphan"
     )
 
     horario_excepcion: Mapped[List["HorarioExcepcion"]] = relationship(
         "HorarioExcepcion",
         back_populates="barbero",
-        cascade="all, delete"
+        cascade="all, delete-orphan"
     )
 
     visita: Mapped[List["Visita"]] = relationship(
         "Visita",
         back_populates="barbero"
+        # 👈 SIN cascade (historial no se borra)
     )

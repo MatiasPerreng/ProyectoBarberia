@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import AdminLayout from "../../components/Admin/AdminLayout/AdminLayout";
-import BarberoForm from "../../components/Admin/BarberoForm/BarberoForm";
-import Footer from "../../components/Footer/Footer";
+import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
+import BarberoForm from "../../../components/Admin/BarberoForm/BarberoForm";
+import Footer from "../../../components/Footer/Footer";
 import "./BarberosPage.css";
 
 import {
@@ -10,10 +10,10 @@ import {
   toggleBarbero,
   subirFotoBarbero,
   eliminarBarbero,
-  crearCuentaBarbero,
-} from "../../services/barberos";
+  crearCuentaBarbero, // 👈 NUEVO
+} from "../../../services/barberos";
 
-import API_URL from "../../services/api";
+import API_URL from "../../../services/api";
 
 const BarberosPage = () => {
   const [barberos, setBarberos] = useState([]);
@@ -23,7 +23,7 @@ const BarberosPage = () => {
   const fileInputRef = useRef(null);
   const [barberoFotoTarget, setBarberoFotoTarget] = useState(null);
 
-  // Barbero seleccionado para crear acceso
+  // 👉 NUEVO: barbero seleccionado para crear acceso
   const [accountTarget, setAccountTarget] = useState(null);
   const [accountForm, setAccountForm] = useState({
     email: "",
@@ -107,7 +107,7 @@ const BarberosPage = () => {
     try {
       await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
       loadBarberos();
-    } catch {
+    } catch (err) {
       alert("Error al subir foto");
     } finally {
       e.target.value = "";
@@ -116,19 +116,16 @@ const BarberosPage = () => {
   };
 
   // ----------------------------
-  // Crear cuenta de acceso (LOGIN)
+  // Crear cuenta de acceso
   // ----------------------------
   const handleCreateAccount = async (e) => {
     e.preventDefault();
 
-    await crearCuentaBarbero(
-      accountTarget.id_barbero, // ✅ SOLO EL ID
-      {
-        email: accountForm.email,
-        password: accountForm.password,
-        rol: accountForm.rol,
-      }
-    );
+    await crearCuentaBarbero({
+      barbero_id: accountTarget.id_barbero,
+      nombre: accountTarget.nombre,
+      ...accountForm,
+    });
 
     setAccountTarget(null);
     setAccountForm({ email: "", password: "", rol: "barbero" });
