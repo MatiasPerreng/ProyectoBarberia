@@ -2,7 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from database import get_db
-from schemas import LoginBarberoIn, LoginBarberoOut, BarberoAuthOut
+from schemas.auth import (
+    LoginBarberoIn,
+    LoginBarberoOut,
+    BarberoAuthOut
+)
 from crud.auth import authenticate_barbero
 from auth_jwt import create_access_token
 from core.dependencias import get_current_login_barbero
@@ -42,23 +46,7 @@ def login_barbero(
         "token_type": "bearer",
         "barbero": {
             "id_barbero": barbero.id,
-            "nombre": barbero.nombre
+            "nombre": barbero.nombre,
+            "rol": barbero.role   # 👈 mapeamos role → rol para el frontend
         }
-    }
-
-# ---------------------------------------------------------
-# ME (usuario logueado)
-# ---------------------------------------------------------
-
-@router.get(
-    "/me",
-    response_model=BarberoAuthOut
-)
-def me(
-    barbero = Depends(get_current_login_barbero)
-):
-    return {
-        "id_barbero": barbero.id,
-        "nombre": barbero.nombre,
-        "role": barbero.role
     }

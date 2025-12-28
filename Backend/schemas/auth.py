@@ -9,6 +9,7 @@ class LoginBarberoIn(BaseModel):
 class BarberoAuthOut(BaseModel):
     id_barbero: int
     nombre: str
+    rol: str
 
     class Config:
         from_attributes = True

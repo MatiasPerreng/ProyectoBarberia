@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from models import LoginBarberos
 from core.security import verify_password
 
+
 def authenticate_barbero(
     db: Session,
     email: str,
