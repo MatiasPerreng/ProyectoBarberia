@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import LoginBarberos
-from security import verify_password
+from Backend.core.security import verify_password
 
 def authenticate_login_barbero(
     db: Session,

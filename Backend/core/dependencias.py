@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
 from sqlalchemy.orm import Session
+from jose import JWTError
 
 from database import get_db
 from auth_jwt import decode_access_token
@@ -15,29 +15,24 @@ def get_current_login_barbero(
 ):
     try:
         payload = decode_access_token(token)
-        login_id = payload.get("sub")
+        barbero_id = payload.get("sub")
 
-        if login_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token inválido",
-            )
+        if barbero_id is None:
+            raise HTTPException(status_code=401, detail="Token inválido")
 
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido",
+        raise HTTPException(status_code=401, detail="Token inválido")
+
+    barbero = (
+        db.query(LoginBarberos)
+        .filter(
+            LoginBarberos.id == int(barbero_id),
+            LoginBarberos.activo == True
         )
+        .first()
+    )
 
-    login = db.query(LoginBarberos).filter(
-        LoginBarberos.id_login == int(login_id),
-        LoginBarberos.activo == True
-    ).first()
+    if not barbero:
+        raise HTTPException(status_code=401, detail="Usuario no válido")
 
-    if not login:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario no encontrado",
-        )
-
-    return login
+    return barbero

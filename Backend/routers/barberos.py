@@ -17,27 +17,33 @@ router = APIRouter(
 MEDIA_DIR = Path("media/barberos")
 
 # ---------------------------------------------------------
-# AGENDA BARBERO – DEV (SIN AUTH)
-# ---------------------------------------------------------
-
-@router.get("/mi-agenda-dev", response_model=List[AgendaBarberoOut])
-def mi_agenda_dev(db: Session = Depends(get_db)):
-    # ⚠️ BARBERO FIJO PARA DESARROLLO
-    return crud_barbero.get_agenda_barbero(db, barbero_id=3)
-
-# ---------------------------------------------------------
-# AGENDA BARBERO – REAL (CON AUTH)
+# AGENDA BARBERO (PRODUCCIÓN · CON AUTH + FK)
 # ---------------------------------------------------------
 
 @router.get("/mi-agenda", response_model=List[AgendaBarberoOut])
 def mi_agenda(
+    login = Depends(get_current_login_barbero),
     db: Session = Depends(get_db),
-    login=Depends(get_current_login_barbero)
 ):
-    return crud_barbero.get_agenda_barbero(db, login.id_barbero)
+    """
+    Devuelve la agenda del barbero logueado.
+    Usa la FK: login.barbero_id
+    """
+
+    # 👑 Admin no tiene agenda
+    if login.role != "barbero" or not login.barbero_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Este usuario no tiene agenda"
+        )
+
+    return crud_barbero.get_agenda_barbero(
+        db,
+        barbero_id=login.barbero_id
+    )
 
 # ---------------------------------------------------------
-# PUBLICO
+# PÚBLICO
 # ---------------------------------------------------------
 
 @router.get("/", response_model=List[BarberoOut])
@@ -56,11 +62,14 @@ def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     return barbero
 
 # ---------------------------------------------------------
-# ADMIN / DEV
+# ADMIN (RECOMENDADO: PROTEGER CON require_admin)
 # ---------------------------------------------------------
 
 @router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
-def crear_barbero(barbero_in: BarberoCreate, db: Session = Depends(get_db)):
+def crear_barbero(
+    barbero_in: BarberoCreate,
+    db: Session = Depends(get_db),
+):
     return crud_barbero.create_barbero(db, barbero_in)
 
 @router.put("/{barbero_id}", response_model=BarberoOut)
@@ -93,7 +102,7 @@ def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
     return None
 
 # ---------------------------------------------------------
-# SUBIR FOTO
+# SUBIR FOTO BARBERO (ADMIN)
 # ---------------------------------------------------------
 
 @router.post("/{barbero_id}/foto")

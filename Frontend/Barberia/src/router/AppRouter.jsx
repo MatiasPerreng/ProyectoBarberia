@@ -1,49 +1,33 @@
 import { Routes, Route } from "react-router-dom";
 
-/* =========================
-   PUBLIC
-========================= */
 import HomePage from "../pages/Public/Homepage/Homepage";
 import AgendaPage from "../pages/Public/AgendaPage";
-
-/* =========================
-   BARBERO
-========================= */
 import LoginBarbero from "../pages/Public/Homepage/LoginBarbero/LoginBarbero";
+
 import BarberAgenda from "../pages/Barber/BarberAgenda";
 import BarberoDashboard from "../pages/Barbero/BarberoDashboard";
 import BarberoLayout from "../components/Barbero/BarberoLayout/BarberoLayout";
-import ProtectedRoute from "../router/ProtectedRoute";
 
-/* =========================
-   ADMIN (sin auth por ahora)
-========================= */
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberosPage";
 import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
 import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage";
 
+import ProtectedRoute from "../router/ProtectedRoute";
+
 export default function AppRouter() {
+  console.log("🟡 AppRouter render");
+
   return (
     <Routes>
-      {/* =========================
-         PUBLICAS
-      ========================= */}
       <Route path="/" element={<HomePage />} />
       <Route path="/agenda" element={<AgendaPage />} />
-
-      {/* =========================
-         LOGIN BARBERO
-      ========================= */}
       <Route path="/login-barbero" element={<LoginBarbero />} />
 
-      {/* =========================
-         BARBERO (PROTEGIDO)
-      ========================= */}
       <Route
         path="/barbero"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute role="barbero">
             <BarberoLayout>
               <BarberoDashboard />
             </BarberoLayout>
@@ -54,7 +38,7 @@ export default function AppRouter() {
       <Route
         path="/barbero/agenda"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute role="barbero">
             <BarberoLayout>
               <BarberAgenda />
             </BarberoLayout>
@@ -62,13 +46,41 @@ export default function AppRouter() {
         }
       />
 
-      {/* =========================
-         ADMIN (DEV)
-      ========================= */}
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin/barberos" element={<BarberosPage />} />
-      <Route path="/admin/horarios" element={<HorariosPage />} />
-      <Route path="/admin/servicios" element={<ServicioPage />} />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute role="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/barberos"
+        element={
+          <ProtectedRoute role="admin">
+            <BarberosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/horarios"
+        element={
+          <ProtectedRoute role="admin">
+            <HorariosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/servicios"
+        element={
+          <ProtectedRoute role="admin">
+            <ServicioPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

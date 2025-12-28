@@ -1,17 +1,14 @@
 import "./AdminLayout.css";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import { useAuthContext } from "../../../auth/AuthContext";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { logout, user } = useAuthContext();
 
   const usuario = {
     nombre: "Matías Perreng",
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
   };
 
   return (
@@ -63,7 +60,8 @@ const AdminLayout = ({ children }) => {
               <span className="admin-user-role">Administrador</span>
             </div>
 
-            <button className="admin-logout" onClick={handleLogout}>
+
+            <button className="admin-logout" onClick={logout}>
               Cerrar sesión
             </button>
           </div>

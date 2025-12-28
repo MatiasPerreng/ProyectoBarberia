@@ -12,9 +12,9 @@ router = APIRouter(
     tags=["Auth"]
 )
 
-#----------------------------------------------------------------------------------------------------------------------
-# LOGIN BARBERO
-#----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------
+# LOGIN
+# ---------------------------------------------------------
 
 @router.post(
     "/login-barbero",
@@ -24,46 +24,41 @@ def login_barbero(
     data: LoginBarberoIn,
     db: Session = Depends(get_db)
 ):
-    login = authenticate_barbero(db, data.email, data.password)
+    barbero = authenticate_barbero(db, data.email, data.password)
 
-    if not login:
+    if not barbero:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas"
         )
 
-    # El token identifica al LOGIN (no al barbero directamente)
     token = create_access_token({
-        "sub": str(login.id_login)
+        "sub": str(barbero.id),
+        "role": barbero.role
     })
 
     return {
         "access_token": token,
         "token_type": "bearer",
         "barbero": {
-            "id_barbero": login.barbero.id_barbero,
-            "nombre": login.barbero.nombre
+            "id_barbero": barbero.id,
+            "nombre": barbero.nombre
         }
     }
 
-#----------------------------------------------------------------------------------------------------------------------
-# ME (BARBERO LOGUEADO)
-#----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------
+# ME (usuario logueado)
+# ---------------------------------------------------------
 
 @router.get(
     "/me",
     response_model=BarberoAuthOut
 )
 def me(
-    login = Depends(get_current_login_barbero)
+    barbero = Depends(get_current_login_barbero)
 ):
-    """
-    Devuelve el barbero asociado al login actual.
-    Se usa para:
-    - refrescar sesión
-    - mantener login en frontend
-    """
     return {
-        "id_barbero": login.barbero.id_barbero,
-        "nombre": login.barbero.nombre
+        "id_barbero": barbero.id,
+        "nombre": barbero.nombre,
+        "role": barbero.role
     }
