@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import ServicioCard from "../../../components/Admin/ServicioCard/ServicioCard";
 import ServicioForm from "../../../components/Admin/ServicioForm/ServicioForm";
-
 import AdminHeader from "../AdminHeader/AdminHeader";
-
 import {
   getServicios,
   createServicio,
   updateServicio,
   deleteServicio,
 } from "../../../services/servicios";
+
+import "./ServicioPage.css";
 
 const ServicioPage = () => {
   const [servicios, setServicios] = useState([]);
@@ -77,15 +77,21 @@ const ServicioPage = () => {
         onAction={handleCreate}
       />
 
-      {loading && <p>Cargando servicios...</p>}
+      {loading && (
+        <p className="servicios-page-loading">
+          Cargando servicios…
+        </p>
+      )}
 
       {!loading && servicios.length === 0 && (
-        <p>No hay servicios cargados</p>
+        <p className="servicios-page-empty">
+          No hay servicios cargados
+        </p>
       )}
 
       {!loading && servicios.length > 0 && (
-        <div className="admin-section servicios-section">
-          <div className="admin-grid servicios-grid">
+        <section className="servicios-page-section">
+          <div className="servicios-page-grid">
             {servicios.map((servicio) => (
               <ServicioCard
                 key={servicio.id_servicio}
@@ -95,7 +101,7 @@ const ServicioPage = () => {
               />
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {showForm && (

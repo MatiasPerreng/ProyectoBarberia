@@ -11,6 +11,8 @@ import {
   eliminarHorario,
 } from "../../../services/horarios";
 
+import "./HorarioPage.css";
+
 /* =========================
    UTILS FECHA
 ========================= */
@@ -161,11 +163,12 @@ const HorariosPage = () => {
   return (
     <>
       <AdminLayout>
-        <div className="admin-page-header">
+        {/* HEADER */}
+        <div className="horarios-header">
           <h2>Horarios</h2>
 
           <select
-            className="admin-select-barbero"
+            className="horarios-select-barbero"
             value={barberoSeleccionado ?? ""}
             onChange={(e) =>
               setBarberoSeleccionado(
@@ -182,13 +185,28 @@ const HorariosPage = () => {
           </select>
 
           {barberoSeleccionado && (
-            <button onClick={() => setShowForm(true)}>
+            <button
+              className="horarios-btn-primary"
+              onClick={() => setShowForm(true)}
+            >
               + Nuevo horario
             </button>
           )}
         </div>
 
-        {error && <p className="error">{error}</p>}
+        {/* MENSAJE EMPTY */}
+        {!barberoSeleccionado && !loading && (
+          <div className="horarios-empty">
+            <p className="horarios-empty-title">
+              Seleccioná un barbero
+            </p>
+            <p className="horarios-empty-subtitle">
+              Elegí un barbero para ver, crear o modificar sus horarios
+            </p>
+          </div>
+        )}
+
+        {error && <p className="horarios-error">{error}</p>}
         {loading && <p>Cargando horarios…</p>}
 
         {!loading && barberoSeleccionado && (

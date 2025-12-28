@@ -10,7 +10,7 @@ import {
   toggleBarbero,
   subirFotoBarbero,
   eliminarBarbero,
-  crearCuentaBarbero, // 👈 NUEVO
+  crearCuentaBarbero,
 } from "../../../services/barberos";
 
 import API_URL from "../../../services/api";
@@ -23,7 +23,6 @@ const BarberosPage = () => {
   const fileInputRef = useRef(null);
   const [barberoFotoTarget, setBarberoFotoTarget] = useState(null);
 
-  // 👉 NUEVO: barbero seleccionado para crear acceso
   const [accountTarget, setAccountTarget] = useState(null);
   const [accountForm, setAccountForm] = useState({
     email: "",
@@ -31,15 +30,14 @@ const BarberosPage = () => {
     rol: "barbero",
   });
 
-  // ----------------------------
-  // Cargar barberos
-  // ----------------------------
+  /* ----------------------------
+     CARGAR BARBEROS
+  ---------------------------- */
   const loadBarberos = async () => {
     try {
       const data = await getBarberos();
       setBarberos(data);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError("No se pudieron cargar los barberos");
     }
   };
@@ -48,19 +46,18 @@ const BarberosPage = () => {
     loadBarberos();
   }, []);
 
-  // ----------------------------
-  // Crear barbero (persona)
-  // ----------------------------
+  /* ----------------------------
+     CREAR BARBERO
+  ---------------------------- */
   const handleCreate = async (data) => {
-    const barbero = await crearBarbero(data);
+    await crearBarbero(data);
     await loadBarberos();
     setShowForm(false);
-    return barbero;
   };
 
-  // ----------------------------
-  // Toggle activo
-  // ----------------------------
+  /* ----------------------------
+     TOGGLE ACTIVO
+  ---------------------------- */
   const handleToggle = async (barbero) => {
     setBarberos((prev) =>
       prev.map((b) =>
@@ -77,24 +74,18 @@ const BarberosPage = () => {
     }
   };
 
-  // ----------------------------
-  // Eliminar barbero
-  // ----------------------------
+  /* ----------------------------
+     ELIMINAR
+  ---------------------------- */
   const handleDelete = async (barbero) => {
-    if (!confirm(`¿Eliminar definitivamente al barbero "${barbero.nombre}"?`))
-      return;
-
-    try {
-      await eliminarBarbero(barbero.id_barbero);
-      loadBarberos();
-    } catch (err) {
-      alert(err.message);
-    }
+    if (!confirm(`¿Eliminar definitivamente a "${barbero.nombre}"?`)) return;
+    await eliminarBarbero(barbero.id_barbero);
+    loadBarberos();
   };
 
-  // ----------------------------
-  // Cambiar foto
-  // ----------------------------
+  /* ----------------------------
+     FOTO
+  ---------------------------- */
   const handleSelectFoto = (barbero) => {
     setBarberoFotoTarget(barbero);
     fileInputRef.current.click();
@@ -104,20 +95,16 @@ const BarberosPage = () => {
     const file = e.target.files[0];
     if (!file || !barberoFotoTarget) return;
 
-    try {
-      await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
-      loadBarberos();
-    } catch (err) {
-      alert("Error al subir foto");
-    } finally {
-      e.target.value = "";
-      setBarberoFotoTarget(null);
-    }
+    await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
+    loadBarberos();
+
+    e.target.value = "";
+    setBarberoFotoTarget(null);
   };
 
-  // ----------------------------
-  // Crear cuenta de acceso
-  // ----------------------------
+  /* ----------------------------
+     CREAR ACCESO
+  ---------------------------- */
   const handleCreateAccount = async (e) => {
     e.preventDefault();
 
@@ -135,21 +122,25 @@ const BarberosPage = () => {
   return (
     <>
       <AdminLayout>
-        <div className="admin-page-header">
+        {/* HEADER */}
+        <div className="barberos-header">
           <h2>Barberos</h2>
-          <button onClick={() => setShowForm(true)}>
+          <button
+            className="barberos-btn-primary"
+            onClick={() => setShowForm(true)}
+          >
             + Nuevo barbero
           </button>
         </div>
 
-        {error && <p className="error">{error}</p>}
+        {error && <p className="barberos-error">{error}</p>}
 
-        <div className="admin-table">
+        {/* LISTADO */}
+        <div className="barberos-list">
           {barberos.map((b) => (
-            <div className="admin-row" key={b.id_barbero}>
-              {/* FOTO */}
+            <div className="barberos-row" key={b.id_barbero}>
               <img
-                className="admin-avatar"
+                className="barberos-avatar"
                 src={
                   b.foto_url
                     ? `${API_URL}${b.foto_url}`
@@ -158,15 +149,13 @@ const BarberosPage = () => {
                 alt={b.nombre}
               />
 
-              {/* INFO */}
-              <div className="admin-info">
+              <div className="barberos-info">
                 <strong>{b.nombre}</strong>
               </div>
 
-              {/* ACCIONES */}
-              <div className="admin-actions">
+              <div className="barberos-actions">
                 <span
-                  className={`status ${
+                  className={`barberos-status ${
                     b.activo ? "active" : "inactive"
                   }`}
                 >
@@ -205,10 +194,10 @@ const BarberosPage = () => {
           />
         )}
 
-        {/* MODAL CREAR ACCESO */}
+        {/* MODAL ACCESO */}
         {accountTarget && (
-          <div className="modal-overlay">
-            <div className="modal-card">
+          <div className="barberos-modal-overlay">
+            <div className="barberos-modal-card">
               <h3>Crear acceso</h3>
               <p>
                 Barbero: <strong>{accountTarget.nombre}</strong>
@@ -254,7 +243,7 @@ const BarberosPage = () => {
                   <option value="admin">Admin</option>
                 </select>
 
-                <div className="modal-actions">
+                <div className="barberos-modal-actions">
                   <button type="submit">Crear</button>
                   <button
                     type="button"
@@ -268,7 +257,6 @@ const BarberosPage = () => {
           </div>
         )}
 
-        {/* INPUT FILE OCULTO */}
         <input
           type="file"
           accept="image/*"

@@ -1,28 +1,45 @@
-/* =======================================================
-   SERVICIOS – GRID ANCHO Y CENTRADO
-======================================================= */
+/* ======================================================
+   SERVICIOS PAGE – CONTENEDOR
+====================================================== */
 
-.servicios-section {
+.servicios-page-section {
   display: flex;
-  justify-content: center; /* 🔥 centra el bloque */
+  justify-content: center;
   width: 100%;
 }
 
-.servicios-grid {
+/* ======================================================
+   GRID
+====================================================== */
+
+.servicios-page-grid {
   width: 100%;
-  max-width: 1500px; /* 🔥 cards más anchas sin exagerar */
+  max-width: 1500px;
 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 32px;
 }
 
-/* =========================
+/* ======================================================
+   ESTADOS
+====================================================== */
+
+.servicios-page-loading,
+.servicios-page-empty {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #555;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* ======================================================
    RESPONSIVE
-========================= */
+====================================================== */
 
 @media (max-width: 900px) {
-  .servicios-grid {
+  .servicios-page-grid {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
   }
