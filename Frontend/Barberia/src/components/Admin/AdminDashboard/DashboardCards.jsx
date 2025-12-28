@@ -1,3 +1,5 @@
+import './DashboardsCards.css'
+
 const DashboardCards = ({ stats, onOpen }) => {
   return (
     <div className="admin-cards">

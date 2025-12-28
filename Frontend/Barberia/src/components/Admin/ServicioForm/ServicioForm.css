@@ -85,13 +85,49 @@
 }
 
 /* =========================
-   FILE INPUT
+   FILE INPUT PRO
 ========================= */
 
-.servicio-form input[type="file"] {
-  padding: 10px;
-  background: #141414;
+.servicio-file {
+  margin: 8px 0 14px;
+}
+
+.servicio-file-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+
+  padding: 11px;
+  border-radius: 10px;
+
+  background: #1b1b1b;
+  border: 1px dashed rgba(230, 199, 123, 0.45);
+  color: #e6c77b;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.6px;
   cursor: pointer;
+
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.servicio-file-btn:hover {
+  background: rgba(230, 199, 123, 0.08);
+  border-color: #e6c77b;
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+.servicio-preview {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(230, 199, 123, 0.35);
 }
 
 /* =========================
@@ -126,11 +162,7 @@
 /* Guardar */
 .form-actions button:last-child {
   flex: 1;
-  background: linear-gradient(
-    135deg,
-    #e6c77b,
-    #cfa85a
-  );
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
   color: #111;
   font-weight: 600;
 
@@ -143,11 +175,7 @@
 }
 
 .form-actions button:last-child:hover {
-  background: linear-gradient(
-    135deg,
-    #f0d88f,
-    #d9b86c
-  );
+  background: linear-gradient(135deg, #f0d88f, #d9b86c);
   transform: translateY(-1px);
 }
 
@@ -159,5 +187,13 @@
   .servicio-form {
     margin: 0 16px;
     padding: 22px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
   }
 }

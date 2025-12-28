@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./ServicioForm.css";
 
 const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
@@ -6,8 +6,11 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
     nombre: "",
     precio: "",
     duracion_min: "",
-    imagen: "",
+    imagen: null, // 🔥 ahora archivo
   });
+
+  const [preview, setPreview] = useState(null);
+  const fileRef = useRef(null);
 
   useEffect(() => {
     if (servicioInicial) {
@@ -15,8 +18,12 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
         nombre: servicioInicial.nombre ?? "",
         precio: servicioInicial.precio ?? "",
         duracion_min: servicioInicial.duracion_min ?? "",
-        imagen: servicioInicial.imagen ?? "",
+        imagen: null,
       });
+
+      if (servicioInicial.imagen) {
+        setPreview(servicioInicial.imagen);
+      }
     }
   }, [servicioInicial]);
 
@@ -29,6 +36,14 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setForm((prev) => ({ ...prev, imagen: file }));
+    setPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -36,7 +51,7 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
       nombre: form.nombre.trim(),
       precio: Number(form.precio),
       duracion_min: Number(form.duracion_min),
-      imagen: form.imagen || null,
+      imagen: form.imagen, // 🔥 archivo real
     });
   };
 
@@ -75,14 +90,34 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
           required
         />
 
-        {/* Imagen como URL / path (no archivo) */}
-        <input
-          type="text"
-          name="imagen"
-          placeholder="URL / path de imagen (opcional)"
-          value={form.imagen}
-          onChange={handleChange}
-        />
+        {/* =========================
+            FILE INPUT PRO
+        ========================= */}
+
+        <div className="servicio-file">
+          <label
+            className="servicio-file-btn"
+            onClick={() => fileRef.current.click()}
+          >
+            Seleccionar imagen
+          </label>
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            hidden
+          />
+        </div>
+
+        {preview && (
+          <img
+            src={preview}
+            alt="Preview"
+            className="servicio-preview"
+          />
+        )}
 
         <div className="form-actions">
           <button type="button" onClick={onCancel}>
