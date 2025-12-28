@@ -52,11 +52,14 @@ const BarberoForm = ({ onSubmit, onClose }) => {
             onChange={(e) => setNombre(e.target.value)}
           />
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+          <label className="file-label">
+            Seleccionar foto
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          </label>
 
           {preview && (
             <img
