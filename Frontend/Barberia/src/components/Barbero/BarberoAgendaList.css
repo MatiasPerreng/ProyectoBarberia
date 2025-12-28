@@ -1,0 +1,151 @@
+/* =======================================================
+   LISTA
+======================================================= */
+
+.barbero-agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* =======================================================
+   ITEM TURNO (CARD PRO)
+======================================================= */
+
+.barbero-agenda-item {
+  background: linear-gradient(180deg, #ffffff, #fafafa);
+  border-radius: 18px;
+  padding: 20px 26px;
+
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  cursor: pointer;
+  transition: all 0.28s ease;
+}
+
+.barbero-agenda-item:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* =======================================================
+   HORA (FUERTE Y PRO)
+======================================================= */
+
+.barbero-agenda-item .hora {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #111;
+}
+
+/* AM / PM más sutil */
+.barbero-agenda-item .hora::after {
+  content: "";
+}
+
+/* =======================================================
+   INFO CLIENTE / SERVICIO
+======================================================= */
+
+.barbero-agenda-item .info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.barbero-agenda-item .info strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: 0.3px;
+}
+
+.barbero-agenda-item .info span {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* =======================================================
+   ESTADO (BADGE PRO)
+======================================================= */
+
+.barbero-agenda-item .estado {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+
+  padding: 8px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* =======================================================
+   COLORES POR ESTADO
+======================================================= */
+
+.barbero-agenda-item.estado-reservado .estado {
+  background: linear-gradient(
+    135deg,
+    rgba(230, 199, 123, 0.25),
+    rgba(230, 199, 123, 0.12)
+  );
+  color: #9a7400;
+}
+
+.barbero-agenda-item.estado-atendido .estado {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.25),
+    rgba(16, 185, 129, 0.12)
+  );
+  color: #047857;
+}
+
+.barbero-agenda-item.estado-cancelado .estado {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.25),
+    rgba(239, 68, 68, 0.12)
+  );
+  color: #991b1b;
+}
+
+/* =======================================================
+   MICRO DETALLE KING BARBER
+======================================================= */
+
+.barbero-agenda-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+/* =======================================================
+   RESPONSIVE
+======================================================= */
+
+@media (max-width: 700px) {
+  .barbero-agenda-item {
+    grid-template-columns: 80px 1fr;
+    row-gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .barbero-agenda-item .estado {
+    grid-column: 1 / -1;
+    justify-self: flex-start;
+  }
+}

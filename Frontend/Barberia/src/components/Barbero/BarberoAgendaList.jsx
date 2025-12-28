@@ -1,4 +1,5 @@
 import BarberoAgendaItem from "./BarberoAgendaItem";
+import './BarberoAgendaList.css'
 
 const BarberoAgendaList = ({ turnos, onSelectTurno }) => {
   if (!turnos.length) {

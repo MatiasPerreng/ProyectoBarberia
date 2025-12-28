@@ -6,13 +6,7 @@ import shutil
 
 from database import get_db
 import crud.barbero as crud_barbero
-from schemas import (
-    BarberoCreate,
-    BarberoUpdate,
-    BarberoOut,
-    AgendaBarberoOut
-)
-
+from schemas import BarberoCreate, BarberoUpdate, BarberoOut, AgendaBarberoOut
 from core.dependencias import get_current_login_barbero
 
 router = APIRouter(
@@ -22,6 +16,25 @@ router = APIRouter(
 
 MEDIA_DIR = Path("media/barberos")
 
+# ---------------------------------------------------------
+# AGENDA BARBERO – DEV (SIN AUTH)
+# ---------------------------------------------------------
+
+@router.get("/mi-agenda-dev", response_model=List[AgendaBarberoOut])
+def mi_agenda_dev(db: Session = Depends(get_db)):
+    # ⚠️ BARBERO FIJO PARA DESARROLLO
+    return crud_barbero.get_agenda_barbero(db, barbero_id=3)
+
+# ---------------------------------------------------------
+# AGENDA BARBERO – REAL (CON AUTH)
+# ---------------------------------------------------------
+
+@router.get("/mi-agenda", response_model=List[AgendaBarberoOut])
+def mi_agenda(
+    db: Session = Depends(get_db),
+    login=Depends(get_current_login_barbero)
+):
+    return crud_barbero.get_agenda_barbero(db, login.id_barbero)
 
 # ---------------------------------------------------------
 # PUBLICO
@@ -31,11 +44,9 @@ MEDIA_DIR = Path("media/barberos")
 def listar_barberos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db)
 
-
 @router.get("/activos", response_model=List[BarberoOut])
 def listar_barberos_activos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db, solo_activos=True)
-
 
 @router.get("/{barbero_id}", response_model=BarberoOut)
 def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
@@ -44,18 +55,13 @@ def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Barbero no encontrado")
     return barbero
 
-
 # ---------------------------------------------------------
-# DEV – SIN AUTH
+# ADMIN / DEV
 # ---------------------------------------------------------
 
-@router.post("/", response_model=BarberoOut, status_code=201)
-def crear_barbero(
-    barbero_in: BarberoCreate,
-    db: Session = Depends(get_db),
-):
+@router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
+def crear_barbero(barbero_in: BarberoCreate, db: Session = Depends(get_db)):
     return crud_barbero.create_barbero(db, barbero_in)
-
 
 @router.put("/{barbero_id}", response_model=BarberoOut)
 def actualizar_barbero(
@@ -69,20 +75,15 @@ def actualizar_barbero(
 
     return crud_barbero.update_barbero(db, barbero, barbero_in)
 
-
 @router.patch("/{barbero_id}/toggle", response_model=BarberoOut)
-def toggle_barbero(
-    barbero_id: int,
-    db: Session = Depends(get_db),
-):
+def toggle_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
 
     return crud_barbero.toggle_barbero_estado(db, barbero)
 
-
-@router.delete("/{barbero_id}", status_code=204)
+@router.delete("/{barbero_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
@@ -90,7 +91,6 @@ def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
 
     crud_barbero.delete_barbero(db, barbero)
     return None
-
 
 # ---------------------------------------------------------
 # SUBIR FOTO
@@ -120,15 +120,3 @@ def subir_foto_barbero(
     db.refresh(barbero)
 
     return {"foto_url": barbero.foto_url}
-
-
-# ---------------------------------------------------------
-# AGENDA PRIVADA
-# ---------------------------------------------------------
-
-@router.get("/mi-agenda", response_model=List[AgendaBarberoOut])
-def mi_agenda(
-    db: Session = Depends(get_db),
-    login=Depends(get_current_login_barbero)
-):
-    return crud_barbero.get_agenda_barbero(db, login.id_barbero)

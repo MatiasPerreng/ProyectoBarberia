@@ -12,7 +12,7 @@ import AgendaPage from "../pages/Public/AgendaPage";
 import LoginBarbero from "../pages/Barber/LoginBarbero";
 import BarberAgenda from "../pages/Barber/BarberAgenda";
 import BarberoDashboard from "../pages/Barbero/BarberoDashboard";
-import ProtectedRoute from "./ProtectedRoute";
+import BarberoLayout from "../components/Barbero/BarberoLayout/BarberoLayout";
 
 /* =========================
    ADMIN
@@ -32,27 +32,25 @@ export default function AppRouter() {
       <Route path="/agenda" element={<AgendaPage />} />
 
       {/* =========================
-         BARBERO
+         BARBERO (DEV SIN AUTH)
       ========================= */}
       <Route path="/login-barbero" element={<LoginBarbero />} />
 
-      {/* Dashboard principal del barbero */}
       <Route
         path="/barbero"
         element={
-          <ProtectedRoute>
+          <BarberoLayout>
             <BarberoDashboard />
-          </ProtectedRoute>
+          </BarberoLayout>
         }
       />
 
-      {/* Agenda del barbero (la que ya tenías) */}
       <Route
         path="/barbero/agenda"
         element={
-          <ProtectedRoute>
+          <BarberoLayout>
             <BarberAgenda />
-          </ProtectedRoute>
+          </BarberoLayout>
         }
       />
 
