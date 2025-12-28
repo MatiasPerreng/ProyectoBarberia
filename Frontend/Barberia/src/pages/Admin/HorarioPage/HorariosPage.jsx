@@ -66,18 +66,12 @@ const HorariosPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /* -------------------------
-     CARGAR BARBEROS
-  -------------------------- */
   useEffect(() => {
     getBarberos()
       .then(setBarberos)
       .catch(() => setError("Error al cargar barberos"));
   }, []);
 
-  /* -------------------------
-     CARGAR HORARIOS
-  -------------------------- */
   useEffect(() => {
     if (!barberoSeleccionado) {
       setHorarios([]);
@@ -93,35 +87,24 @@ const HorariosPage = () => {
       .finally(() => setLoading(false));
   }, [barberoSeleccionado]);
 
-  /* -------------------------
-     CREAR HORARIO
-  -------------------------- */
   const handleCreate = async (data) => {
-    try {
-      const fechasNormalizadas = normalizarRangoPorDia({
-        fecha_desde: data.fecha_desde,
-        fecha_hasta: data.fecha_hasta,
-        dia_semana: data.dia_semana,
-      });
+    const fechasNormalizadas = normalizarRangoPorDia({
+      fecha_desde: data.fecha_desde,
+      fecha_hasta: data.fecha_hasta,
+      dia_semana: data.dia_semana,
+    });
 
-      await crearHorario({
-        ...data,
-        dia_semana: Number(data.dia_semana),
-        ...fechasNormalizadas,
-      });
+    // 🔥 SI FALLA, EL ERROR SUBE AL MODAL
+    await crearHorario({
+      ...data,
+      dia_semana: Number(data.dia_semana),
+      ...fechasNormalizadas,
+    });
 
-      setShowForm(false);
-
-      const updated = await getHorariosBarbero(barberoSeleccionado);
-      setHorarios(updated);
-    } catch (err) {
-      setError(err.message || "No se pudo crear el horario");
-    }
+    const updated = await getHorariosBarbero(barberoSeleccionado);
+    setHorarios(updated);
   };
 
-  /* -------------------------
-     ELIMINAR HORARIO
-  -------------------------- */
   const handleDelete = async (idHorario) => {
     if (!confirm("¿Eliminar este horario?")) return;
 
@@ -134,36 +117,9 @@ const HorariosPage = () => {
     }
   };
 
-  /* -------------------------
-     COPIAR HORARIO
-  -------------------------- */
-  const handleCopy = async (horario, nuevoDia) => {
-    try {
-      const fechasNormalizadas = normalizarRangoPorDia({
-        fecha_desde: horario.fecha_desde,
-        fecha_hasta: horario.fecha_hasta,
-        dia_semana: nuevoDia,
-      });
-
-      await crearHorario({
-        id_barbero: horario.id_barbero,
-        dia_semana: Number(nuevoDia),
-        hora_desde: horario.hora_desde,
-        hora_hasta: horario.hora_hasta,
-        ...fechasNormalizadas,
-      });
-
-      const updated = await getHorariosBarbero(barberoSeleccionado);
-      setHorarios(updated);
-    } catch (err) {
-      setError(err.message || "No se pudo copiar el horario");
-    }
-  };
-
   return (
     <>
       <AdminLayout>
-        {/* HEADER */}
         <div className="horarios-header">
           <h2>Horarios</h2>
 
@@ -194,7 +150,6 @@ const HorariosPage = () => {
           )}
         </div>
 
-        {/* MENSAJE EMPTY */}
         {!barberoSeleccionado && !loading && (
           <div className="horarios-empty">
             <p className="horarios-empty-title">
@@ -213,7 +168,6 @@ const HorariosPage = () => {
           <HorarioList
             horarios={horarios}
             onDelete={handleDelete}
-            onCopy={handleCopy}
           />
         )}
 

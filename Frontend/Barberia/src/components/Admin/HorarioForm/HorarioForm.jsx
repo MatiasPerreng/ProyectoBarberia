@@ -10,13 +10,6 @@ const DIAS_SEMANA = [
   { id: 6, label: "Sábado" },
 ];
 
-const normalizarFecha = (v) => (v && v !== "" ? v : null);
-
-const toInputDate = (v) => {
-  if (!v) return "";
-  return v.slice(0, 10); // YYYY-MM-DD
-};
-
 const HorarioForm = ({
   idBarbero,
   horariosExistentes = [],
@@ -36,10 +29,7 @@ const HorarioForm = ({
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const copiarHorario = () => {
@@ -58,8 +48,8 @@ const HorarioForm = ({
       ...prev,
       hora_desde: horario.hora_desde,
       hora_hasta: horario.hora_hasta,
-      fecha_desde: toInputDate(horario.fecha_desde),
-      fecha_hasta: toInputDate(horario.fecha_hasta),
+      fecha_desde: horario.fecha_desde?.slice(0, 10),
+      fecha_hasta: horario.fecha_hasta?.slice(0, 10),
     }));
 
     setError(null);
@@ -105,11 +95,14 @@ const HorarioForm = ({
         dia_semana: Number(form.dia_semana),
         hora_desde: form.hora_desde,
         hora_hasta: form.hora_hasta,
-        fecha_desde: normalizarFecha(form.fecha_desde),
-        fecha_hasta: normalizarFecha(form.fecha_hasta),
+        fecha_desde: form.fecha_desde,
+        fecha_hasta: form.fecha_hasta,
       });
+
+      onClose();
     } catch (err) {
-      setError(err.message || "No se pudo guardar el horario");
+      // 🔥 ERROR DEL BACKEND MOSTRADO EN EL MODAL
+      setError(err.message || "Horario solapado o inválido");
     } finally {
       setLoading(false);
     }
@@ -120,7 +113,7 @@ const HorarioForm = ({
       <div className="modal-card">
         <h3>Nuevo horario</h3>
 
-        {error && <p className="error">{error}</p>}
+        {error && <div className="error">{error}</div>}
 
         {horariosExistentes.length > 0 && (
           <div className="copiar-horario">
