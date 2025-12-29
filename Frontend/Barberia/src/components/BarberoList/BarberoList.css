@@ -7,9 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    linear-gradient(180deg, rgba(230, 199, 123, 0.22) 0%, rgba(0, 0, 0, 0.96) 50%),
-    #000;
+  background: linear-gradient(180deg, rgba(230, 199, 123, 0.22) 0%, rgba(0, 0, 0, 0.96) 50%), #000;
   padding: 20px;
 }
 
@@ -49,10 +47,6 @@
    STEPS
 ======================================================= */
 
-/* =======================================================
-   STEPS (ORIGINAL + FIX)
-======================================================= */
-
 .bl-steps {
   list-style: none;
   padding: 0;
@@ -67,15 +61,12 @@
   opacity: 0.3;
 }
 
-
-
 .bl-step-text {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.8px;
   text-transform: uppercase;
   margin: 0;
-  /* ✅ FIX REAL */
 }
 
 .bl-step-number {
@@ -103,12 +94,10 @@
   color: #111;
 }
 
-/* ✅ FIX */
 .bl-step.done .bl-step-number {
   background: #caa851;
   color: #111;
 }
-
 
 .bl-sidebar-footer {
   margin-top: auto;
@@ -163,10 +152,7 @@
   bottom: -4px;
   width: 0;
   height: 1px;
-  background: linear-gradient(90deg,
-      transparent,
-      #e6c77b,
-      transparent);
+  background: linear-gradient(90deg, transparent, #e6c77b, transparent);
   transition: width 0.35s ease;
 }
 
@@ -184,6 +170,7 @@
   outline: none;
   box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.35);
 }
+
 /* =======================================================
    GRID DESKTOP
 ======================================================= */
