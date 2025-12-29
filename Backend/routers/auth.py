@@ -2,45 +2,29 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from database import get_db
-from schemas.auth import (
-    LoginBarberoIn,
-    LoginBarberoOut,
-    BarberoAuthOut
-)
+from schemas.auth import LoginBarberoIn, LoginBarberoOut, BarberoAuthOut
 from crud.auth import authenticate_barbero
 from auth_jwt import create_access_token
 from core.dependencias import get_current_login_barbero
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Auth"]
-)
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 # ---------------------------------------------------------
 # LOGIN
 # ---------------------------------------------------------
 
-@router.post(
-    "/login-barbero",
-    response_model=LoginBarberoOut
-)
-def login_barbero(
-    data: LoginBarberoIn,
-    db: Session = Depends(get_db)
-):
+
+@router.post("/login-barbero", response_model=LoginBarberoOut)
+def login_barbero(data: LoginBarberoIn, db: Session = Depends(get_db)):
     barbero = authenticate_barbero(db, data.email, data.password)
 
     if not barbero:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales incorrectas"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas"
         )
 
     # JWT lleva role (backend)
-    token = create_access_token({
-        "sub": str(barbero.id),
-        "role": barbero.role
-    })
+    token = create_access_token({"sub": str(barbero.id), "role": barbero.role})
 
     return {
         "access_token": token,
@@ -48,6 +32,6 @@ def login_barbero(
         "barbero": {
             "id_barbero": barbero.id,
             "nombre": barbero.nombre,
-            "rol": barbero.role
-        }
+            "rol": barbero.role,
+        },
     }

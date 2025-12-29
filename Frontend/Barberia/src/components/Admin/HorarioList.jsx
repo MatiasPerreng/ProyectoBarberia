@@ -38,7 +38,9 @@ const HorarioList = ({ horarios, onDelete, onCopy }) => {
               <div className="copy-panel">
                 <select
                   value={diaDestino}
-                  onChange={(e) => setDiaDestino(e.target.value)}
+                  onChange={(e) =>
+                    setDiaDestino(Number(e.target.value))
+                  }
                 >
                   <option value="">Elegir día</option>
                   {DIAS.filter((d) => d.id !== h.dia_semana).map(
@@ -52,9 +54,11 @@ const HorarioList = ({ horarios, onDelete, onCopy }) => {
 
                 <button
                   className="btn-copy"
+                  disabled={!diaDestino}
                   onClick={() => {
-                    onCopy(h, Number(diaDestino));
-                    setCopia(null);
+                    onCopy(h, diaDestino);
+                    setCopiandoId(null);
+                    setDiaDestino("");
                   }}
                 >
                   Confirmar

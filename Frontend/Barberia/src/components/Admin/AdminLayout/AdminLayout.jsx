@@ -7,10 +7,6 @@ const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { logout, user } = useAuthContext();
 
-  const usuario = {
-    nombre: "Matías Perreng",
-  };
-
   return (
     <>
       {/* HEADER MOBILE */}
@@ -40,26 +36,22 @@ const AdminLayout = ({ children }) => {
           </div>
 
           <nav className="admin-nav">
-            <NavLink to="/admin" end onClick={() => setSidebarOpen(false)}>
-              Dashboard
-            </NavLink>
-            <NavLink to="/admin/barberos" onClick={() => setSidebarOpen(false)}>
-              Barberos
-            </NavLink>
-            <NavLink to="/admin/horarios" onClick={() => setSidebarOpen(false)}>
-              Horarios
-            </NavLink>
-            <NavLink to="/admin/servicios" onClick={() => setSidebarOpen(false)}>
-              Servicios
-            </NavLink>
+            <NavLink to="/admin" end>Dashboard</NavLink>
+            <NavLink to="/admin/barberos">Barberos</NavLink>
+            <NavLink to="/admin/horarios">Horarios</NavLink>
+            <NavLink to="/admin/servicios">Servicios</NavLink>
           </nav>
 
           <div className="admin-user">
             <div className="admin-user-info">
-              <span className="admin-user-name">{usuario.nombre}</span>
-              <span className="admin-user-role">Administrador</span>
-            </div>
+              <span className="admin-user-name">
+                {user?.nombre || "Usuario"}
+              </span>
 
+              <span className="admin-user-role">
+                {user?.role || "—"}
+              </span>
+            </div>
 
             <button className="admin-logout" onClick={logout}>
               Cerrar sesión

@@ -36,10 +36,6 @@ const normalizarRangoPorDia = ({
   let diff = diaDestino - diaActual;
   if (diff < 0) diff += 7;
 
-  if (diff === 0) {
-    return { fecha_desde, fecha_hasta };
-  }
-
   const nuevaDesde = new Date(desde);
   nuevaDesde.setDate(nuevaDesde.getDate() + diff);
 
@@ -58,7 +54,8 @@ const normalizarRangoPorDia = ({
 
 const HorariosPage = () => {
   const [barberos, setBarberos] = useState([]);
-  const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
+  const [barberoSeleccionado, setBarberoSeleccionado] =
+    useState(null);
 
   const [horarios, setHorarios] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -94,27 +91,50 @@ const HorariosPage = () => {
       dia_semana: data.dia_semana,
     });
 
-    // 🔥 SI FALLA, EL ERROR SUBE AL MODAL
     await crearHorario({
       ...data,
       dia_semana: Number(data.dia_semana),
       ...fechasNormalizadas,
     });
 
-    const updated = await getHorariosBarbero(barberoSeleccionado);
+    const updated = await getHorariosBarbero(
+      barberoSeleccionado
+    );
     setHorarios(updated);
   };
 
   const handleDelete = async (idHorario) => {
     if (!confirm("¿Eliminar este horario?")) return;
 
-    try {
-      await eliminarHorario(idHorario);
-      const updated = await getHorariosBarbero(barberoSeleccionado);
-      setHorarios(updated);
-    } catch {
-      setError("No se pudo eliminar el horario");
-    }
+    await eliminarHorario(idHorario);
+    const updated = await getHorariosBarbero(
+      barberoSeleccionado
+    );
+    setHorarios(updated);
+  };
+
+  /* =========================
+     COPIAR HORARIO (FIX)
+  ========================= */
+  const handleCopy = async (horario, diaDestino) => {
+    const fechasNormalizadas = normalizarRangoPorDia({
+      fecha_desde: horario.fecha_desde,
+      fecha_hasta: horario.fecha_hasta,
+      dia_semana: diaDestino,
+    });
+
+    await crearHorario({
+      id_barbero: barberoSeleccionado,
+      dia_semana: diaDestino,
+      hora_desde: horario.hora_desde,
+      hora_hasta: horario.hora_hasta,
+      ...fechasNormalizadas,
+    });
+
+    const updated = await getHorariosBarbero(
+      barberoSeleccionado
+    );
+    setHorarios(updated);
   };
 
   return (
@@ -128,13 +148,18 @@ const HorariosPage = () => {
             value={barberoSeleccionado ?? ""}
             onChange={(e) =>
               setBarberoSeleccionado(
-                e.target.value ? Number(e.target.value) : null
+                e.target.value
+                  ? Number(e.target.value)
+                  : null
               )
             }
           >
             <option value="">Seleccionar barbero</option>
             {barberos.map((b) => (
-              <option key={b.id_barbero} value={b.id_barbero}>
+              <option
+                key={b.id_barbero}
+                value={b.id_barbero}
+              >
                 {b.nombre}
               </option>
             ))}
@@ -150,17 +175,6 @@ const HorariosPage = () => {
           )}
         </div>
 
-        {!barberoSeleccionado && !loading && (
-          <div className="horarios-empty">
-            <p className="horarios-empty-title">
-              Seleccioná un barbero
-            </p>
-            <p className="horarios-empty-subtitle">
-              Elegí un barbero para ver, crear o modificar sus horarios
-            </p>
-          </div>
-        )}
-
         {error && <p className="horarios-error">{error}</p>}
         {loading && <p>Cargando horarios…</p>}
 
@@ -168,6 +182,7 @@ const HorariosPage = () => {
           <HorarioList
             horarios={horarios}
             onDelete={handleDelete}
+            onCopy={handleCopy}
           />
         )}
 
