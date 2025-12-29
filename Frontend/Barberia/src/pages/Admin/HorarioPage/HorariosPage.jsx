@@ -175,6 +175,17 @@ const HorariosPage = () => {
           )}
         </div>
 
+        {!barberoSeleccionado && !loading && (
+          <div className="horarios-empty">
+            <p className="horarios-empty-title">
+              Seleccioná un barbero
+            </p>
+            <p className="horarios-empty-subtitle">
+              Elegí un barbero para ver, crear o modificar sus horarios
+            </p>
+          </div>
+        )}
+
         {error && <p className="horarios-error">{error}</p>}
         {loading && <p>Cargando horarios…</p>}
 

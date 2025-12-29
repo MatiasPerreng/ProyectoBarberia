@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS `barbero` (
   `foto_url` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_barbero`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.barbero: ~3 rows (aproximadamente)
+-- Volcando datos para la tabla barber.barbero: ~4 rows (aproximadamente)
 INSERT INTO `barbero` (`id_barbero`, `nombre`, `created_at`, `foto_url`, `activo`) VALUES
-	(1, 'Nacho', '2025-12-14 15:38:14', '/media/barberos/barbero_1.png', 1),
-	(2, 'Amilkar', '2025-12-14 15:38:23', '/media/barberos/barbero_2.png', 1),
-	(3, 'Enzo', '2025-12-14 15:38:28', '/media/barberos/barbero_3.png', 1);
+	(3, 'Enzo', '2025-12-14 15:38:28', '/media/barberos/barbero_3.png', 1),
+	(43, 'ELNUEVO', '2025-12-28 23:18:37', '/media/barberos/barbero_43.png', 1),
+	(54, 'Jona', '2025-12-29 00:09:51', '/media/barberos/barbero_54.png', 1);
 
 -- Volcando estructura para tabla barber.barberos
 CREATE TABLE IF NOT EXISTS `barberos` (
@@ -48,11 +48,13 @@ CREATE TABLE IF NOT EXISTS `barberos` (
   UNIQUE KEY `ux_barberos_email` (`email`),
   KEY `fk_barberos_barbero` (`barbero_id`),
   CONSTRAINT `fk_barberos_barbero` FOREIGN KEY (`barbero_id`) REFERENCES `barbero` (`id_barbero`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.barberos: ~0 rows (aproximadamente)
+-- Volcando datos para la tabla barber.barberos: ~3 rows (aproximadamente)
 INSERT INTO `barberos` (`id`, `nombre`, `email`, `password_hash`, `role`, `is_active`, `barbero_id`) VALUES
-	(1, 'Matias', 'admin@barberia.com', '$2b$12$6VwihzKK/G0uag7wVlMoF.5y1E.pivlDT3vy1oy.Jae/8AsKC/A4C', 'admin', 1, NULL);
+	(3, 'Enzo', 'enzo@barberia.com', '$2b$12$qW0gCsugpE6EaVlQCjMm3eSyA/Z2sncP7RY7BOi6RUtqcPR3hXh9u', 'admin', 1, 3),
+	(20, 'ELNUEVO', 'EN@barberia.com', '$2b$12$4VcNieWN5ePf.7v0HX0R8.rgyzjn8ummTrVBEBsVFLdND8MNWYU22', 'barbero', 1, 43),
+	(24, 'Jona', 'j@barberia.com', '$2b$12$eiOjlEpe6jKtkVkl4WQ2Cu8KE7Gtrsn5VeCmYOTGuQ5neESIDnzQm', 'barbero', 1, 54);
 
 -- Volcando estructura para tabla barber.cliente
 CREATE TABLE IF NOT EXISTS `cliente` (
@@ -63,9 +65,9 @@ CREATE TABLE IF NOT EXISTS `cliente` (
   `email` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.cliente: ~29 rows (aproximadamente)
+-- Volcando datos para la tabla barber.cliente: ~34 rows (aproximadamente)
 INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, `created_at`) VALUES
 	(1, 'Matias', '', NULL, 'csmatiperreng@gmail.com', '2025-12-14 18:34:26'),
 	(2, 'Matias', '', NULL, 'a@g', '2025-12-14 18:39:43'),
@@ -96,7 +98,11 @@ INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, 
 	(27, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-26 02:42:17'),
 	(28, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-27 17:22:10'),
 	(29, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-27 19:55:38'),
-	(30, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 00:02:03');
+	(30, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 00:02:03'),
+	(31, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 18:27:44'),
+	(32, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 20:38:59'),
+	(33, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 22:52:14'),
+	(34, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 23:19:52');
 
 -- Volcando estructura para tabla barber.horario_barbero
 CREATE TABLE IF NOT EXISTS `horario_barbero` (
@@ -111,15 +117,20 @@ CREATE TABLE IF NOT EXISTS `horario_barbero` (
   KEY `fk_horario_barbero` (`id_barbero`),
   CONSTRAINT `fk_horario_barbero` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`) ON DELETE CASCADE,
   CONSTRAINT `chk_hora_valida` CHECK ((`hora_desde` < `hora_hasta`))
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.horario_barbero: ~5 rows (aproximadamente)
+-- Volcando datos para la tabla barber.horario_barbero: ~7 rows (aproximadamente)
 INSERT INTO `horario_barbero` (`id_horario`, `id_barbero`, `dia_semana`, `hora_desde`, `hora_hasta`, `fecha_desde`, `fecha_hasta`) VALUES
-	(27, 1, 1, '09:00:00', '18:00:00', '2026-01-05', '2026-01-26'),
-	(35, 1, 2, '09:00:00', '18:00:00', '2026-01-06', '2026-01-27'),
-	(37, 3, 1, '09:00:00', '18:00:00', '2026-01-05', '2026-01-26'),
-	(41, 3, 2, '09:00:00', '18:00:00', '2026-01-06', '2026-01-27'),
-	(42, 3, 3, '09:00:00', '18:00:00', '2026-01-07', '2026-01-28');
+	(1, 3, 1, '09:00:00', '18:00:00', '2026-01-05', '2026-01-26'),
+	(6, 3, 2, '09:00:00', '18:00:00', '2026-01-06', '2026-01-27'),
+	(7, 3, 3, '09:00:00', '18:00:00', '2026-01-07', '2026-01-28'),
+	(8, 3, 6, '09:00:00', '18:00:00', '2026-01-10', '2026-01-31'),
+	(10, 43, 2, '09:00:00', '11:00:00', '2026-01-06', '2026-01-27'),
+	(14, 43, 1, '08:00:00', '21:36:00', '2026-02-02', '2026-02-23'),
+	(15, 43, 2, '08:00:00', '21:36:00', '2026-02-03', '2026-02-24'),
+	(16, 43, 3, '08:00:00', '21:36:00', '2026-02-04', '2026-02-25'),
+	(17, 43, 4, '08:00:00', '21:36:00', '2026-02-05', '2026-02-26'),
+	(18, 43, 5, '08:00:00', '21:36:00', '2026-02-06', '2026-02-27');
 
 -- Volcando estructura para tabla barber.horario_excepcion
 CREATE TABLE IF NOT EXISTS `horario_excepcion` (
@@ -132,11 +143,9 @@ CREATE TABLE IF NOT EXISTS `horario_excepcion` (
   PRIMARY KEY (`id_excepcion`),
   KEY `id_barbero` (`id_barbero`),
   CONSTRAINT `horario_excepcion_ibfk_1` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla barber.horario_excepcion: ~0 rows (aproximadamente)
-INSERT INTO `horario_excepcion` (`id_excepcion`, `id_barbero`, `fecha`, `hora_desde`, `hora_hasta`, `tipo`) VALUES
-	(1, 1, '2025-12-25', NULL, NULL, 'cierre');
 
 -- Volcando estructura para tabla barber.servicio
 CREATE TABLE IF NOT EXISTS `servicio` (
@@ -147,11 +156,11 @@ CREATE TABLE IF NOT EXISTS `servicio` (
   `activo` tinyint(1) DEFAULT '1',
   `imagen` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_servicio`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla barber.servicio: ~3 rows (aproximadamente)
 INSERT INTO `servicio` (`id_servicio`, `nombre`, `duracion_min`, `precio`, `activo`, `imagen`) VALUES
-	(1, 'Corte rasurado', 45, 330.00, 1, 'corte-rasurado.jpg'),
+	(1, 'Corte rasurado', 45, 10.00, 1, 'corte-rasurado.jpg'),
 	(2, 'Color', 90, 1300.00, 1, 'mechas.jpeg'),
 	(3, 'Corte + Barba', 60, 400.00, 1, 'barba.jpg');
 
@@ -171,14 +180,12 @@ CREATE TABLE IF NOT EXISTS `visita` (
   CONSTRAINT `fk_visita_barbero` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`),
   CONSTRAINT `fk_visita_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `cliente` (`id_cliente`),
   CONSTRAINT `fk_visita_servicio` FOREIGN KEY (`id_servicio`) REFERENCES `servicio` (`id_servicio`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.visita: ~3 rows (aproximadamente)
+-- Volcando datos para la tabla barber.visita: ~2 rows (aproximadamente)
 INSERT INTO `visita` (`id_visita`, `fecha_hora`, `estado`, `id_cliente`, `id_barbero`, `id_servicio`, `created_at`) VALUES
-	(6, '2026-01-22 09:30:00', 'reservado', 24, 1, 1, '2025-12-25 20:19:44'),
-	(10, '2026-01-12 12:00:00', 'reservado', 28, 3, 1, '2025-12-27 17:22:10'),
-	(11, '2026-01-06 09:00:00', 'reservado', 29, 1, 1, '2025-12-27 19:55:38'),
-	(12, '2025-12-29 12:30:00', 'reservado', 30, 3, 2, '2025-12-28 00:02:03');
+	(2, '2025-12-30 10:00:00', 'reservado', 33, 3, 1, '2025-12-28 22:52:14'),
+	(3, '2025-12-29 09:00:00', 'reservado', 34, 43, 1, '2025-12-28 23:19:52');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

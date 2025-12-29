@@ -1,255 +1,255 @@
 /* ======================================================
-   OVERLAY
+    OVERLAY
 ====================================================== */
-
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-
   z-index: 1200;
+  padding: 20px; /* Evita que el modal toque los bordes del cel */
 }
 
 /* ======================================================
-   MODAL CARD
+    MODAL CARD
 ====================================================== */
-
 .modal-card {
   width: 100%;
   max-width: 520px;
   background: #111;
   color: #f5f5f5;
-
-  border-radius: 18px;
-  padding: 28px 30px;
-
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.85),
-    inset 0 0 0 1px rgba(230, 199, 123, 0.18);
-
-  animation: modalIn 0.25s ease;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9),
+              inset 0 0 0 1px rgba(230, 199, 123, 0.15);
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh; /* Para que no se salga de la pantalla */
+  overflow-y: auto;  /* Scroll interno si el cel es muy chico */
 }
 
 @keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }
-
-/* ======================================================
-   TITLE
-====================================================== */
 
 .modal-card h3 {
-  margin-bottom: 18px;
+  margin-bottom: 24px;
   text-align: center;
-
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-
+  font-size: 1.4rem;
+  font-weight: 800;
   color: #e6c77b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* ======================================================
-   ERROR
+    ERROR
 ====================================================== */
-
 .error {
-  background: rgba(185, 28, 28, 0.18);
-  color: #ffd4d4;
-
-  padding: 10px 14px;
-  border-radius: 10px;
-  margin-bottom: 14px;
-
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
   font-size: 0.85rem;
-  font-weight: 600;
   text-align: center;
 }
 
 /* ======================================================
-   COPIAR HORARIO
+    COPIAR HORARIO (Optimizado)
 ====================================================== */
-
 .copiar-horario {
   display: flex;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  border: 1px dashed rgba(230, 199, 123, 0.3);
 }
 
 .copiar-horario select {
   flex: 1;
-  height: 38px;
-
+  height: 42px;
   padding: 0 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: #1b1b1b;
   color: #f5f5f5;
-
-  font-size: 0.85rem;
-}
-
-.copiar-horario select:focus {
-  outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.25);
+  font-size: 0.9rem;
 }
 
 .copiar-horario button {
-  padding: 0 18px;
+  padding: 0 20px;
   border-radius: 10px;
   border: none;
-
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
-  color: #111;
-
-  font-size: 0.8rem;
+  background: rgba(230, 199, 123, 0.1);
+  color: #e6c77b;
+  border: 1px solid #e6c77b;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-
-  transition: transform 0.15s ease, background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .copiar-horario button:hover {
-  background: linear-gradient(135deg, #f0d88f, #d9b86c);
-  transform: translateY(-1px);
+  background: #e6c77b;
+  color: #111;
 }
 
 /* ======================================================
-   FORM GRID
+    FORM GRID
 ====================================================== */
-
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px 14px;
+  gap: 20px 16px;
 }
 
 .form-grid label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1.4px;
+  gap: 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-
-  color: #bbb;
+  color: #888;
 }
 
-/* Inputs & selects */
+/* Selector de Día ocupa toda la fila */
+.form-grid label:first-child {
+  grid-column: 1 / -1;
+}
+
 .form-grid input,
 .form-grid select {
-  height: 40px;
+  height: 44px;
   padding: 0 12px;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: #1b1b1b;
-  color: #f5f5f5;
-
-  font-size: 0.9rem;
+  color: #fff;
+  font-size: 1rem; /* Evita zoom automático en iOS */
 }
 
 .form-grid input:focus,
 .form-grid select:focus {
   outline: none;
   border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.25);
+  box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.15);
 }
 
 /* ======================================================
-   ACTIONS
+    ACTIONS
 ====================================================== */
-
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 30px;
 }
 
 .btn-secondary {
-  padding: 10px 18px;
-  border-radius: 10px;
-
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #eee;
-
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
 }
 
 .form-actions button[type="submit"] {
-  padding: 10px 22px;
-  border-radius: 10px;
+  flex: 2;
+  height: 48px;
+  border-radius: 12px;
   border: none;
-
   background: linear-gradient(135deg, #e6c77b, #cfa85a);
   color: #111;
-
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 800;
   cursor: pointer;
-
-  transition: transform 0.15s ease, background 0.2s ease;
-}
-
-.form-actions button[type="submit"]:hover {
-  background: linear-gradient(135deg, #f0d88f, #d9b86c);
-  transform: translateY(-1px);
-}
-
-.form-actions button[disabled] {
-  opacity: 0.6;
-  cursor: not-allowed;
+  box-shadow: 0 10px 20px rgba(207, 168, 90, 0.2);
 }
 
 /* ======================================================
-   RESPONSIVE
+    RESPONSIVE (Mobile)
 ====================================================== */
-
 @media (max-width: 600px) {
   .modal-card {
-    margin: 0 14px;
     padding: 24px 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
   }
 
   .copiar-horario {
     flex-direction: column;
+    gap: 12px;
+    padding: 12px;
   }
 
+  .copiar-horario button {
+    height: 44px;
+    width: 100%;
+  }
+
+  /* Los botones de acción apilados */
   .form-actions {
     flex-direction: column-reverse;
+    gap: 10px;
   }
 
   .form-actions button {
     width: 100%;
+    height: 50px;
+  }
+}
+
+/* 🔥 ESTA ES LA PARTE QUE ARREGLA EL QUieBRE POR DEBAJO DE 400PX */
+@media (max-width: 420px) {
+  .modal-overlay {
+    padding: 10px; /* Reducimos margen externo para ganar espacio */
+  }
+
+  .modal-card {
+    padding: 20px 15px; /* Menos padding interno */
+    border-radius: 15px;
+  }
+
+  .modal-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    /* Forzamos UNA sola columna para que nada se empuje hacia afuera */
+    grid-template-columns: 1fr; 
+    gap: 12px;
+  }
+
+  .form-grid label {
+    letter-spacing: 0.5px; /* Reducimos el espaciado de letras del label */
+  }
+
+  .form-grid input,
+  .form-grid select {
+    font-size: 0.9rem; /* Un poco más chico para evitar desbordes */
+    height: 42px;
+  }
+}
+
+/* Para celulares extremadamente pequeños (320px) */
+@media (max-width: 350px) {
+  .modal-card {
+    padding: 15px 12px;
+  }
+  
+  .copiar-horario {
+    padding: 8px;
   }
 }

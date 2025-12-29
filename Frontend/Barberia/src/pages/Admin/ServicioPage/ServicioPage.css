@@ -6,41 +6,86 @@
   display: flex;
   justify-content: center;
   width: 100%;
+  padding: 20px 0;
+  /* El min-height se quita para que el Footer no flote si hay poco contenido */
 }
 
 /* ======================================================
-   GRID
+   GRID (Optimizado igual que Horarios)
 ====================================================== */
 
 .servicios-page__grid {
   width: 100%;
   max-width: 1500px;
-
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* auto-fill evita que las cards se estiren demasiado si hay pocas */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 32px;
 }
 
 /* ======================================================
-   ESTADOS
+   ESTADOS (Loading / Empty)
 ====================================================== */
 
 .servicios-page__loading,
 .servicios-page__empty {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #555;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #888;
   text-align: center;
-  margin-top: 40px;
+  margin: 80px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  max-width: 500px;
 }
 
 /* ======================================================
    RESPONSIVE
 ====================================================== */
 
+/* Tablets */
 @media (max-width: 900px) {
   .servicios-page__grid {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
   }
+}
+
+/* Móviles */
+@media (max-width: 600px) {
+  .servicios-page__section {
+    padding: 10px 5px;
+  }
+
+  .servicios-page__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .servicios-page__loading,
+  .servicios-page__empty {
+    margin: 40px 15px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 380px) {
+  .servicios-page__grid {
+    gap: 12px;
+  }
+}
+
+/* FIX GLOBAL PARA FOOTER AL FINAL */
+/* Asegúrate que esto esté en tu App.css o index.css general */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main, .admin-layout-container { /* Ajusta según el nombre de tu clase de layout */
+  flex: 1;
 }
