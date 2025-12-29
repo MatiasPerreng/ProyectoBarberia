@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./BarberoForm.css";
 import { subirFotoBarbero } from "../../../services/barberos";
 
-const BarberoForm = ({ onSubmit, onClose }) => {
+const BarberoForm = ({ onSubmit, onClose, onCreated }) => {
   const [nombre, setNombre] = useState("");
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -21,18 +21,17 @@ const BarberoForm = ({ onSubmit, onClose }) => {
     setLoading(true);
 
     try {
-      // 1️⃣ crear barbero (SOLO nombre)
       const barbero = await onSubmit({ nombre });
 
-      // 2️⃣ subir foto
       if (foto && barbero?.id_barbero) {
         await subirFotoBarbero(barbero.id_barbero, foto);
       }
 
       onClose();
+      onCreated(); // 🔥 refresh SOLO acá
     } catch (err) {
-      alert("Error al crear barbero");
       console.error(err);
+      alert("Error al crear barbero");
     } finally {
       setLoading(false);
     }
@@ -54,11 +53,7 @@ const BarberoForm = ({ onSubmit, onClose }) => {
 
           <label className="file-label">
             Seleccionar foto
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
+            <input type="file" accept="image/*" onChange={handleFileChange} />
           </label>
 
           {preview && (

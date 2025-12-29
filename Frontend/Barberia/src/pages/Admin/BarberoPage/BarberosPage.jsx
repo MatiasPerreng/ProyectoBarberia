@@ -19,27 +19,47 @@ const BarberosPage = () => {
   const [barberos, setBarberos] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState(null);
-
-  // 🔴 error proveniente del backend
   const [alertError, setAlertError] = useState(null);
 
+  /* =========================
+     FOTO
+  ========================= */
   const fileInputRef = useRef(null);
-  const [barberoFotoTarget, setBarberoFotoTarget] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [barberoFotoTargetId, setBarberoFotoTargetId] = useState(null);
 
-  const [accountTarget, setAccountTarget] = useState(null);
+  /* =========================
+     CREAR ACCESO (por ID)
+  ========================= */
+  const [accountTargetId, setAccountTargetId] = useState(null);
   const [accountForm, setAccountForm] = useState({
     email: "",
     password: "",
     rol: "barbero",
   });
 
-  /* ----------------------------
-     CARGAR BARBEROS
-  ---------------------------- */
+  const accountTarget = barberos.find(
+    (b) => b.id_barbero === accountTargetId
+  );
+
+  /* =========================
+     LOAD BARBEROS
+  ========================= */
   const loadBarberos = async () => {
     try {
       const data = await getBarberos();
-      setBarberos(data);
+
+      // ⚠️ IMPORTANTE:
+      // mantenemos _fotoUpdatedAt si ya existía
+      setBarberos((prev) =>
+        data.map((b) => {
+          const prevB = prev.find((p) => p.id_barbero === b.id_barbero);
+          return {
+            ...b,
+            _fotoUpdatedAt: prevB?._fotoUpdatedAt,
+          };
+        })
+      );
     } catch {
       setError("No se pudieron cargar los barberos");
     }
@@ -49,19 +69,16 @@ const BarberosPage = () => {
     loadBarberos();
   }, []);
 
-  /* ----------------------------
+  /* =========================
      CREAR BARBERO
-  ---------------------------- */
+  ========================= */
   const handleCreate = async (data) => {
-    const nuevoBarbero = await crearBarbero(data);
-    await loadBarberos();
-    setShowForm(false);
-    return nuevoBarbero;
+    return await crearBarbero(data);
   };
 
-  /* ----------------------------
+  /* =========================
      TOGGLE ACTIVO
-  ---------------------------- */
+  ========================= */
   const handleToggle = async (barbero) => {
     setBarberos((prev) =>
       prev.map((b) =>
@@ -78,43 +95,57 @@ const BarberosPage = () => {
     }
   };
 
-  /* ----------------------------
-     ELIMINAR (CON ERROR BACKEND)
-  ---------------------------- */
- const handleDelete = async (barbero) => {
-  try {
-    await eliminarBarbero(barbero.id_barbero);
-    loadBarberos();
-  } catch (err) {
-    setAlertError(err.message);
-  }
-};
+  /* =========================
+     ELIMINAR
+  ========================= */
+  const handleDelete = async (barbero) => {
+    try {
+      await eliminarBarbero(barbero.id_barbero);
+      loadBarberos();
+    } catch (err) {
+      setAlertError(err.message);
+    }
+  };
 
-
-  /* ----------------------------
-     FOTO
-  ---------------------------- */
+  /* =========================
+     CAMBIAR FOTO (FIX REAL)
+  ========================= */
   const handleSelectFoto = (barbero) => {
-    setBarberoFotoTarget(barbero);
-    fileInputRef.current.click();
+    setBarberoFotoTargetId(barbero.id_barbero);
+    setFileInputKey((k) => k + 1);
+
+    setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 0);
   };
 
   const handleUploadFoto = async (e) => {
     const file = e.target.files[0];
-    if (!file || !barberoFotoTarget) return;
+    if (!file || !barberoFotoTargetId) return;
 
-    await subirFotoBarbero(barberoFotoTarget.id_barbero, file);
-    await loadBarberos();
+    await subirFotoBarbero(barberoFotoTargetId, file);
 
-    e.target.value = "";
-    setBarberoFotoTarget(null);
+    // 🔥 ACTUALIZAMOS SOLO ESE BARBERO
+    setBarberos((prev) =>
+      prev.map((b) =>
+        b.id_barbero === barberoFotoTargetId
+          ? {
+              ...b,
+              _fotoUpdatedAt: Date.now(),
+            }
+          : b
+      )
+    );
+
+    setBarberoFotoTargetId(null);
   };
 
-  /* ----------------------------
-     CREAR ACCESO
-  ---------------------------- */
+  /* =========================
+     CREAR ACCESO (ESTABLE)
+  ========================= */
   const handleCreateAccount = async (e) => {
     e.preventDefault();
+    if (!accountTarget) return;
 
     await crearCuentaBarbero(accountTarget.id_barbero, {
       nombre: accountTarget.nombre,
@@ -123,7 +154,7 @@ const BarberosPage = () => {
       rol: accountForm.rol,
     });
 
-    setAccountTarget(null);
+    setAccountTargetId(null);
     setAccountForm({
       email: "",
       password: "",
@@ -136,7 +167,6 @@ const BarberosPage = () => {
   return (
     <>
       <AdminLayout>
-        {/* HEADER */}
         <div className="barberos-header">
           <h2>Barberos</h2>
           <button
@@ -149,13 +179,16 @@ const BarberosPage = () => {
 
         {error && <p className="barberos-error">{error}</p>}
 
-        {/* LISTADO */}
         <div className="barberos-list">
           {barberos.map((b) => (
             <div className="barberos-row" key={b.id_barbero}>
               <img
                 className="barberos-avatar"
-                src={`${API_URL}${b.foto_url}`}
+                src={
+                  b.foto_url
+                    ? `${API_URL}${b.foto_url}?v=${b._fotoUpdatedAt || 0}`
+                    : "/avatar-placeholder.png"
+                }
                 alt={b.nombre}
               />
 
@@ -173,7 +206,7 @@ const BarberosPage = () => {
                 </span>
 
                 {!b.tiene_usuario && (
-                  <button onClick={() => setAccountTarget(b)}>
+                  <button onClick={() => setAccountTargetId(b.id_barbero)}>
                     Crear acceso
                   </button>
                 )}
@@ -186,10 +219,7 @@ const BarberosPage = () => {
                   Cambiar foto
                 </button>
 
-                <button
-                  className="danger"
-                  onClick={() => handleDelete(b)}
-                >
+                <button className="danger" onClick={() => handleDelete(b)}>
                   Eliminar
                 </button>
               </div>
@@ -201,6 +231,7 @@ const BarberosPage = () => {
           <BarberoForm
             onSubmit={handleCreate}
             onClose={() => setShowForm(false)}
+            onCreated={loadBarberos}
           />
         )}
 
@@ -256,11 +287,10 @@ const BarberosPage = () => {
                 <div className="barberos-access-modal-actions">
                   <button
                     type="button"
-                    onClick={() => setAccountTarget(null)}
+                    onClick={() => setAccountTargetId(null)}
                   >
                     Cancelar
                   </button>
-
                   <button type="submit">Crear</button>
                 </div>
               </form>
@@ -268,30 +298,18 @@ const BarberosPage = () => {
           </div>
         )}
 
-        {/* 🔴 MODAL ERROR BACKEND */}
         {alertError && (
           <div className="modal-overlay">
             <div className="modal-card">
               <h3>No se puede eliminar</h3>
-
-              <p style={{ textAlign: "center", marginBottom: "18px" }}>
-                {alertError}
-              </p>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => setAlertError(null)}
-                >
-                  Entendido
-                </button>
-              </div>
+              <p style={{ textAlign: "center" }}>{alertError}</p>
+              <button onClick={() => setAlertError(null)}>Entendido</button>
             </div>
           </div>
         )}
 
         <input
+          key={fileInputKey}
           type="file"
           accept="image/*"
           ref={fileInputRef}
