@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./BarberoForm.css";
 import { subirFotoBarbero } from "../../../services/barberos";
 
@@ -7,6 +7,13 @@ const BarberoForm = ({ onSubmit, onClose, onCreated }) => {
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Limpiar preview para evitar fugas de memoria
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -21,17 +28,21 @@ const BarberoForm = ({ onSubmit, onClose, onCreated }) => {
     setLoading(true);
 
     try {
+      // 1. Crear el barbero (esperamos el objeto que contiene id_barbero)
       const barbero = await onSubmit({ nombre });
 
+      // 2. Subir foto solo si existe el archivo y el barbero se creó con éxito
       if (foto && barbero?.id_barbero) {
         await subirFotoBarbero(barbero.id_barbero, foto);
       }
 
+      // 3. Notificar éxito para refrescar y cerrar
       onClose();
-      onCreated(); // 🔥 refresh SOLO acá
+      onCreated(); 
     } catch (err) {
       console.error(err);
-      alert("Error al crear barbero");
+      // El error de creación ya lo maneja el padre con alertError, 
+      // aquí solo detenemos el loading.
     } finally {
       setLoading(false);
     }
@@ -53,7 +64,11 @@ const BarberoForm = ({ onSubmit, onClose, onCreated }) => {
 
           <label className="file-label">
             Seleccionar foto
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleFileChange} 
+            />
           </label>
 
           {preview && (
