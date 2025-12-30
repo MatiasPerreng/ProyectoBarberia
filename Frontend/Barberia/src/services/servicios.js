@@ -15,15 +15,12 @@ export async function getServicios() {
 export async function createServicio(data) {
   const res = await fetch(`${API_URL}/servicios/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       nombre: data.nombre,
-      duracion_min: Number(data.duracion_min),
-      precio: Number(data.precio),
+      duracion_min: data.duracion_min,
+      precio: data.precio,
       activo: true,
-      imagen: data.imagen || null,
     }),
   });
 
@@ -37,19 +34,32 @@ export async function createServicio(data) {
 export async function updateServicio(id, data) {
   const res = await fetch(`${API_URL}/servicios/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       nombre: data.nombre,
-      duracion_min: Number(data.duracion_min),
-      precio: Number(data.precio),
+      duracion_min: data.duracion_min,
+      precio: data.precio,
       activo: data.activo ?? true,
-      imagen: data.imagen ?? null,
     }),
   });
 
   if (!res.ok) throw new Error("Error actualizando servicio");
+  return res.json();
+}
+
+/* =========================
+   UPLOAD IMAGE
+========================= */
+export async function uploadServicioImagen(id, file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_URL}/servicios/${id}/imagen`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error("Error subiendo imagen");
   return res.json();
 }
 

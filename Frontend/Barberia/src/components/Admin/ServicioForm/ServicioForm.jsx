@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import API_URL from "../../../services/api";
 import "./ServicioForm.css";
 
 const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
@@ -6,41 +7,50 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
     nombre: "",
     precio: "",
     duracion_min: "",
-    imagen: null, // 🔥 ahora archivo
+    imagen: null,
   });
 
   const [preview, setPreview] = useState(null);
   const fileRef = useRef(null);
 
   useEffect(() => {
-    if (servicioInicial) {
-      setForm({
-        nombre: servicioInicial.nombre ?? "",
-        precio: servicioInicial.precio ?? "",
-        duracion_min: servicioInicial.duracion_min ?? "",
-        imagen: null,
-      });
+    if (!servicioInicial) {
+      setPreview(null);
+      return;
+    }
 
-      if (servicioInicial.imagen) {
-        setPreview(servicioInicial.imagen);
+    setForm({
+      nombre: servicioInicial.nombre ?? "",
+      precio: servicioInicial.precio ?? "",
+      duracion_min: servicioInicial.duracion_min ?? "",
+      imagen: null,
+    });
+
+    if (servicioInicial.imagen) {
+      const img = servicioInicial.imagen;
+
+      if (img.startsWith("http")) {
+        setPreview(img);
+      } else if (img.startsWith("/")) {
+        setPreview(`${API_URL}${img}`);
+      } else {
+        setPreview(`${API_URL}/media/servicios/${img}`);
       }
+    } else {
+      setPreview(null);
     }
   }, [servicioInicial]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setForm((prev) => ({ ...prev, imagen: file }));
+    setForm((p) => ({ ...p, imagen: file }));
     setPreview(URL.createObjectURL(file));
   };
 
@@ -51,7 +61,7 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
       nombre: form.nombre.trim(),
       precio: Number(form.precio),
       duracion_min: Number(form.duracion_min),
-      imagen: form.imagen, // 🔥 archivo real
+      imagen: form.imagen,
     });
   };
 
@@ -62,45 +72,64 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
           {servicioInicial ? "Editar servicio" : "Nuevo servicio"}
         </h3>
 
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="number"
-          name="precio"
-          step="0.01"
-          placeholder="Precio"
-          value={form.precio}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="number"
-          name="duracion_min"
-          placeholder="Duración (min)"
-          value={form.duracion_min}
-          onChange={handleChange}
-          required
-        />
+        {/* =========================
+            NOMBRE
+        ========================= */}
+        <div className="form-group">
+          <label>Nombre del servicio</label>
+          <input
+            name="nombre"
+            placeholder="Ej: Corte + Barba"
+            value={form.nombre}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
         {/* =========================
-            FILE INPUT PRO
+            PRECIO
         ========================= */}
+        <div className="form-group">
+          <label>Precio</label>
+          <input
+            name="precio"
+            type="number"
+            step="0.01"
+            placeholder="Ej: 1200"
+            value={form.precio}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
+        {/* =========================
+            DURACIÓN
+        ========================= */}
+        <div className="form-group">
+          <label>Duración (minutos)</label>
+          <input
+            name="duracion_min"
+            type="number"
+            placeholder="Ej: 45"
+            value={form.duracion_min}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* =========================
+            IMAGEN
+        ========================= */}
         <div className="servicio-file">
-          <label
+
+
+          <button
+            type="button"
             className="servicio-file-btn"
             onClick={() => fileRef.current.click()}
           >
             Seleccionar imagen
-          </label>
+          </button>
 
           <input
             ref={fileRef}
@@ -114,16 +143,27 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
         {preview && (
           <img
             src={preview}
-            alt="Preview"
+            alt="Preview servicio"
             className="servicio-preview"
           />
         )}
 
+        {/* =========================
+            ACTIONS
+        ========================= */}
         <div className="form-actions">
-          <button type="button" onClick={onCancel}>
+          <button
+            type="button"
+            className="btn-cancel"
+            onClick={onCancel}
+          >
             Cancelar
           </button>
-          <button type="submit">
+
+          <button
+            type="submit"
+            className="btn-primary"
+          >
             Guardar
           </button>
         </div>

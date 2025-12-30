@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import EmailStr
 
 from core.email import enviar_email_confirmacion
 
@@ -33,14 +32,17 @@ async def test_email():
     )
     return {"status": "email enviado"}
 
-# =======================
-# STATIC FILES
-# =======================
 
 app.mount(
-    "/media",
-    StaticFiles(directory="media"),
-    name="media",
+    "/media/servicios",
+    StaticFiles(directory="static/servicios"),
+    name="media-servicios",
+)
+
+app.mount(
+    "/media/barberos",
+    StaticFiles(directory="static/barberos"),
+    name="media-barberos",
 )
 
 # =======================
@@ -54,8 +56,6 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://192.168.1.62:5173",
         "http://kingbarber.webhop.net:5173",
-        
-
     ],
     allow_credentials=True,
     allow_methods=["*"],

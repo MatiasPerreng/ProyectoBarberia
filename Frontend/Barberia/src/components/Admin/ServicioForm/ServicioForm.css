@@ -12,6 +12,7 @@
   align-items: center;
   justify-content: center;
 
+  padding: 24px;
   z-index: 1000;
 }
 
@@ -22,11 +23,18 @@
 .servicio-form {
   width: 100%;
   max-width: 420px;
+
+  /* 🔥 CLAVE: altura mínima consistente */
+  min-height: 520px;
+
   background: #111;
   color: #f5f5f5;
 
   border-radius: 16px;
   padding: 28px;
+
+  display: flex;
+  flex-direction: column;
 
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
   animation: modalIn 0.25s ease;
@@ -48,7 +56,7 @@
 ========================= */
 
 .servicio-form h3 {
-  margin: 0 0 18px;
+  margin: 0 0 22px;
   text-align: center;
   font-size: 1.25rem;
   font-weight: 600;
@@ -57,12 +65,29 @@
 }
 
 /* =========================
+   FORM GROUP
+========================= */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 0.75rem;
+  letter-spacing: 0.6px;
+  color: #bbb;
+  text-transform: uppercase;
+}
+
+/* =========================
    INPUTS
 ========================= */
 
 .servicio-form input {
   width: 100%;
-  margin-bottom: 14px;
   padding: 12px 14px;
 
   border-radius: 10px;
@@ -75,7 +100,7 @@
 }
 
 .servicio-form input::placeholder {
-  color: #aaa;
+  color: #888;
 }
 
 .servicio-form input:focus {
@@ -85,11 +110,20 @@
 }
 
 /* =========================
-   FILE INPUT PRO
+   FILE INPUT
 ========================= */
 
 .servicio-file {
-  margin: 8px 0 14px;
+  margin: 6px 0 14px;
+}
+
+.servicio-file-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.6px;
+  color: #bbb;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
 }
 
 .servicio-file-btn {
@@ -123,7 +157,7 @@
 
 .servicio-preview {
   width: 100%;
-  max-height: 160px;
+  height: 160px; /* 🔥 altura fija para no agrandar el modal */
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 14px;
@@ -137,7 +171,7 @@
 .form-actions {
   display: flex;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: auto; /* 🔥 empuja botones abajo */
 }
 
 /* Cancelar */
@@ -185,7 +219,7 @@
 
 @media (max-width: 480px) {
   .servicio-form {
-    margin: 0 16px;
+    min-height: unset;
     padding: 22px;
   }
 

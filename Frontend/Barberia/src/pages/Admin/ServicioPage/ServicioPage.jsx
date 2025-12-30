@@ -8,6 +8,7 @@ import {
   createServicio,
   updateServicio,
   deleteServicio,
+  uploadServicioImagen, // 🔥 FALTABA ESTO
 } from "../../../services/servicios";
 
 import "./ServicioPage.css";
@@ -55,10 +56,32 @@ const ServicioPage = () => {
 
   const handleSubmit = async (formData) => {
     try {
+      let servicio;
+
+      // 🔹 1. Crear o actualizar SOLO datos (JSON)
       if (editingServicio) {
-        await updateServicio(editingServicio.id_servicio, formData);
+        servicio = await updateServicio(
+          editingServicio.id_servicio,
+          {
+            nombre: formData.nombre,
+            precio: formData.precio,
+            duracion_min: formData.duracion_min,
+          }
+        );
       } else {
-        await createServicio(formData);
+        servicio = await createServicio({
+          nombre: formData.nombre,
+          precio: formData.precio,
+          duracion_min: formData.duracion_min,
+        });
+      }
+
+      // 🔹 2. Subir imagen SOLO si existe
+      if (formData.imagen) {
+        await uploadServicioImagen(
+          servicio.id_servicio,
+          formData.imagen
+        );
       }
 
       setShowForm(false);
