@@ -60,6 +60,13 @@ const HorariosPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /* =========================
+     FILTROS
+  ========================= */
+
+  const [diasFiltro, setDiasFiltro] = useState([]);
+  const [modoVigencia, setModoVigencia] = useState("activos");
+
   useEffect(() => {
     getBarberos()
       .then(setBarberos)
@@ -125,6 +132,23 @@ const HorariosPage = () => {
     setHorarios(updated);
   };
 
+  /* =========================
+     APLICAR FILTROS
+  ========================= */
+
+  const hoy = new Date().toISOString().slice(0, 10);
+
+  const horariosFiltrados = horarios.filter((h) => {
+    if (modoVigencia === "activos" && h.fecha_hasta < hoy) return false;
+    if (modoVigencia === "historicos" && h.fecha_hasta >= hoy) return false;
+
+    if (diasFiltro.length > 0 && !diasFiltro.includes(h.dia_semana)) {
+      return false;
+    }
+
+    return true;
+  });
+
   return (
     <>
       <div className="horarios-header">
@@ -157,12 +181,45 @@ const HorariosPage = () => {
         )}
       </div>
 
-      {!barberoSeleccionado && !loading && (
-        <div className="horarios-empty">
-          <p className="horarios-empty-title">Seleccioná un barbero</p>
-          <p className="horarios-empty-subtitle">
-            Elegí un barbero para ver, crear o modificar sus horarios
-          </p>
+      {/* =========================
+         FILTROS
+      ========================= */}
+      {barberoSeleccionado && !loading && (
+        <div className="horarios-filtros">
+          <div className="filtro-dias">
+            {[1, 2, 3, 4, 5, 6].map((d) => (
+              <button
+                key={d}
+                className={`filtro-dia ${
+                  diasFiltro.includes(d) ? "active" : ""
+                }`}
+                onClick={() =>
+                  setDiasFiltro((prev) =>
+                    prev.includes(d)
+                      ? prev.filter((x) => x !== d)
+                      : [...prev, d]
+                  )
+                }
+              >
+                {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][d - 1]}
+              </button>
+            ))}
+          </div>
+
+          <div className="filtro-vigencia">
+            <button
+              className={modoVigencia === "activos" ? "active" : ""}
+              onClick={() => setModoVigencia("activos")}
+            >
+              Activos
+            </button>
+            <button
+              className={modoVigencia === "historicos" ? "active" : ""}
+              onClick={() => setModoVigencia("historicos")}
+            >
+              Históricos
+            </button>
+          </div>
         </div>
       )}
 
@@ -171,7 +228,7 @@ const HorariosPage = () => {
 
       {!loading && barberoSeleccionado && (
         <HorarioList
-          horarios={horarios}
+          horarios={horariosFiltrados}
           onDelete={handleDelete}
           onCopy={handleCopy}
         />

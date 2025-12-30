@@ -306,3 +306,71 @@
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.35);
 }
+
+/* ======================================================
+   FILTROS HORARIOS
+====================================================== */
+
+.horarios-filtros {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.filtro-dias {
+  display: flex;
+  gap: 8px;
+}
+
+.filtro-dia {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtro-dia.active {
+  background: #e6c77b;
+  border-color: #e6c77b;
+}
+
+.filtro-vigencia {
+  display: flex;
+  gap: 8px;
+}
+
+.filtro-vigencia button {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtro-vigencia button.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 600px) {
+  .horarios-filtros {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .filtro-dias,
+  .filtro-vigencia {
+    flex-wrap: wrap;
+  }
+}
