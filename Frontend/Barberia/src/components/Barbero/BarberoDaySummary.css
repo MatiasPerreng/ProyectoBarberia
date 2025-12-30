@@ -1,23 +1,127 @@
+/* =========================
+   SUMMARY CARD
+========================= */
+
 .barbero-summary {
-  background: #fff;
-  border-radius: 18px;
+  background: #ffffff;
+  border-radius: 20px;
   padding: 22px 26px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
-  margin-bottom: 26px;
+  gap: 24px;
+
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 28px;
 }
 
-.barbero-summary-info > div {
-  margin: 4px 0;
-  font-size: 0.95rem;
+/* =========================
+   INFO
+========================= */
+
+.barbero-summary-info {
+  display: flex;
+  gap: 32px;
 }
 
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #888;
+}
+
+.summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.summary-value.highlight {
+  color: #cfa85a;
+}
+
+/* =========================
+   DATE PICKER
+========================= */
+
+.summary-date-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-date-wrapper label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #888;
+}
+
+/* Calendar input */
 .barbero-summary-date {
-  height: 38px;
+  height: 40px;
   padding: 0 14px;
-  border-radius: 10px;
+
+  border-radius: 12px;
   border: 1px solid #ddd;
+  background: #f9f9f9;
+
+  font-size: 0.9rem;
   font-weight: 600;
+  color: #111;
+
+  cursor: pointer;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              background 0.2s ease;
+}
+
+/* Hover */
+.barbero-summary-date:hover {
+  background: #fff;
+  border-color: #cfa85a;
+}
+
+/* Focus */
+.barbero-summary-date:focus {
+  outline: none;
+  border-color: #cfa85a;
+  box-shadow: 0 0 0 3px rgba(207, 168, 90, 0.25);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .barbero-summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .barbero-summary-info {
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .summary-item {
+    flex: 1;
+  }
+
+  .summary-date-wrapper {
+    width: 100%;
+  }
+
+  .barbero-summary-date {
+    width: 100%;
+  }
 }

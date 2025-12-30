@@ -1,11 +1,12 @@
-import './BarberoDaySummary.css'
+import "./BarberoDaySummary.css";
 
 const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
-  const confirmados = turnos.filter(
-    (t) => t.estado === "CONFIRMADO"
+  // 🔥 Turnos válidos (no cancelados)
+  const turnosValidos = turnos.filter(
+    (t) => t.estado !== "cancelado"
   );
 
-  const total = confirmados.reduce(
+  const total = turnosValidos.reduce(
     (acc, t) => acc + (t.precio || 0),
     0
   );
@@ -13,21 +14,32 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
   return (
     <div className="barbero-summary">
       <div className="barbero-summary-info">
-        <div>
-          <strong>Turnos hoy:</strong> {confirmados.length}
+        <div className="summary-item">
+          <span className="summary-label">Turnos</span>
+          <span className="summary-value">
+            {turnosValidos.length}
+          </span>
         </div>
-        <div>
-          <strong>Total estimado:</strong> ${total}
+
+        <div className="summary-item">
+          <span className="summary-label">
+            Total estimado
+          </span>
+          <span className="summary-value highlight">
+            ${total}
+          </span>
         </div>
       </div>
 
-      {/* 🔥 FILTRO POR DÍA */}
-      <input
-        type="date"
-        className="barbero-summary-date"
-        value={fecha}
-        onChange={(e) => onChangeFecha(e.target.value)}
-      />
+      <div className="summary-date-wrapper">
+        <label>Fecha</label>
+        <input
+          type="date"
+          className="barbero-summary-date"
+          value={fecha}
+          onChange={(e) => onChangeFecha(e.target.value)}
+        />
+      </div>
     </div>
   );
 };

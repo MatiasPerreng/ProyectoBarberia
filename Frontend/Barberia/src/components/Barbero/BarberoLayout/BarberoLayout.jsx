@@ -2,10 +2,11 @@ import "./BarberoLayout.css";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuthContext } from "../../../auth/AuthContext";
+import Footer from "../../Footer/Footer";
 
 const BarberoLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout } = useAuthContext(); // ⬅️ usuario real
+  const { user, logout } = useAuthContext();
 
   return (
     <>
@@ -81,9 +82,17 @@ const BarberoLayout = ({ children }) => {
           </div>
         </aside>
 
-        {/* CONTENT */}
+        {/* =========================
+           CONTENT + FOOTER
+        ========================= */}
         <main className="barbero-content">
-          {children}
+          {/* CONTENIDO REAL */}
+          <div className="barbero-content-inner">
+            {children}
+          </div>
+
+          {/* FOOTER */}
+          <Footer />
         </main>
       </div>
     </>
