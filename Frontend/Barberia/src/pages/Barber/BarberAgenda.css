@@ -1,0 +1,22 @@
+.barbero-agenda-page {
+  padding: 32px;
+}
+
+.barbero-agenda-summary {
+  background: #fff;
+  padding: 18px 22px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.barbero-agenda-date {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-weight: 600;
+}

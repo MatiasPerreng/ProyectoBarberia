@@ -93,7 +93,6 @@ def asignar_barbero_automatico(
 # ----------------------------------------------------------------------------------------------------------------------
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
-
     servicio = db.query(Servicio).filter(
         Servicio.id_servicio == visita_in.id_servicio
     ).first()
@@ -149,7 +148,6 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     db.commit()
     db.refresh(visita)
 
-    # Forzar carga relaciones
     visita.cliente
     visita.servicio
     visita.barbero
@@ -177,20 +175,33 @@ def get_visitas(db: Session):
 
 
 # --------------------------------------------------------------------------------------------------
-# 🔥 FUNCIÓN CLAVE CORREGIDA (AGENDA BARBERO)
+# 🔥 AGENDA BARBERO (CON FILTRO POR FECHA EN SQL)
 # --------------------------------------------------------------------------------------------------
 
-def get_visitas_by_barbero(db: Session, barbero_id: int):
-    visitas = (
+def get_visitas_by_barbero(
+    db: Session,
+    barbero_id: int,
+    fecha: Optional[date] = None
+):
+    query = (
         db.query(Visita)
         .options(
             joinedload(Visita.cliente),
             joinedload(Visita.servicio),
         )
         .filter(Visita.id_barbero == barbero_id)
-        .order_by(Visita.fecha_hora)
-        .all()
     )
+
+    if fecha:
+        inicio = datetime.combine(fecha, time.min)
+        fin = datetime.combine(fecha, time.max)
+
+        query = query.filter(
+            Visita.fecha_hora >= inicio,
+            Visita.fecha_hora <= fin
+        )
+
+    visitas = query.order_by(Visita.fecha_hora).all()
 
     resultado = []
 
@@ -201,14 +212,12 @@ def get_visitas_by_barbero(db: Session, barbero_id: int):
             "estado": v.estado,
             "created_at": v.created_at,
 
-            # CLIENTE
-            "cliente_nombre": v.cliente.nombre,
-            "cliente_apellido": v.cliente.apellido,
-            "cliente_telefono": v.cliente.telefono,
+            "cliente_nombre": v.cliente.nombre if v.cliente else "",
+            "cliente_apellido": v.cliente.apellido if v.cliente else "",
+            "cliente_telefono": v.cliente.telefono if v.cliente else "",
 
-            # SERVICIO
-            "servicio_nombre": v.servicio.nombre,
-            "servicio_duracion": v.servicio.duracion_min,
+            "servicio_nombre": v.servicio.nombre if v.servicio else "",
+            "servicio_duracion": v.servicio.duracion_min if v.servicio else 0,
         })
 
     return resultado

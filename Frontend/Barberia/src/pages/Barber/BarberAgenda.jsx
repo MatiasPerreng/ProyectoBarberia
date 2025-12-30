@@ -1,71 +1,74 @@
 import { useEffect, useState } from "react";
-import AgendaTable from "../../components/Barber/AgendaTable";
-import { getAgendaBarbero } from "../../services/barberos";
-import { actualizarEstadoVisita } from "../../services/visitas";
+import BarberoAgendaList from "../../components/Barbero/BarberoAgendaList/BarberoAgendaList";
+import BarberoDaySummary from "../../components/Barbero/BarberoDaySummary";
+import API_URL from "../../services/api";
+import "./BarberAgenda.css";
 
 const BarberAgenda = () => {
-  const BARBERO_ID = 1; // fijo por ahora
+  // 📅 Día seleccionado (por defecto HOY)
+  const [fecha, setFecha] = useState(() =>
+    new Date().toISOString().split("T")[0]
+  );
 
-  const [agenda, setAgenda] = useState([]);
+  const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // 🔁 Fetch agenda cuando cambia el día
   useEffect(() => {
-    cargarAgenda();
-  }, []);
+    let isMounted = true;
+    setLoading(true);
 
-  const cargarAgenda = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getAgendaBarbero(BARBERO_ID);
-      setAgenda(data);
-    } catch (err) {
-      setError("Error al cargar la agenda");
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetch(`${API_URL}/visitas/mi-agenda?fecha=${fecha}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted) setTurnos(data || []);
+      })
+      .catch(() => {
+        if (isMounted) setTurnos([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
-  // -----------------------------
-  // ACCIONES SOBRE TURNOS
-  // -----------------------------
-
-  const handleCompletar = async (turno) => {
-    try {
-      await actualizarEstadoVisita(turno.id_visita, "completado");
-      cargarAgenda(); // refresca agenda
-    } catch (err) {
-      alert("No se pudo completar el turno");
-    }
-  };
-
-  const handleCancelar = async (turno) => {
-    const confirmar = window.confirm(
-      "¿Seguro que querés cancelar este turno?"
-    );
-    if (!confirmar) return;
-
-    try {
-      await actualizarEstadoVisita(turno.id_visita, "cancelado");
-      cargarAgenda(); // refresca agenda
-    } catch (err) {
-      alert("No se pudo cancelar el turno");
-    }
-  };
-
-  if (loading) return <p className="mt-4">Cargando agenda...</p>;
-  if (error) return <p className="text-danger">{error}</p>;
+    return () => {
+      isMounted = false;
+    };
+  }, [fecha]);
 
   return (
-    <div className="container mt-4">
-      <h2>Agenda del barbero</h2>
+    <div className="barbero-agenda-page">
+      <h1>Mi agenda</h1>
 
-      <AgendaTable
-        agenda={agenda}
-        onCompletar={handleCompletar}
-        onCancelar={handleCancelar}
+      {/* =========================
+         RESUMEN + FILTRO (COMPONENTE CORRECTO)
+      ========================= */}
+      <BarberoDaySummary
+        turnos={turnos}
+        fecha={fecha}
+        onChangeFecha={setFecha}
       />
+
+      {/* =========================
+         LISTADO
+      ========================= */}
+      {loading && <p>Cargando agenda…</p>}
+
+      {!loading && turnos.length === 0 && (
+        <p className="agenda-empty">
+          No tenés turnos para este día
+        </p>
+      )}
+
+      {!loading && turnos.length > 0 && (
+        <BarberoAgendaList
+          turnos={turnos}
+          onSelectTurno={() => { }}
+        />
+      )}
     </div>
   );
 };

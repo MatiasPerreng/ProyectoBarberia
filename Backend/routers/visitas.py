@@ -18,20 +18,11 @@ router = APIRouter(
     tags=["Visitas"]
 )
 
-# ======================================================================================
-# HELPER → MAPEA ORM → SCHEMA (EVITA 500)
-# ======================================================================================
 
 def visita_to_out(visita):
-    # -------------------------------
-    # CASO 1: ya viene como dict
-    # -------------------------------
     if isinstance(visita, dict):
         return visita
 
-    # -------------------------------
-    # CASO 2: viene como ORM
-    # -------------------------------
     return {
         "id_visita": visita.id_visita,
         "fecha_hora": visita.fecha_hora,
@@ -51,21 +42,25 @@ def visita_to_out(visita):
         ),
     }
 
+
 # ======================================================================================
-# AGENDA DEL BARBERO LOGUEADO
+# AGENDA DEL BARBERO LOGUEADO (CON FILTRO POR FECHA)
 # ======================================================================================
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
 def mi_agenda(
+    fecha: Optional[date] = None,
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
     visitas = crud_visita.get_visitas_by_barbero(
         db=db,
-        barbero_id=login.barbero_id
+        barbero_id=login.barbero_id,
+        fecha=fecha
     )
 
     return [visita_to_out(v) for v in visitas]
+
 
 # ======================================================================================
 # ACTUALIZAR ESTADO
@@ -89,8 +84,9 @@ def actualizar_estado_visita(
             detail=str(e)
         )
 
+
 # ======================================================================================
-# DISPONIBILIDAD POR FECHA (NO SE TOCA)
+# DISPONIBILIDAD POR FECHA
 # ======================================================================================
 
 @router.get("/disponibilidad")
@@ -113,8 +109,9 @@ def obtener_disponibilidad(
             detail=str(e)
         )
 
+
 # ======================================================================================
-# DISPONIBILIDAD MENSUAL (CALENDARIO)
+# DISPONIBILIDAD MENSUAL
 # ======================================================================================
 
 @router.get("/disponibilidad-mes")
@@ -171,15 +168,12 @@ def disponibilidad_mes(
 
     return resultado
 
+
 # ======================================================================================
 # CREAR VISITA + EMAIL
 # ======================================================================================
 
-@router.post(
-    "/",
-    response_model=VisitaOut,
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
 def crear_visita(
     visita_in: VisitaCreate,
     background_tasks: BackgroundTasks,
@@ -204,6 +198,7 @@ def crear_visita(
             detail=str(e)
         )
 
+
 # ======================================================================================
 # LISTAR TODAS
 # ======================================================================================
@@ -212,6 +207,7 @@ def crear_visita(
 def listar_visitas(db: Session = Depends(get_db)):
     visitas = crud_visita.get_visitas(db)
     return [visita_to_out(v) for v in visitas]
+
 
 # ======================================================================================
 # OBTENER POR ID
@@ -228,6 +224,7 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
         )
 
     return visita_to_out(visita)
+
 
 # ======================================================================================
 # CANCELAR

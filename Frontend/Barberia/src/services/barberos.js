@@ -19,7 +19,6 @@ export async function crearBarbero(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // ⚠️ si este endpoint es solo admin, debería llevar token
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify(data),
@@ -44,7 +43,6 @@ export async function subirFotoBarbero(idBarbero, file) {
   const res = await fetch(`${API_URL}/barberos/${idBarbero}/foto`, {
     method: "POST",
     headers: {
-      // ⚠️ NO setear Content-Type con FormData
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: formData,
@@ -97,20 +95,24 @@ export async function eliminarBarbero(idBarbero) {
     throw new Error(err.detail || "Error al eliminar barbero");
   }
 
-  // DELETE suele devolver 204 sin body
   return res.status === 204 ? true : await res.json();
 }
 
 // =======================================================
-// AGENDA DEL BARBERO (CON AUTH)
+// AGENDA DEL BARBERO (CON AUTH + FILTRO POR FECHA)
 // =======================================================
 
-export async function getAgendaBarbero() {
-  const res = await fetch(`${API_URL}/visitas/mi-agenda`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
+export async function getAgendaBarbero(fecha = null) {
+  const query = fecha ? `?fecha=${fecha}` : "";
+
+  const res = await fetch(
+    `${API_URL}/visitas/mi-agenda${query}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     const text = await res.text();

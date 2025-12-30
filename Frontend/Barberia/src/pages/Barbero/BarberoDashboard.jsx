@@ -6,19 +6,22 @@ import { getAgendaBarbero } from "../../services/barberos";
 import "./BarberoDashboard.css";
 
 const BarberoDashboard = () => {
+  const [fecha, setFecha] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
   const [turnos, setTurnos] = useState([]);
   const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getAgendaBarbero()
-      .then((data) => {
-        console.log("AGENDA RAW:", data);
+    setLoading(true);
 
+    getAgendaBarbero(fecha)
+      .then((data) => {
         const normalizados = data.map((v) => ({
           id: v.id_visita,
-
           fechaHora: v.fecha_hora,
 
           hora: new Date(v.fecha_hora).toLocaleTimeString("es-UY", {
@@ -34,16 +37,16 @@ const BarberoDashboard = () => {
           duracion: v.servicio_duracion,
 
           estado: v.estado || "reservado",
+          precio: v.precio || 0,
         }));
 
         setTurnos(normalizados);
       })
-      .catch((err) => {
-        console.error("ERROR AGENDA:", err);
+      .catch(() => {
         setError("No se pudo cargar tu agenda");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [fecha]);
 
   const handleAtender = (id) => {
     setTurnos((prev) =>
@@ -72,7 +75,11 @@ const BarberoDashboard = () => {
     <div className="barbero-dashboard">
       <h1>Mi agenda</h1>
 
-      <BarberoDaySummary turnos={turnos} />
+      <BarberoDaySummary
+        turnos={turnos}
+        fecha={fecha}
+        onChangeFecha={setFecha}
+      />
 
       <BarberoAgendaList
         turnos={turnos}

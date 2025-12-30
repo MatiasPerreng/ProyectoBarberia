@@ -1,0 +1,23 @@
+.barbero-summary {
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  margin-bottom: 26px;
+}
+
+.barbero-summary-info > div {
+  margin: 4px 0;
+  font-size: 0.95rem;
+}
+
+.barbero-summary-date {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-weight: 600;
+}
