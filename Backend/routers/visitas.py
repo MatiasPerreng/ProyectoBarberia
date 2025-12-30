@@ -29,7 +29,7 @@ def mi_agenda(
 ):
     return crud_visita.get_visitas_by_barbero(
         db=db,
-        barbero_id=login.id_barbero
+        barbero_id=login.barbero_id
     )
 
 # ----------------------------------------------------------------------------------------------------------------------

@@ -18,8 +18,7 @@
   width: 100%;
   max-width: 1500px;
   display: grid;
-  /* auto-fill evita que las cards se estiren demasiado si hay pocas */
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
   gap: 32px;
 }
 

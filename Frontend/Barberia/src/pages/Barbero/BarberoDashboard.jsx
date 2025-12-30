@@ -14,9 +14,10 @@ const BarberoDashboard = () => {
   useEffect(() => {
     getAgendaBarbero()
       .then((data) => {
-        const normalizados = data.map((v, index) => ({
-          // 👇 no viene id desde backend, usamos index por ahora
-          id: index,
+        console.log("AGENDA RAW:", data);
+
+        const normalizados = data.map((v) => ({
+          id: v.id_visita,
 
           fechaHora: v.fecha_hora,
 
@@ -25,11 +26,12 @@ const BarberoDashboard = () => {
             minute: "2-digit",
           }),
 
-          cliente: v.cliente_nombre || "Cliente",
+          cliente_nombre: v.cliente_nombre,
+          cliente_apellido: v.cliente_apellido,
           telefono: v.cliente_telefono || "",
 
-          servicio: v.servicio_nombre || "Servicio",
-          duracion: v.servicio_duracion || 0,
+          servicio: v.servicio_nombre,
+          duracion: v.servicio_duracion,
 
           estado: v.estado || "reservado",
         }));
@@ -44,17 +46,15 @@ const BarberoDashboard = () => {
   }, []);
 
   const handleAtender = (id) => {
-    // DEV: solo cambiamos estado local
     setTurnos((prev) =>
       prev.map((t) =>
-        t.id === id ? { ...t, estado: "atendido" } : t
+        t.id === id ? { ...t, estado: "completado" } : t
       )
     );
     setTurnoSeleccionado(null);
   };
 
   const handleCancelar = (id, motivo) => {
-    // DEV: solo cambiamos estado local
     setTurnos((prev) =>
       prev.map((t) =>
         t.id === id

@@ -106,7 +106,7 @@ export async function eliminarBarbero(idBarbero) {
 // =======================================================
 
 export async function getAgendaBarbero() {
-  const res = await fetch(`${API_URL}/barberos/mi-agenda`, {
+  const res = await fetch(`${API_URL}/visitas/mi-agenda`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },

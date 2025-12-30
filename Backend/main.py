@@ -52,8 +52,10 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "http://192.168.1.59:5173",
-        "http://167.62.40.80:5173",
+        "http://192.168.1.62:5173",
+        "http://kingbarber.webhop.net:5173",
+        
+
     ],
     allow_credentials=True,
     allow_methods=["*"],

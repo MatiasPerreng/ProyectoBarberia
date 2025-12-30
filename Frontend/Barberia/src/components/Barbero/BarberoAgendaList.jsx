@@ -1,9 +1,9 @@
 import BarberoAgendaItem from "./BarberoAgendaItem";
-import './BarberoAgendaList.css'
+import "./BarberoAgendaList.css";
 
 const BarberoAgendaList = ({ turnos, onSelectTurno }) => {
   if (!turnos.length) {
-    return <p>No tenés turnos hoy</p>;
+    return <p>No tenés turnos para hoy</p>;
   }
 
   return (

@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import datetime, timedelta, time, date
 import random
@@ -7,15 +7,15 @@ from models import Visita, Servicio, HorarioBarbero, Barbero
 from schemas import VisitaCreate
 
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # UTILIDADES
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 def overlaps(inicio_a: datetime, fin_a: datetime, inicio_b: datetime, fin_b: datetime) -> bool:
     return inicio_a < fin_b and fin_a > inicio_b
 
 
-def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int) -> List[time]:
+def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
     slots = []
 
     paso = timedelta(minutes=30)
@@ -31,9 +31,9 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int) -> List
     return slots
 
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # ASIGNACIÓN AUTOMÁTICA DE BARBERO
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 def asignar_barbero_automatico(
     db: Session,
@@ -88,9 +88,9 @@ def asignar_barbero_automatico(
     return random.choice(menos_cargados)
 
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # CRUD VISITA
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
 
@@ -121,6 +121,7 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
 
     visitas_existentes = (
         db.query(Visita)
+        .options(joinedload(Visita.servicio))
         .filter(
             Visita.id_barbero == visita_in.id_barbero,
             Visita.fecha_hora >= inicio_dia,
@@ -148,7 +149,7 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     db.commit()
     db.refresh(visita)
 
-    # 🔹 FORZAR CARGA DE RELACIONES (para el email)
+    # Forzar carga relaciones
     visita.cliente
     visita.servicio
     visita.barbero
@@ -171,14 +172,46 @@ def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visi
     return visita
 
 
-def get_visitas(db: Session) -> List[Visita]:
+def get_visitas(db: Session):
     return db.query(Visita).all()
 
 
-def get_visitas_by_barbero(db: Session, barbero_id: int) -> List[Visita]:
-    return db.query(Visita).filter(
-        Visita.id_barbero == barbero_id
-    ).all()
+# --------------------------------------------------------------------------------------------------
+# 🔥 FUNCIÓN CLAVE CORREGIDA (AGENDA BARBERO)
+# --------------------------------------------------------------------------------------------------
+
+def get_visitas_by_barbero(db: Session, barbero_id: int):
+    visitas = (
+        db.query(Visita)
+        .options(
+            joinedload(Visita.cliente),
+            joinedload(Visita.servicio),
+        )
+        .filter(Visita.id_barbero == barbero_id)
+        .order_by(Visita.fecha_hora)
+        .all()
+    )
+
+    resultado = []
+
+    for v in visitas:
+        resultado.append({
+            "id_visita": v.id_visita,
+            "fecha_hora": v.fecha_hora,
+            "estado": v.estado,
+            "created_at": v.created_at,
+
+            # CLIENTE
+            "cliente_nombre": v.cliente.nombre,
+            "cliente_apellido": v.cliente.apellido,
+            "cliente_telefono": v.cliente.telefono,
+
+            # SERVICIO
+            "servicio_nombre": v.servicio.nombre,
+            "servicio_duracion": v.servicio.duracion_min,
+        })
+
+    return resultado
 
 
 def get_visita_by_id(db: Session, visita_id: int) -> Optional[Visita]:
@@ -192,9 +225,9 @@ def delete_visita(db: Session, visita: Visita) -> None:
     db.commit()
 
 
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # DISPONIBILIDAD
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 def get_disponibilidad(
     db: Session,

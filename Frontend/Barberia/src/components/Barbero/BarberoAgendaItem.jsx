@@ -1,4 +1,11 @@
 const BarberoAgendaItem = ({ turno, onClick }) => {
+  const nombreCompleto = [
+    turno.cliente_nombre,
+    turno.cliente_apellido,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div
       className={`barbero-agenda-item estado-${turno.estado}`}
@@ -7,8 +14,12 @@ const BarberoAgendaItem = ({ turno, onClick }) => {
       <div className="hora">{turno.hora}</div>
 
       <div className="info">
-        <strong>{turno.cliente}</strong>
-        <span>{turno.servicio}</span>
+        <strong className="cliente-nombre">
+          {nombreCompleto || "Cliente"}
+        </strong>
+        <span className="servicio">
+          {turno.servicio}
+        </span>
       </div>
 
       <div className="estado">
