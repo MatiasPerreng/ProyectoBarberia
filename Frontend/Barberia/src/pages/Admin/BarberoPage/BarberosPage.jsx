@@ -8,6 +8,7 @@ import {
   toggleBarbero,
   subirFotoBarbero,
   eliminarBarbero,
+  crearCuentaBarbero,
 } from "../../../services/barberos";
 
 import API_URL from "../../../services/api";
@@ -19,11 +20,21 @@ const BarberosPage = () => {
   const [alertError, setAlertError] = useState(null);
 
   /* =========================
-      FOTO (REFS Y ESTADOS)
+      FOTO
   ========================= */
   const fileInputRef = useRef(null);
   const [fileInputKey, setFileInputKey] = useState(0);
   const [barberoFotoTargetId, setBarberoFotoTargetId] = useState(null);
+
+  /* =========================
+      CREAR ACCESO
+  ========================= */
+  const [accountTarget, setAccountTarget] = useState(null);
+  const [accountForm, setAccountForm] = useState({
+    email: "",
+    password: "",
+    rol: "barbero",
+  });
 
   /* =========================
       LOAD BARBEROS
@@ -37,12 +48,11 @@ const BarberosPage = () => {
           const prevB = prev.find((p) => p.id_barbero === b.id_barbero);
           return {
             ...b,
-            // Preservamos el timestamp para evitar que la imagen "parpadee" a la vieja
             _fotoUpdatedAt: prevB?._fotoUpdatedAt || 0,
           };
         })
       );
-    } catch (err) {
+    } catch {
       setError("No se pudieron cargar los barberos");
     }
   };
@@ -52,26 +62,27 @@ const BarberosPage = () => {
   }, []);
 
   /* =========================
-      ACCIONES (CREAR, TOGGLE, DELETE)
+      CRUD BARBERO
   ========================= */
   const handleCreate = async (data) => {
     try {
-      // 🔥 IMPORTANTE: Retornamos el resultado de la API
-      // Esto permite que BarberoForm reciba el id_barbero
       const nuevoBarbero = await crearBarbero(data);
-      return nuevoBarbero; 
+      return nuevoBarbero; // 🔥 necesario para BarberoForm
     } catch (err) {
       setAlertError("Error al crear el barbero en el servidor");
-      throw err; // Propaga el error al formulario
+      throw err;
     }
   };
 
   const handleToggle = async (barbero) => {
     setBarberos((prev) =>
       prev.map((b) =>
-        b.id_barbero === barbero.id_barbero ? { ...b, activo: !b.activo } : b
+        b.id_barbero === barbero.id_barbero
+          ? { ...b, activo: !b.activo }
+          : b
       )
     );
+
     try {
       await toggleBarbero(barbero.id_barbero);
     } catch {
@@ -85,20 +96,19 @@ const BarberosPage = () => {
       loadBarberos();
     } catch (err) {
       setAlertError(
-        err?.message || "No se puede eliminar el barbero tiene datos asociados."
+        err?.message ||
+        "No se puede eliminar el barbero tiene datos asociados."
       );
     }
   };
 
   /* =========================
-      CAMBIO DE FOTO (EDICIÓN)
+      FOTO
   ========================= */
   const handleSelectFoto = (barbero) => {
     setBarberoFotoTargetId(barbero.id_barbero);
     setFileInputKey((k) => k + 1);
-    setTimeout(() => {
-      fileInputRef.current?.click();
-    }, 10);
+    setTimeout(() => fileInputRef.current?.click(), 10);
   };
 
   const handleUploadFoto = async (e) => {
@@ -107,23 +117,44 @@ const BarberosPage = () => {
 
     try {
       const res = await subirFotoBarbero(barberoFotoTargetId, file);
-      
-      const newTimestamp = Date.now();
+      const ts = Date.now();
+
       setBarberos((prev) =>
         prev.map((b) =>
           b.id_barbero === barberoFotoTargetId
-            ? { 
-                ...b, 
-                foto_url: res?.foto_url || b.foto_url, 
-                _fotoUpdatedAt: newTimestamp 
-              }
+            ? {
+              ...b,
+              foto_url: res?.foto_url || b.foto_url,
+              _fotoUpdatedAt: ts,
+            }
             : b
         )
       );
-    } catch (err) {
+    } catch {
       setAlertError("No se pudo actualizar la imagen.");
     } finally {
       setBarberoFotoTargetId(null);
+    }
+  };
+
+  /* =========================
+      CREAR ACCESO
+  ========================= */
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+
+    try {
+      await crearCuentaBarbero(accountTarget.id_barbero, {
+        email: accountForm.email,
+        password: accountForm.password,
+        rol: accountForm.rol,
+      });
+
+      setAccountTarget(null);
+      setAccountForm({ email: "", password: "", rol: "barbero" });
+      loadBarberos();
+    } catch (err) {
+      setAlertError(err.message || "Error al crear el acceso");
     }
   };
 
@@ -131,7 +162,10 @@ const BarberosPage = () => {
     <div className="barberos-page-container">
       <div className="barberos-header">
         <h2>Barberos</h2>
-        <button className="barberos-btn-primary" onClick={() => setShowForm(true)}>
+        <button
+          className="barberos-btn-primary"
+          onClick={() => setShowForm(true)}
+        >
           + Nuevo barbero
         </button>
       </div>
@@ -155,7 +189,10 @@ const BarberosPage = () => {
               <strong>{b.nombre}</strong>
             </div>
 
-            <span className={`barberos-status ${b.activo ? "active" : "inactive"}`}>
+            <span
+              className={`barberos-status ${b.activo ? "active" : "inactive"
+                }`}
+            >
               {b.activo ? "Activo" : "Inactivo"}
             </span>
 
@@ -163,8 +200,21 @@ const BarberosPage = () => {
               <button onClick={() => handleToggle(b)}>
                 {b.activo ? "Desactivar" : "Activar"}
               </button>
-              <button onClick={() => handleSelectFoto(b)}>Cambiar foto</button>
-              <button className="danger" onClick={() => handleDelete(b)}>Eliminar</button>
+
+              <button onClick={() => handleSelectFoto(b)}>
+                Cambiar foto
+              </button>
+
+              {/* 🔐 SOLO SI NO TIENE USUARIO */}
+              {!b.tiene_usuario && (
+                <button onClick={() => setAccountTarget(b)}>
+                  Crear acceso
+                </button>
+              )}
+
+              <button className="danger" onClick={() => handleDelete(b)}>
+                Eliminar
+              </button>
             </div>
           </div>
         ))}
@@ -176,10 +226,79 @@ const BarberosPage = () => {
           onClose={() => setShowForm(false)}
           onCreated={() => {
             setShowForm(false);
-            loadBarberos(); 
+            loadBarberos();
           }}
         />
       )}
+      {/* MODAL CREAR ACCESO */}
+      {accountTarget && (
+        <div className="barberos-access-overlay">
+          <div className="barberos-access-card">
+            <h3>Crear acceso</h3>
+
+            <p>
+              Barbero: <strong>{accountTarget.nombre}</strong>
+            </p>
+
+            <form onSubmit={handleCreateAccount}>
+              <input
+                type="email"
+                placeholder="Email"
+                required
+                value={accountForm.email}
+                onChange={(e) =>
+                  setAccountForm({
+                    ...accountForm,
+                    email: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                type="password"
+                placeholder="Contraseña"
+                required
+                value={accountForm.password}
+                onChange={(e) =>
+                  setAccountForm({
+                    ...accountForm,
+                    password: e.target.value,
+                  })
+                }
+              />
+
+              <select
+                value={accountForm.rol}
+                onChange={(e) =>
+                  setAccountForm({
+                    ...accountForm,
+                    rol: e.target.value,
+                  })
+                }
+              >
+                <option value="barbero">Barbero</option>
+                <option value="admin">Admin</option>
+              </select>
+
+              <div className="barberos-access-actions">
+                <button
+                  type="button"
+                  onClick={() => setAccountTarget(null)}
+                >
+                  Cancelar
+                </button>
+
+                <button type="submit">
+                  Crear
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+
 
       {alertError && (
         <div className="modal-overlay">
@@ -191,7 +310,7 @@ const BarberosPage = () => {
         </div>
       )}
 
-      {/* Input oculto para subir archivos */}
+      {/* FILE INPUT OCULTO */}
       <input
         key={fileInputKey}
         type="file"

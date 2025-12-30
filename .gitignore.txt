@@ -1,7 +1,11 @@
 # Python
 venv/
+Backend/venv/
 __pycache__/
 *.pyc
+
+# Media generada
+media/barberos/
 
 # Env
 .env
