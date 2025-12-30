@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date, datetime, timedelta
+from datetime import date
 from calendar import monthrange
 
 from database import get_db
@@ -18,23 +18,58 @@ router = APIRouter(
     tags=["Visitas"]
 )
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
+# HELPER → MAPEA ORM → SCHEMA (EVITA 500)
+# ======================================================================================
+
+def visita_to_out(visita):
+    # -------------------------------
+    # CASO 1: ya viene como dict
+    # -------------------------------
+    if isinstance(visita, dict):
+        return visita
+
+    # -------------------------------
+    # CASO 2: viene como ORM
+    # -------------------------------
+    return {
+        "id_visita": visita.id_visita,
+        "fecha_hora": visita.fecha_hora,
+        "created_at": getattr(visita, "created_at", None),
+        "estado": visita.estado,
+
+        "cliente_nombre": visita.cliente.nombre if visita.cliente else "",
+        "cliente_apellido": visita.cliente.apellido if visita.cliente else "",
+
+        "servicio_nombre": visita.servicio.nombre if visita.servicio else "",
+        "servicio_duracion": visita.servicio.duracion_min if visita.servicio else 0,
+
+        "barbero_id": (
+            visita.barbero.id_barbero
+            if getattr(visita, "barbero", None)
+            else None
+        ),
+    }
+
+# ======================================================================================
 # AGENDA DEL BARBERO LOGUEADO
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
 def mi_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
-    return crud_visita.get_visitas_by_barbero(
+    visitas = crud_visita.get_visitas_by_barbero(
         db=db,
         barbero_id=login.barbero_id
     )
 
-# ----------------------------------------------------------------------------------------------------------------------
+    return [visita_to_out(v) for v in visitas]
+
+# ======================================================================================
 # ACTUALIZAR ESTADO
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
 def actualizar_estado_visita(
@@ -43,18 +78,20 @@ def actualizar_estado_visita(
     db: Session = Depends(get_db)
 ):
     try:
-        return crud_visita.update_estado_visita(
+        visita = crud_visita.update_estado_visita(
             db, visita_id, data.estado
         )
+        return visita_to_out(visita)
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
 
-# ----------------------------------------------------------------------------------------------------------------------
-# DISPONIBILIDAD POR FECHA (EXISTENTE - NO SE TOCA)
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
+# DISPONIBILIDAD POR FECHA (NO SE TOCA)
+# ======================================================================================
 
 @router.get("/disponibilidad")
 def obtener_disponibilidad(
@@ -76,9 +113,9 @@ def obtener_disponibilidad(
             detail=str(e)
         )
 
-# ----------------------------------------------------------------------------------------------------------------------
-# 🆕 DISPONIBILIDAD MENSUAL (CALENDARIO)
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
+# DISPONIBILIDAD MENSUAL (CALENDARIO)
+# ======================================================================================
 
 @router.get("/disponibilidad-mes")
 def disponibilidad_mes(
@@ -95,9 +132,8 @@ def disponibilidad_mes(
 
     for dia in range(1, last_day + 1):
         fecha_dia = date(anio, mes, dia)
-        dia_semana = fecha_dia.isoweekday()  # 1 = lunes
+        dia_semana = fecha_dia.isoweekday()
 
-        # 1️⃣ Día pasado
         if fecha_dia < hoy:
             resultado.append({
                 "fecha": fecha_dia.isoformat(),
@@ -105,7 +141,6 @@ def disponibilidad_mes(
             })
             continue
 
-        # 2️⃣ Ver si el barbero trabaja ese día
         horarios = crud_horario.get_horarios_barbero_para_fecha(
             db=db,
             id_barbero=id_barbero,
@@ -120,7 +155,6 @@ def disponibilidad_mes(
             })
             continue
 
-        # 3️⃣ Ver si existen slots disponibles
         turnos = crud_visita.get_disponibilidad(
             db=db,
             fecha=fecha_dia,
@@ -137,9 +171,9 @@ def disponibilidad_mes(
 
     return resultado
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # CREAR VISITA + EMAIL
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 @router.post(
     "/",
@@ -154,7 +188,7 @@ def crear_visita(
     try:
         visita = crud_visita.create_visita(db, visita_in)
 
-        if visita.cliente.email:
+        if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
                 visita.cliente.email,
@@ -162,7 +196,7 @@ def crear_visita(
                 generar_email_confirmacion(visita)
             )
 
-        return visita
+        return visita_to_out(visita)
 
     except ValueError as e:
         raise HTTPException(
@@ -170,17 +204,18 @@ def crear_visita(
             detail=str(e)
         )
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # LISTAR TODAS
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
-    return crud_visita.get_visitas(db)
+    visitas = crud_visita.get_visitas(db)
+    return [visita_to_out(v) for v in visitas]
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # OBTENER POR ID
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 @router.get("/{visita_id}", response_model=VisitaOut)
 def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
@@ -192,11 +227,11 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
             detail="Visita no encontrada"
         )
 
-    return visita
+    return visita_to_out(visita)
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # CANCELAR
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 @router.delete("/{visita_id}", status_code=status.HTTP_204_NO_CONTENT)
 def cancelar_visita(visita_id: int, db: Session = Depends(get_db)):
