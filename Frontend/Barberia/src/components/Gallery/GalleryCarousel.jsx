@@ -1,4 +1,4 @@
-import './GalleryCarousel.css'
+import "./GalleryCarousel.css";
 import rasuradoImg from "../../pages/Public/Gallery/rasurado-carousel.jpg";
 import rasuradoImg2 from "../../pages/Public/Gallery/rasurado-carousel2.jpg";
 import platinado from "../../pages/Public/Gallery/platinado-carousel.jpg";
@@ -7,9 +7,14 @@ export default function GalleryCarousel() {
   return (
     <section className="gallery-section py-5">
       <div className="container">
-        <h2 className="mb-4 text-center text-white">
-          Nuestros trabajos
-        </h2>
+
+        {/* TÍTULO MEJORADO */}
+        <div className="gallery-title-wrapper">
+          <h2 className="gallery-title">
+            <span>Nuestros</span> trabajos
+          </h2>
+          <div className="gallery-title-line" />
+        </div>
 
         <div
           id="galleryCarousel"
