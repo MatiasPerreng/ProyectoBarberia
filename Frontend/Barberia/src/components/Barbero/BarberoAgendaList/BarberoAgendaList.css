@@ -13,6 +13,7 @@
 ======================================================= */
 
 .barbero-agenda-item {
+  position: relative;
   background: linear-gradient(180deg, #ffffff, #fafafa);
   border-radius: 18px;
   padding: 20px 26px;
@@ -37,7 +38,7 @@
 }
 
 /* =======================================================
-   HORA (FUERTE Y PRO)
+   HORA
 ======================================================= */
 
 .barbero-agenda-item .hora {
@@ -45,11 +46,6 @@
   font-weight: 800;
   letter-spacing: 0.6px;
   color: #111;
-}
-
-/* AM / PM más sutil */
-.barbero-agenda-item .hora::after {
-  content: "";
 }
 
 /* =======================================================
@@ -76,7 +72,7 @@
 }
 
 /* =======================================================
-   ESTADO (BADGE PRO)
+   ESTADO (BADGE)
 ======================================================= */
 
 .barbero-agenda-item .estado {
@@ -112,6 +108,10 @@
   color: #047857;
 }
 
+.barbero-agenda-item.estado-cancelado {
+  opacity: 0.55;
+}
+
 .barbero-agenda-item.estado-cancelado .estado {
   background: linear-gradient(
     135deg,
@@ -122,7 +122,7 @@
 }
 
 /* =======================================================
-   MICRO DETALLE KING BARBER
+   MICRO DETALLE
 ======================================================= */
 
 .barbero-agenda-item::before {
@@ -134,18 +134,53 @@
 }
 
 /* =======================================================
-   RESPONSIVE
+   📱 RESPONSIVE MOBILE (CLAVE)
 ======================================================= */
 
 @media (max-width: 700px) {
   .barbero-agenda-item {
-    grid-template-columns: 80px 1fr;
-    row-gap: 12px;
-    padding: 18px 20px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 18px 18px;
   }
 
+  /* Hora arriba */
+  .barbero-agenda-item .hora {
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  /* Info bien legible */
+  .barbero-agenda-item .info strong {
+    font-size: 14.5px;
+  }
+
+  .barbero-agenda-item .info span {
+    font-size: 12.5px;
+  }
+
+  /* Estado como chip abajo */
   .barbero-agenda-item .estado {
-    grid-column: 1 / -1;
-    justify-self: flex-start;
+    align-self: flex-start;
+    font-size: 10px;
+    padding: 6px 14px;
+  }
+}
+
+/* =======================================================
+   📱 EXTRA SMALL (CELUS CHICOS)
+======================================================= */
+
+@media (max-width: 420px) {
+  .barbero-agenda-item {
+    padding: 16px 14px;
+  }
+
+  .barbero-agenda-item .hora {
+    font-size: 17px;
+  }
+
+  .barbero-agenda-item .info strong {
+    font-size: 14px;
   }
 }

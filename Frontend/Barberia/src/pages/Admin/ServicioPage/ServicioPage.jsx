@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import ServicioCard from "../../../components/Admin/ServicioCard/ServicioCard";
 import ServicioForm from "../../../components/Admin/ServicioForm/ServicioForm";
 import AdminHeader from "../AdminHeader/AdminHeader";
-import Footer from "../../../components/Footer/Footer";
 
 import {
   getServicios,
@@ -73,50 +71,49 @@ const ServicioPage = () => {
 
   return (
     <>
-      <AdminLayout>
-        <AdminHeader
-          title="Servicios"
-          actionLabel="Agregar servicio"
-          onAction={handleCreate}
-        />
+      <AdminHeader
+        title="Servicios"
+        actionLabel="Agregar servicio"
+        onAction={handleCreate}
+      />
 
-        {loading && (
-          <p className="servicios-page__loading">Cargando servicios…</p>
-        )}
+      {loading && (
+        <p className="servicios-page__loading">
+          Cargando servicios…
+        </p>
+      )}
 
-        {!loading && servicios.length === 0 && (
-          <div className="servicios-page__empty">
-            <p>No hay servicios cargados</p>
+      {!loading && servicios.length === 0 && (
+        <div className="servicios-page__empty">
+          <p>No hay servicios cargados</p>
+        </div>
+      )}
+
+      {!loading && servicios.length > 0 && (
+        <section className="servicios-page__section">
+          <div className="servicios-page__grid">
+            {servicios.map((servicio) => (
+              <ServicioCard
+                key={servicio.id_servicio}
+                servicio={servicio}
+                onEdit={() => handleEdit(servicio)}
+                onDelete={handleDelete}
+              />
+            ))}
           </div>
-        )}
+        </section>
+      )}
 
-        {!loading && servicios.length > 0 && (
-          <section className="servicios-page__section">
-            <div className="servicios-page__grid">
-              {servicios.map((servicio) => (
-                <ServicioCard
-                  key={servicio.id_servicio}
-                  servicio={servicio}
-                  onEdit={() => handleEdit(servicio)}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {showForm && (
-          <ServicioForm
-            servicioInicial={editingServicio}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingServicio(null);
-            }}
-          />
-        )}
-      </AdminLayout>
-      <Footer />
+      {showForm && (
+        <ServicioForm
+          servicioInicial={editingServicio}
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingServicio(null);
+          }}
+        />
+      )}
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import BarberoDaySummary from "../../components/Barbero/BarberoDaySummary";
-import BarberoAgendaList from "../../components/Barbero/BarberoAgendaList";
+import BarberoAgendaList from "../../components/Barbero/BarberoAgendaList/BarberoAgendaList";
 import BarberoTurnoModal from "../../components/Barbero/BarberoTurnoModal";
 import { getAgendaBarbero } from "../../services/barberos";
 import "./BarberoDashboard.css";

@@ -1,8 +1,4 @@
 import { useEffect, useState } from "react";
-
-import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
-import Footer from "../../../components/Footer/Footer";
-
 import { getAdminDashboard } from "../../../services/dashboard";
 
 import DashboardCards from "../../../components/Admin/AdminDashboard/DashboardCards";
@@ -37,24 +33,20 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <AdminLayout>
-        <h1>Dashboard</h1>
+      <h1>Dashboard</h1>
 
-        {loading && <p>Cargando métricas…</p>}
-        {error && <p className="error">{error}</p>}
+      {loading && <p>Cargando métricas…</p>}
+      {error && <p className="error">{error}</p>}
 
-        {stats && (
-          <DashboardCards stats={stats} onOpen={openDrawer} />
-        )}
+      {stats && (
+        <DashboardCards stats={stats} onOpen={openDrawer} />
+      )}
 
-        <DashboardDrawer
-          open={drawerOpen}
-          type={drawerType}
-          onClose={closeDrawer}
-        />
-      </AdminLayout>
-
-      <Footer />
+      <DashboardDrawer
+        open={drawerOpen}
+        type={drawerType}
+        onClose={closeDrawer}
+      />
     </>
   );
 };

@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../../components/Admin/AdminLayout/AdminLayout";
 import HorarioForm from "../../../components/Admin/HorarioForm/HorarioForm";
 import HorarioList from "../../../components/Admin/HorarioList";
-import Footer from "../../../components/Footer/Footer";
 
 import { getBarberos } from "../../../services/barberos";
 import {
@@ -54,8 +52,7 @@ const normalizarRangoPorDia = ({
 
 const HorariosPage = () => {
   const [barberos, setBarberos] = useState([]);
-  const [barberoSeleccionado, setBarberoSeleccionado] =
-    useState(null);
+  const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
 
   const [horarios, setHorarios] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -97,9 +94,7 @@ const HorariosPage = () => {
       ...fechasNormalizadas,
     });
 
-    const updated = await getHorariosBarbero(
-      barberoSeleccionado
-    );
+    const updated = await getHorariosBarbero(barberoSeleccionado);
     setHorarios(updated);
   };
 
@@ -107,15 +102,10 @@ const HorariosPage = () => {
     if (!confirm("¿Eliminar este horario?")) return;
 
     await eliminarHorario(idHorario);
-    const updated = await getHorariosBarbero(
-      barberoSeleccionado
-    );
+    const updated = await getHorariosBarbero(barberoSeleccionado);
     setHorarios(updated);
   };
 
-  /* =========================
-     COPIAR HORARIO (FIX)
-  ========================= */
   const handleCopy = async (horario, diaDestino) => {
     const fechasNormalizadas = normalizarRangoPorDia({
       fecha_desde: horario.fecha_desde,
@@ -131,83 +121,70 @@ const HorariosPage = () => {
       ...fechasNormalizadas,
     });
 
-    const updated = await getHorariosBarbero(
-      barberoSeleccionado
-    );
+    const updated = await getHorariosBarbero(barberoSeleccionado);
     setHorarios(updated);
   };
 
   return (
     <>
-      <AdminLayout>
-        <div className="horarios-header">
-          <h2>Horarios</h2>
+      <div className="horarios-header">
+        <h2>Horarios</h2>
 
-          <select
-            className="horarios-select-barbero"
-            value={barberoSeleccionado ?? ""}
-            onChange={(e) =>
-              setBarberoSeleccionado(
-                e.target.value
-                  ? Number(e.target.value)
-                  : null
-              )
-            }
+        <select
+          className="horarios-select-barbero"
+          value={barberoSeleccionado ?? ""}
+          onChange={(e) =>
+            setBarberoSeleccionado(
+              e.target.value ? Number(e.target.value) : null
+            )
+          }
+        >
+          <option value="">Seleccionar barbero</option>
+          {barberos.map((b) => (
+            <option key={b.id_barbero} value={b.id_barbero}>
+              {b.nombre}
+            </option>
+          ))}
+        </select>
+
+        {barberoSeleccionado && (
+          <button
+            className="horarios-btn-primary"
+            onClick={() => setShowForm(true)}
           >
-            <option value="">Seleccionar barbero</option>
-            {barberos.map((b) => (
-              <option
-                key={b.id_barbero}
-                value={b.id_barbero}
-              >
-                {b.nombre}
-              </option>
-            ))}
-          </select>
+            + Nuevo horario
+          </button>
+        )}
+      </div>
 
-          {barberoSeleccionado && (
-            <button
-              className="horarios-btn-primary"
-              onClick={() => setShowForm(true)}
-            >
-              + Nuevo horario
-            </button>
-          )}
+      {!barberoSeleccionado && !loading && (
+        <div className="horarios-empty">
+          <p className="horarios-empty-title">Seleccioná un barbero</p>
+          <p className="horarios-empty-subtitle">
+            Elegí un barbero para ver, crear o modificar sus horarios
+          </p>
         </div>
+      )}
 
-        {!barberoSeleccionado && !loading && (
-          <div className="horarios-empty">
-            <p className="horarios-empty-title">
-              Seleccioná un barbero
-            </p>
-            <p className="horarios-empty-subtitle">
-              Elegí un barbero para ver, crear o modificar sus horarios
-            </p>
-          </div>
-        )}
+      {error && <p className="horarios-error">{error}</p>}
+      {loading && <p>Cargando horarios…</p>}
 
-        {error && <p className="horarios-error">{error}</p>}
-        {loading && <p>Cargando horarios…</p>}
+      {!loading && barberoSeleccionado && (
+        <HorarioList
+          horarios={horarios}
+          onDelete={handleDelete}
+          onCopy={handleCopy}
+        />
+      )}
 
-        {!loading && barberoSeleccionado && (
-          <HorarioList
-            horarios={horarios}
-            onDelete={handleDelete}
-            onCopy={handleCopy}
-          />
-        )}
-
-        {showForm && (
-          <HorarioForm
-            idBarbero={barberoSeleccionado}
-            horariosExistentes={horarios}
-            onSubmit={handleCreate}
-            onClose={() => setShowForm(false)}
-          />
-        )}
-      </AdminLayout>
-
-      <Footer />
+      {showForm && (
+        <HorarioForm
+          idBarbero={barberoSeleccionado}
+          horariosExistentes={horarios}
+          onSubmit={handleCreate}
+          onClose={() => setShowForm(false)}
+        />
+      )}
     </>
   );
 };

@@ -2,6 +2,7 @@ import "./AdminLayout.css";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuthContext } from "../../../auth/AuthContext";
+import Footer from "../../Footer/Footer";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,6 +38,7 @@ const AdminLayout = ({ children }) => {
 
           <nav className="admin-nav">
             <NavLink to="/admin" end>Dashboard</NavLink>
+            <NavLink to="/admin/mi-agenda">Mi agenda</NavLink>
             <NavLink to="/admin/barberos">Barberos</NavLink>
             <NavLink to="/admin/horarios">Horarios</NavLink>
             <NavLink to="/admin/servicios">Servicios</NavLink>
@@ -47,7 +49,6 @@ const AdminLayout = ({ children }) => {
               <span className="admin-user-name">
                 {user?.nombre || "Usuario"}
               </span>
-
               <span className="admin-user-role">
                 {user?.role || "—"}
               </span>
@@ -59,7 +60,14 @@ const AdminLayout = ({ children }) => {
           </div>
         </aside>
 
-        <main className="admin-content">{children}</main>
+        {/* CONTENT + FOOTER */}
+        <main className="admin-content">
+          <div className="admin-content-inner">
+            {children}
+          </div>
+
+          <Footer />
+        </main>
       </div>
     </>
   );
