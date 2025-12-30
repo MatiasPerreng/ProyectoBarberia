@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API_URL from "../../../services/api";
 
+
 const BarberoAgendaView = () => {
   const [barberos, setBarberos] = useState([]);
 

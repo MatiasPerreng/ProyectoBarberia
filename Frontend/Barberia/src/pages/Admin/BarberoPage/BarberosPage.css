@@ -350,3 +350,236 @@
     min-width: 80px;
   }
 }
+
+/* ======================================================
+   CONTENEDOR
+====================================================== */
+
+.barbero-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ======================================================
+   CARD BARBERO
+====================================================== */
+
+.barbero-block {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.barbero-block:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+}
+
+/* ======================================================
+   NOMBRE
+====================================================== */
+
+.barbero-block h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1c1f24;
+}
+
+/* ======================================================
+   ESTADO
+====================================================== */
+
+.barbero-block small {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+/* Activo */
+.barbero-block small:contains("Activo") {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+/* Inactivo */
+.barbero-block small:contains("Inactivo") {
+  background: rgba(239, 68, 68, 0.12);
+  color: #991b1b;
+}
+
+/* ======================================================
+   FALLBACK (por compatibilidad)
+====================================================== */
+
+.barbero-block small {
+  background: rgba(230, 199, 123, 0.15);
+  color: #9a7b32;
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 480px) {
+  .barbero-block {
+    padding: 12px 14px;
+  }
+
+  .barbero-block h4 {
+    font-size: 0.9rem;
+  }
+}
+
+
+/* =========================
+   SUMMARY PANEL
+========================= */
+
+.drawer-panel {
+  background: #ffffff;
+  padding: 24px 28px;
+  border-radius: 18px;
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-header h2 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* cerrar */
+.drawer-header button {
+  font-size: 1.2rem;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.drawer-header button:hover {
+  color: #111;
+}
+
+/* =========================
+   METRICS
+========================= */
+
+.drawer-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111;
+}
+
+/* dorado para dinero */
+.metric-value.money {
+  color: #b9933c;
+}
+
+/* =========================
+   DATE PICKER
+========================= */
+
+.drawer-date {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-date label {
+  font-size: 0.7rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.drawer-date input {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+
+  font-weight: 600;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+}
+
+.drawer-date input:focus {
+  outline: none;
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 480px) {
+  .drawer-panel {
+    padding: 20px;
+  }
+
+  .drawer-metrics {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .metric-value {
+    font-size: 1.4rem;
+  }
+}
