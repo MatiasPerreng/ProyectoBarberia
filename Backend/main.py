@@ -34,6 +34,12 @@ async def test_email():
     return {"status": "email enviado"}
 
 
+# =======================
+# STATIC FILES (MEDIA)
+# =======================
+# 👉 URLs públicas: /media/...
+# 👉 Disco real: static/...
+
 app.mount(
     "/media/servicios",
     StaticFiles(directory="static/servicios"),

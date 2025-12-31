@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from pathlib import Path
 import shutil
+import time
 
 from database import get_db
 import crud.barbero as crud_barbero
@@ -25,7 +26,7 @@ router = APIRouter(
     tags=["Barberos"]
 )
 
-MEDIA_DIR = Path("media/barberos")
+MEDIA_DIR = Path("static/barberos")
 
 
 # ---------------------------------------------------------
@@ -180,7 +181,7 @@ def crear_acceso_barbero(
 # SUBIR FOTO BARBERO
 # ---------------------------------------------------------
 
-@router.post("/{barbero_id}/foto")
+@router.post("/{barbero_id}/foto", response_model=BarberoOut) 
 def subir_foto_barbero(
     barbero_id: int,
     file: UploadFile = File(...),
@@ -191,16 +192,23 @@ def subir_foto_barbero(
         raise HTTPException(404, "Barbero no encontrado")
 
     MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Borrar foto anterior (opcional para ahorrar espacio)
+    if barbero.foto_url and barbero.foto_url != "default.jpg":
+        old_path = MEDIA_DIR / barbero.foto_url
+        if old_path.exists():
+            old_path.unlink()
 
+    # 2. Guardar nueva foto
+    timestamp = int(time.time())
     ext = Path(file.filename).suffix or ".jpg"
-    filename = f"barbero_{barbero_id}{ext}"
+    filename = f"barbero_{barbero_id}_{timestamp}{ext}" 
     filepath = MEDIA_DIR / filename
 
     with open(filepath, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    barbero.foto_url = f"/media/barberos/{filename}"
+    barbero.foto_url = filename
     db.commit()
-    db.refresh(barbero)
 
-    return {"foto_url": barbero.foto_url}
+    return crud_barbero.serialize_barbero(barbero)

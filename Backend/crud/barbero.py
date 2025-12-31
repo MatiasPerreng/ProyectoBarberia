@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-
+import time
 from models import Barbero, Visita, Cliente, Servicio
 from schemas import BarberoCreate, BarberoUpdate
 
@@ -10,19 +10,23 @@ from schemas import BarberoCreate, BarberoUpdate
 # ----------------------------------------------------------------------------------------------------------------------
 
 def serialize_barbero(barbero: Barbero) -> dict:
-    """
-    Convierte un Barbero ORM en dict compatible con BarberoOut.
-    Garantiza que foto_url NUNCA sea null.
-    """
+    foto = barbero.foto_url or "default.jpg"
+    
+    # Construir ruta base
+    if not foto.startswith("/media/"):
+        url_final = f"/media/barberos/{foto}"
+    else:
+        url_final = foto
+    url_con_tiempo = f"{url_final}?t={int(time.time())}"
+
     return {
         "id_barbero": barbero.id_barbero,
         "nombre": barbero.nombre,
         "activo": barbero.activo,
-        "foto_url": barbero.foto_url or "/media/barberos/default.jpg",
+        "foto_url": url_con_tiempo, 
         "created_at": barbero.created_at,
         "tiene_usuario": barbero.login is not None
     }
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # BARBEROS
