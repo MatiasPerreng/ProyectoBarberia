@@ -50,19 +50,6 @@ const BarberoLayout = ({ children }) => {
               Mi agenda
             </NavLink>
 
-            <NavLink
-              to="/barbero/historial"
-              onClick={() => setSidebarOpen(false)}
-            >
-              Historial
-            </NavLink>
-
-            <NavLink
-              to="/barbero/perfil"
-              onClick={() => setSidebarOpen(false)}
-            >
-              Mi perfil
-            </NavLink>
           </nav>
 
           {/* USER */}
