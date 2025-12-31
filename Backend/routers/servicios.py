@@ -90,7 +90,6 @@ def subir_imagen_servicio(
 
     return servicio
 
-
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.delete("/{servicio_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -98,7 +97,17 @@ def eliminar_servicio(servicio_id: int, db: Session = Depends(get_db)):
     servicio = crud_servicio.get_servicio_by_id(db, servicio_id)
 
     if not servicio:
-        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+        raise HTTPException(
+            status_code=404,
+            detail="Servicio no encontrado"
+        )
 
-    crud_servicio.delete_servicio(db, servicio)
+    try:
+        crud_servicio.delete_servicio(db, servicio)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
     return None

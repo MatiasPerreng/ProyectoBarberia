@@ -71,6 +71,20 @@ export async function deleteServicio(id) {
     method: "DELETE",
   });
 
-  if (!res.ok) throw new Error("Error eliminando servicio");
+  if (!res.ok) {
+    let mensaje = "Error eliminando servicio";
+
+    try {
+      const data = await res.json();
+      if (data?.detail) {
+        mensaje = data.detail;
+      }
+    } catch (e) {
+      // puede no venir body (204 / html / etc)
+    }
+
+    throw new Error(mensaje);
+  }
+
   return true;
 }

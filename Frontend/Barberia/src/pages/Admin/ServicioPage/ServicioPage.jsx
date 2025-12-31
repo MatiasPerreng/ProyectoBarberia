@@ -48,11 +48,13 @@ const ServicioPage = () => {
   const handleDelete = async (id) => {
     try {
       await deleteServicio(id);
+      alert("Servicio eliminado correctamente");
       fetchServicios();
     } catch (err) {
-      console.error("Error eliminando servicio", err);
+      alert(err.message);
     }
   };
+
 
   const handleSubmit = async (formData) => {
     try {

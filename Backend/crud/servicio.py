@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from models import Servicio
+from models import Servicio, Visita
 from schemas import ServicioCreate, ServicioUpdate
 
 
@@ -67,5 +67,17 @@ def update_servicio(
 
 
 def delete_servicio(db: Session, servicio: Servicio) -> None:
+    # 🔥 VALIDACIÓN: no borrar si hay visitas asociadas
+    visitas_asociadas = (
+        db.query(Visita)
+        .filter(Visita.id_servicio == servicio.id_servicio)
+        .count()
+    )
+
+    if visitas_asociadas > 0:
+        raise ValueError(
+            "No se puede eliminar el servicio porque tiene turnos asociados"
+        )
+
     db.delete(servicio)
     db.commit()
