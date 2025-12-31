@@ -1,12 +1,22 @@
 /* ======================================================
-    BARBEROS PAGE – HEADER
+   PAGE
+====================================================== */
+
+.barberos-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ======================================================
+   HEADER
 ====================================================== */
 
 .barberos-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
 .barberos-header h2 {
@@ -15,10 +25,6 @@
   margin-right: auto;
   color: #111;
 }
-
-/* ======================================================
-    BOTÓN PRIMARIO
-====================================================== */
 
 .barberos-btn-primary {
   height: 42px;
@@ -29,80 +35,69 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(230, 199, 123, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.barberos-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(230, 199, 123, 0.45);
 }
 
 /* ======================================================
-    LISTADO
+   LIST
 ====================================================== */
 
 .barberos-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 /* ======================================================
-    ROW
+   CARD
 ====================================================== */
 
 .barberos-row {
   background: linear-gradient(180deg, #ffffff, #f6f7f8);
-  border-radius: 16px;
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
+  border-radius: 18px;
+  padding: 22px;
 
-.barberos-row:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 /* ======================================================
-    AVATAR
+   AVATAR
 ====================================================== */
 
 .barberos-avatar {
-  width: 54px;
-  height: 54px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(230, 199, 123, 0.9);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.barberos-row:hover .barberos-avatar {
-  transform: scale(1.05);
-  box-shadow: 0 0 0 4px rgba(230, 199, 123, 0.25);
 }
 
 /* ======================================================
-    INFO
+   INFO
 ====================================================== */
 
+.barberos-info {
+  text-align: center;
+}
+
 .barberos-info strong {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #111;
 }
 
 /* ======================================================
-    STATUS
+   STATUS
 ====================================================== */
 
 .barberos-status {
   font-size: 0.75rem;
   font-weight: 800;
-  padding: 4px 10px;
+  padding: 6px 16px;
   border-radius: 999px;
 }
 
@@ -117,469 +112,78 @@
 }
 
 /* ======================================================
-    ACTIONS
+   ACTIONS – MOBILE FIRST
 ====================================================== */
 
 .barberos-actions {
+  width: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  margin-left: auto;
+  margin-top: 10px;
 }
 
 .barberos-actions button {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 12px;
+  width: 100%;
+  height: 46px;
+
+  border-radius: 16px;
   border: none;
-  font-size: 0.8rem;
+
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
+
   background: linear-gradient(135deg, #e6c77b, #f3db9c);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-}
-
-.barberos-actions button:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.05);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.barberos-actions button.danger {
-  background: linear-gradient(135deg, #b91c1c, #e53935);
-  color: #ffffff;
-}
-
-/* ======================================================
-    MODAL CREAR ACCESO
-====================================================== */
-
-.barberos-access-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(3px);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  z-index: 1000;
-}
-
-.barberos-access-card {
-  width: 100%;
-  max-width: 420px;
-  background: #111;
-  color: #f5f5f5;
-
-  border-radius: 16px;
-  padding: 28px;
-
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
-  animation: barberosAccessModalIn 0.25s ease;
-}
-
-@keyframes barberosAccessModalIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.barberos-access-card h3 {
-  margin: 0 0 18px;
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #e6c77b;
-}
-
-.barberos-access-card input,
-.barberos-access-card select {
-  width: 100%;
-  margin-bottom: 14px;
-  padding: 12px 14px;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #1b1b1b;
-  color: #f5f5f5;
-
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.barberos-access-card input::placeholder {
-  color: #aaa;
-}
-
-.barberos-access-card input:focus,
-.barberos-access-card select:focus {
-  outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.25);
-}
-
-/* ======================================================
-   ACCIONES – MODAL CREAR ACCESO
-====================================================== */
-
-.barberos-access-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-/* Cancelar → izquierda */
-.barberos-access-actions button:first-child {
-  order: 1; /* 👈 va primero */
-  flex: 1;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #eee;
-
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.barberos-access-actions button:first-child:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-/* Crear → derecha */
-.barberos-access-actions button:last-child {
-  order: 2; /* 👈 va después */
-  flex: 1;
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
   color: #111;
-  font-weight: 600;
 
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-
-  transition: background 0.25s ease, transform 0.2s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-.barberos-access-actions button:last-child:hover {
-  background: linear-gradient(135deg, #f0d88f, #d9b86c);
-  transform: translateY(-1px);
-}
+/* ELIMINAR – separado y dominante */
+.barberos-actions button.danger {
+  margin-top: 8px;
 
-/* ======================================================
-    MODAL ALERTAS
-====================================================== */
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  color: #fff;
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(3px);
+  height: 52px;
+  font-size: 0.95rem;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  z-index: 1100;
-}
-
-.modal-card {
-  width: 100%;
-  max-width: 420px;
-  background: #111;
-  color: #f5f5f5;
-
-  border-radius: 16px;
-  padding: 28px;
-
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 10px 26px rgba(220, 38, 38, 0.45);
 }
 
 /* ======================================================
-    RESPONSIVE
+   DESKTOP (solo mejora layout)
 ====================================================== */
 
-@media (max-width: 600px) {
-  .barberos-header h2 {
-    font-size: 1.4rem;
-  }
+@media (min-width: 768px) {
 
   .barberos-row {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 20px;
-    gap: 15px;
-  }
-
-  .barberos-avatar {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto;
+    flex-direction: row;
+    align-items: center;
   }
 
   .barberos-info {
-    text-align: center;
+    text-align: left;
   }
 
   .barberos-actions {
-    margin-left: 0;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: auto;
+    margin-left: auto;
   }
 
   .barberos-actions button {
-    height: 34px;
-    padding: 0 10px;
-    font-size: 0.72rem;
-    min-width: 80px;
-  }
-}
-
-/* ======================================================
-   CONTENEDOR
-====================================================== */
-
-.barbero-agenda {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* ======================================================
-   CARD BARBERO
-====================================================== */
-
-.barbero-block {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 14px 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.barbero-block:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
-}
-
-/* ======================================================
-   NOMBRE
-====================================================== */
-
-.barbero-block h4 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1c1f24;
-}
-
-/* ======================================================
-   ESTADO
-====================================================== */
-
-.barbero-block small {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-
-  padding: 5px 10px;
-  border-radius: 999px;
-}
-
-/* Activo */
-.barbero-block small:contains("Activo") {
-  background: rgba(34, 197, 94, 0.12);
-  color: #15803d;
-}
-
-/* Inactivo */
-.barbero-block small:contains("Inactivo") {
-  background: rgba(239, 68, 68, 0.12);
-  color: #991b1b;
-}
-
-/* ======================================================
-   FALLBACK (por compatibilidad)
-====================================================== */
-
-.barbero-block small {
-  background: rgba(230, 199, 123, 0.15);
-  color: #9a7b32;
-}
-
-/* ======================================================
-   MOBILE
-====================================================== */
-
-@media (max-width: 480px) {
-  .barbero-block {
-    padding: 12px 14px;
+    width: auto;
+    height: 36px;
+    font-size: 0.8rem;
+    border-radius: 12px;
   }
 
-  .barbero-block h4 {
-    font-size: 0.9rem;
-  }
-}
-
-
-/* =========================
-   SUMMARY PANEL
-========================= */
-
-.drawer-panel {
-  background: #ffffff;
-  padding: 24px 28px;
-  border-radius: 18px;
-
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.08);
-
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* =========================
-   HEADER
-========================= */
-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.drawer-header h2 {
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* cerrar */
-.drawer-header button {
-  font-size: 1.2rem;
-  color: #9ca3af;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.drawer-header button:hover {
-  color: #111;
-}
-
-/* =========================
-   METRICS
-========================= */
-
-.drawer-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.metric-label {
-  font-size: 0.7rem;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: #6b7280;
-}
-
-.metric-value {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #111;
-}
-
-/* dorado para dinero */
-.metric-value.money {
-  color: #b9933c;
-}
-
-/* =========================
-   DATE PICKER
-========================= */
-
-.drawer-date {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.drawer-date label {
-  font-size: 0.7rem;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: #6b7280;
-}
-
-.drawer-date input {
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-
-  font-weight: 600;
-  font-size: 0.9rem;
-
-  cursor: pointer;
-}
-
-.drawer-date input:focus {
-  outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 480px) {
-  .drawer-panel {
-    padding: 20px;
-  }
-
-  .drawer-metrics {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .metric-value {
-    font-size: 1.4rem;
+  .barberos-actions button.danger {
+    margin-top: 0;
+    height: 36px;
   }
 }

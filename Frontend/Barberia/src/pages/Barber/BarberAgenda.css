@@ -1,22 +1,180 @@
-.barbero-agenda-page {
-  padding: 32px;
-}
+/* =========================
+   SUMMARY CARD
+========================= */
 
-.barbero-agenda-summary {
-  background: #fff;
-  padding: 18px 22px;
-  border-radius: 16px;
+.barbero-summary {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 22px 26px;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 22px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  justify-content: space-between;
+  gap: 24px;
+
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 28px;
 }
 
-.barbero-agenda-date {
-  height: 38px;
-  padding: 0 12px;
-  border-radius: 10px;
+/* =========================
+   INFO
+========================= */
+
+.barbero-summary-info {
+  display: flex;
+  gap: 32px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  font-weight: 700;
+}
+
+.summary-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111;
+}
+
+.summary-value.highlight {
+  color: #cfa85a;
+}
+
+/* =========================
+   DATE PICKER
+========================= */
+
+.summary-date-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.summary-date-wrapper label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  font-weight: 700;
+}
+
+/* Input fecha */
+.barbero-summary-date {
+  height: 42px;
+  padding: 0 14px;
+
+  border-radius: 12px;
   border: 1px solid #ddd;
-  font-weight: 600;
+  background: #f9f9f9;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111;
+
+  cursor: pointer;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              background 0.2s ease;
+}
+
+.barbero-summary-date:hover {
+  background: #fff;
+  border-color: #cfa85a;
+}
+
+.barbero-summary-date:focus {
+  outline: none;
+  border-color: #cfa85a;
+  box-shadow: 0 0 0 3px rgba(207, 168, 90, 0.25);
+}
+
+/* =========================
+   RESPONSIVE – TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .barbero-summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+  }
+
+  .barbero-summary-info {
+    justify-content: space-between;
+  }
+
+  .summary-date-wrapper {
+    width: 100%;
+  }
+
+  .barbero-summary-date {
+    width: 100%;
+  }
+}
+
+/* =========================
+   RESPONSIVE – MOBILE (🔥 FIX REAL)
+========================= */
+
+@media (max-width: 600px) {
+  .barbero-summary {
+    padding: 20px 18px;
+    gap: 18px;
+  }
+
+  /* 👉 TODO EN COLUMNA */
+  .barbero-summary-info {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .summary-item {
+    align-items: center;
+    text-align: center;
+  }
+
+  .summary-value {
+    font-size: 1.6rem;
+  }
+
+  .summary-date-wrapper {
+    width: 100%;
+  }
+
+  .summary-date-wrapper label {
+    text-align: center;
+  }
+
+ .barbero-summary-date {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* 🔥 iOS Safari hacks */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Evita que Safari meta padding interno raro */
+.barbero-summary-date::-webkit-date-and-time-value {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Contenedor blindado */
+.summary-date-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }

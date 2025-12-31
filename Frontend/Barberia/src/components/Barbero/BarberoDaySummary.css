@@ -1,81 +1,93 @@
-/* =========================
+/* ======================================================
    SUMMARY CARD
-========================= */
+====================================================== */
 
 .barbero-summary {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 22px 26px;
+  border-radius: 22px;
+  padding: 26px;
 
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 24px;
+  gap: 28px;
 
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
-  margin-bottom: 28px;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.08);
+  margin-bottom: 32px;
 }
 
-/* =========================
-   INFO
-========================= */
+/* ======================================================
+   INFO (TURNOS / TOTAL)
+====================================================== */
 
 .barbero-summary-info {
   display: flex;
-  gap: 32px;
+  gap: 24px;
 }
 
+/* Metric card */
 .summary-item {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 16px 18px;
+
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  min-width: 120px;
+
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .summary-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #888;
+  letter-spacing: 0.8px;
+  color: #6b7280;
+  font-weight: 700;
 }
 
 .summary-value {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: #111;
+  line-height: 1;
 }
 
 .summary-value.highlight {
   color: #cfa85a;
 }
 
-/* =========================
+/* ======================================================
    DATE PICKER
-========================= */
+====================================================== */
 
 .summary-date-wrapper {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 180px;
 }
 
 .summary-date-wrapper label {
   font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #888;
+  letter-spacing: 0.8px;
+  color: #6b7280;
+  font-weight: 700;
 }
 
-/* Calendar input */
+/* Input */
 .barbero-summary-date {
-  height: 40px;
-  padding: 0 14px;
+  height: 46px;
+  padding: 0 16px;
 
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  background: #f9f9f9;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #ffffff;
 
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: #111;
 
   cursor: pointer;
@@ -84,44 +96,53 @@
               background 0.2s ease;
 }
 
-/* Hover */
 .barbero-summary-date:hover {
-  background: #fff;
   border-color: #cfa85a;
 }
 
-/* Focus */
 .barbero-summary-date:focus {
   outline: none;
   border-color: #cfa85a;
   box-shadow: 0 0 0 3px rgba(207, 168, 90, 0.25);
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* ======================================================
+   MOBILE – CLAVE
+====================================================== */
 
 @media (max-width: 768px) {
+
   .barbero-summary {
     flex-direction: column;
-    align-items: stretch;
-    gap: 20px;
+    gap: 22px;
+    padding: 22px;
   }
 
+  /* Métricas en fila */
   .barbero-summary-info {
-    justify-content: space-between;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
   }
 
   .summary-item {
-    flex: 1;
+    align-items: center;
+    text-align: center;
+    padding: 18px 14px;
   }
 
+  .summary-value {
+    font-size: 1.6rem;
+  }
+
+  /* Fecha full width */
   .summary-date-wrapper {
     width: 100%;
   }
 
   .barbero-summary-date {
     width: 100%;
+    height: 48px;
+    font-size: 1.05rem;
   }
 }

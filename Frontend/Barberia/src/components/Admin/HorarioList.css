@@ -185,3 +185,85 @@
     width: 100%;
   }
 }
+
+/* ======================================================
+   RESPONSIVE – MOBILE (PRO)
+====================================================== */
+
+@media (max-width: 600px) {
+  .horarios-list {
+    gap: 14px;
+  }
+
+  .horario-card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  /* INFO */
+  .horario-info {
+    gap: 8px;
+  }
+
+  .horario-dia {
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .horario-horas {
+    font-size: 0.95rem;
+  }
+
+  .horario-vigencia {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  /* ACTIONS */
+  .horario-actions {
+    margin-top: 12px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .btn-copy,
+  .btn-delete {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 0.95rem;
+    border-radius: 14px;
+  }
+
+  .btn-delete {
+    background: #b81e1e;
+    color: #fff;
+  }
+
+  .btn-delete:hover {
+    background: #a41919;
+  }
+
+  /* COPY PANEL */
+  .copy-panel {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #e6e6e6;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .copy-panel select {
+    width: 100%;
+    height: 40px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .copy-panel .btn-copy {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+}
