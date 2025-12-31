@@ -13,6 +13,9 @@ from core.dependencias import get_current_login_barbero
 from core.email import enviar_email_confirmacion
 from core.email_templates import generar_email_confirmacion
 
+# 🔥 WHATSAPP
+from services.whatsapp import enviar_turno_confirmado_whatsapp
+
 router = APIRouter(
     prefix="/visitas",
     tags=["Visitas"]
@@ -170,7 +173,7 @@ def disponibilidad_mes(
 
 
 # ======================================================================================
-# CREAR VISITA + EMAIL
+# CREAR VISITA + EMAIL + WHATSAPP
 # ======================================================================================
 
 @router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
@@ -182,6 +185,7 @@ def crear_visita(
     try:
         visita = crud_visita.create_visita(db, visita_in)
 
+        # EMAIL
         if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
@@ -189,6 +193,12 @@ def crear_visita(
                 "✅ Turno confirmado - Barbería",
                 generar_email_confirmacion(visita)
             )
+
+        # 🔥 WHATSAPP (NO BLOQUEA NADA)
+        background_tasks.add_task(
+            enviar_turno_confirmado_whatsapp,
+            visita
+        )
 
         return visita_to_out(visita)
 

@@ -12,6 +12,7 @@ from routers import (
     servicios,
     auth,
     admin,
+    test,
 )
 
 app = FastAPI(
@@ -73,6 +74,7 @@ app.include_router(servicios.router)
 app.include_router(horarios.router)
 app.include_router(visitas.router)
 app.include_router(admin.router)
+app.include_router(test.router)
 
 # =======================
 # HEALTH CHECK
