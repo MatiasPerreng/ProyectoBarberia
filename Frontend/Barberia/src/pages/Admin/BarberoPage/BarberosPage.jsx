@@ -36,6 +36,8 @@ const BarberosPage = () => {
     rol: "barbero",
   });
 
+  
+
   /* =========================
       LOAD BARBEROS
   ========================= */

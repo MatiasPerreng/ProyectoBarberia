@@ -35,6 +35,12 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(230, 199, 123, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.barberos-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(230, 199, 123, 0.45);
 }
 
 /* ======================================================
@@ -62,6 +68,12 @@
   gap: 14px;
 
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.barberos-row:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
 }
 
 /* ======================================================
@@ -138,6 +150,16 @@
   color: #111;
 
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.barberos-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+}
+
+.barberos-actions button:active {
+  transform: translateY(0);
 }
 
 /* ELIMINAR – separado y dominante */
@@ -153,12 +175,15 @@
   box-shadow: 0 10px 26px rgba(220, 38, 38, 0.45);
 }
 
+.barberos-actions button.danger:hover {
+  box-shadow: 0 14px 34px rgba(220, 38, 38, 0.65);
+}
+
 /* ======================================================
    DESKTOP (solo mejora layout)
 ====================================================== */
 
 @media (min-width: 768px) {
-
   .barberos-row {
     flex-direction: row;
     align-items: center;
@@ -187,7 +212,6 @@
     height: 36px;
   }
 }
-
 
 /* ======================================================
    MODAL CREAR ACCESO

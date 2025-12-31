@@ -181,6 +181,19 @@ const HorariosPage = () => {
         )}
       </div>
 
+      {/* 🔹 MENSAJE INICIAL */}
+      {!loading && !barberoSeleccionado && !error && (
+        <div className="horarios-empty">
+          <p className="horarios-empty-title">
+            Seleccioná un barbero
+          </p>
+          <p className="horarios-empty-subtitle">
+            Para ver o cargar horarios
+          </p>
+        </div>
+
+      )}
+
       {/* =========================
          FILTROS
       ========================= */}
@@ -190,9 +203,8 @@ const HorariosPage = () => {
             {[1, 2, 3, 4, 5, 6].map((d) => (
               <button
                 key={d}
-                className={`filtro-dia ${
-                  diasFiltro.includes(d) ? "active" : ""
-                }`}
+                className={`filtro-dia ${diasFiltro.includes(d) ? "active" : ""
+                  }`}
                 onClick={() =>
                   setDiasFiltro((prev) =>
                     prev.includes(d)

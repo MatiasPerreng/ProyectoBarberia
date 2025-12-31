@@ -14,8 +14,8 @@
 ======================================================= */
 
 .turno-row {
-  background: #ffffff;
-  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #fafafa);
+  border-radius: 16px;
   padding: 16px 18px;
 
   display: flex;
@@ -23,15 +23,15 @@
   justify-content: space-between;
   gap: 16px;
 
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.06);
   border-left: 4px solid #e6c77b;
 
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .turno-row:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.1);
 }
 
 /* =======================================================
@@ -53,6 +53,7 @@
 
 .turno-info p strong {
   font-weight: 700;
+  color: #111;
 }
 
 .turno-info small {
@@ -78,7 +79,7 @@
   height: 36px;
   border-radius: 10px;
 
-  background: #fee2e2;
+  background: rgba(185, 28, 28, 0.08);
   border: none;
 
   color: #b91c1c;
@@ -86,12 +87,12 @@
   font-weight: 700;
 
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .turno-btn-cancel:hover {
-  background: #fecaca;
-  transform: scale(1.05);
+  background: rgba(185, 28, 28, 0.15);
+  transform: translateY(-1px);
 }
 
 /* =======================================================
@@ -101,6 +102,8 @@
 .turnos-list p {
   font-size: 14px;
   color: #6b7280;
+  text-align: center;
+  margin-top: 32px;
 }
 
 /* =======================================================
