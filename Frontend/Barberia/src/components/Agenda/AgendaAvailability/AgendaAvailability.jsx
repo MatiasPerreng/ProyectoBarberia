@@ -4,6 +4,20 @@ import "./AgendaAvailability.css";
 
 import { getDisponibilidad } from "../../../services/agenda";
 
+/* ======================================================
+   VALIDACIÓN HORA (LOCAL TIME)
+====================================================== */
+const esHoraValida = (fecha, hora) => {
+  const ahora = new Date();
+
+  const [y, m, d] = fecha.split("-").map(Number);
+  const [h, min] = hora.split(":").map(Number);
+
+  const fechaHora = new Date(y, m - 1, d, h, min, 0, 0);
+
+  return fechaHora > ahora;
+};
+
 const AgendaAvailability = ({
   servicio,
   barbero,
@@ -11,6 +25,7 @@ const AgendaAvailability = ({
   onVolver,
 }) => {
   const hoy = new Date();
+  const hoyISO = hoy.toISOString().split("T")[0];
 
   const [mesActual, setMesActual] = useState(hoy.getMonth());
   const [anioActual, setAnioActual] = useState(hoy.getFullYear());
@@ -167,22 +182,34 @@ const AgendaAvailability = ({
 
             {fechaSeleccionada && (
               <div className="aa-horarios-grid">
-                {horarios.length === 0 && (
-                  <p className="aa-no-horarios">
-                    No hay horarios disponibles
-                  </p>
-                )}
-                {horarios.map((hora) => (
-                  <button
-                    key={hora}
-                    className="aa-hora-card"
-                    onClick={() =>
-                      onSelectFechaHora(`${fechaSeleccionada} ${hora}`)
-                    }
-                  >
-                    {hora}
-                  </button>
-                ))}
+                {horarios
+                  .filter((hora) =>
+                    fechaSeleccionada === hoyISO
+                      ? esHoraValida(fechaSeleccionada, hora)
+                      : true
+                  )
+                  .map((hora) => (
+                    <button
+                      key={hora}
+                      className="aa-hora-card"
+                      onClick={() =>
+                        onSelectFechaHora(`${fechaSeleccionada} ${hora}`)
+                      }
+                    >
+                      {hora}
+                    </button>
+                  ))}
+
+                {horarios.length > 0 &&
+                  horarios.filter((hora) =>
+                    fechaSeleccionada === hoyISO
+                      ? esHoraValida(fechaSeleccionada, hora)
+                      : true
+                  ).length === 0 && (
+                    <p className="aa-no-horarios">
+                      No hay horarios disponibles
+                    </p>
+                  )}
               </div>
             )}
           </section>

@@ -261,7 +261,9 @@ def get_disponibilidad(
     dia_semana = fecha.isoweekday()
 
     q_horarios = db.query(HorarioBarbero).filter(
-        HorarioBarbero.dia_semana == dia_semana
+    HorarioBarbero.dia_semana == dia_semana,
+    HorarioBarbero.fecha_desde <= fecha,
+    HorarioBarbero.fecha_hasta >= fecha
     )
 
     if id_barbero:

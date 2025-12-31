@@ -187,3 +187,148 @@
     height: 36px;
   }
 }
+
+
+/* ======================================================
+   MODAL CREAR ACCESO
+====================================================== */
+
+.barberos-access-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1000;
+  padding: 20px;
+}
+
+.barberos-access-card {
+  width: 100%;
+  max-width: 420px;
+
+  background: #111;
+  color: #f5f5f5;
+
+  border-radius: 18px;
+  padding: 28px;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
+  animation: barberosModalIn 0.25s ease;
+}
+
+/* Animación */
+@keyframes barberosModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ======================================================
+   CONTENIDO
+====================================================== */
+
+.barberos-access-card h3 {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e6c77b;
+}
+
+.barberos-access-card p {
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 0.9rem;
+  color: #ddd;
+}
+
+.barberos-access-card strong {
+  color: #fff;
+}
+
+/* ======================================================
+   INPUTS
+====================================================== */
+
+.barberos-access-card input,
+.barberos-access-card select {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1b1b1b;
+  color: #f5f5f5;
+
+  font-size: 0.95rem;
+}
+
+.barberos-access-card input::placeholder {
+  color: #aaa;
+}
+
+.barberos-access-card input:focus,
+.barberos-access-card select:focus {
+  outline: none;
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
+}
+
+/* ======================================================
+   ACCIONES
+====================================================== */
+
+.barberos-access-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.barberos-access-actions button {
+  flex: 1;
+  height: 44px;
+
+  border-radius: 14px;
+  border: none;
+
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Cancelar */
+.barberos-access-actions button:first-child {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #eee;
+}
+
+/* Crear */
+.barberos-access-actions button:last-child {
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
+  color: #111;
+}
+
+/* ======================================================
+   MOBILE AJUSTES
+====================================================== */
+
+@media (max-width: 480px) {
+  .barberos-access-card {
+    padding: 22px;
+  }
+
+  .barberos-access-card h3 {
+    font-size: 1.15rem;
+  }
+}

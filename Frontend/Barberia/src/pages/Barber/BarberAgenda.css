@@ -84,8 +84,8 @@
 
   cursor: pointer;
   transition: border-color 0.2s ease,
-              box-shadow 0.2s ease,
-              background 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .barbero-summary-date:hover {
@@ -156,25 +156,26 @@
     text-align: center;
   }
 
- .barbero-summary-date {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  .barbero-summary-date {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 
-  /* 🔥 iOS Safari hacks */
-  -webkit-appearance: none;
-  appearance: none;
-}
+    /* 🔥 iOS Safari hacks */
+    -webkit-appearance: none;
+    appearance: none;
+  }
 
-/* Evita que Safari meta padding interno raro */
-.barbero-summary-date::-webkit-date-and-time-value {
-  text-align: center;
-  white-space: nowrap;
-}
+  /* Evita que Safari meta padding interno raro */
+  .barbero-summary-date::-webkit-date-and-time-value {
+    text-align: center;
+    white-space: nowrap;
+  }
 
-/* Contenedor blindado */
-.summary-date-wrapper {
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
+  /* Contenedor blindado */
+  .summary-date-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
 }
