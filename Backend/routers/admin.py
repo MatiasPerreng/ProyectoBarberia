@@ -40,7 +40,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
     turnos_pendientes = (
         db.query(Visita)
         .filter(
-            Visita.estado == "reservado",
+            Visita.estado == "CONFIRMADO",
             Visita.fecha_hora > ahora
         )
         .count()
@@ -83,7 +83,7 @@ def admin_turnos(
     # ------------------
     if filtro == "pendientes":
         query = query.filter(
-            Visita.estado == "reservado",
+            Visita.estado == "CONFIRMADO",
             Visita.fecha_hora > ahora
         )
 

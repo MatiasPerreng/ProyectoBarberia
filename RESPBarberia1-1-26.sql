@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS `barbero` (
   `foto_url` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_barbero`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.barbero: ~4 rows (aproximadamente)
+-- Volcando datos para la tabla barber.barbero: ~2 rows (aproximadamente)
 INSERT INTO `barbero` (`id_barbero`, `nombre`, `created_at`, `foto_url`, `activo`) VALUES
-	(3, 'Enzo', '2025-12-14 15:38:28', '/media/barberos/barbero_3.png', 1),
-	(43, 'ELNUEVO', '2025-12-28 23:18:37', '/media/barberos/barbero_43.png', 1),
-	(54, 'Jona', '2025-12-29 00:09:51', '/media/barberos/barbero_54.png', 1);
+	(3, 'Enzo', '2025-12-14 15:38:28', 'barbero_3_1767279334.jpg', 1),
+	(73, 'Nacho', '2025-12-31 14:43:57', 'barbero_73_1767279331.jpg', 1),
+	(77, 'jose', '2026-01-01 14:55:41', 'barbero_77_1767279342.png', 1);
 
 -- Volcando estructura para tabla barber.barberos
 CREATE TABLE IF NOT EXISTS `barberos` (
@@ -48,13 +48,13 @@ CREATE TABLE IF NOT EXISTS `barberos` (
   UNIQUE KEY `ux_barberos_email` (`email`),
   KEY `fk_barberos_barbero` (`barbero_id`),
   CONSTRAINT `fk_barberos_barbero` FOREIGN KEY (`barbero_id`) REFERENCES `barbero` (`id_barbero`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla barber.barberos: ~3 rows (aproximadamente)
 INSERT INTO `barberos` (`id`, `nombre`, `email`, `password_hash`, `role`, `is_active`, `barbero_id`) VALUES
-	(3, 'Enzo', 'enzo@barberia.com', '$2b$12$qW0gCsugpE6EaVlQCjMm3eSyA/Z2sncP7RY7BOi6RUtqcPR3hXh9u', 'admin', 1, 3),
-	(20, 'ELNUEVO', 'EN@barberia.com', '$2b$12$4VcNieWN5ePf.7v0HX0R8.rgyzjn8ummTrVBEBsVFLdND8MNWYU22', 'barbero', 1, 43),
-	(24, 'Jona', 'j@barberia.com', '$2b$12$eiOjlEpe6jKtkVkl4WQ2Cu8KE7Gtrsn5VeCmYOTGuQ5neESIDnzQm', 'barbero', 1, 54);
+	(3, 'Enzo', 'enzo@kingbarber.com', '$2b$12$qW0gCsugpE6EaVlQCjMm3eSyA/Z2sncP7RY7BOi6RUtqcPR3hXh9u', 'admin', 1, 3),
+	(34, 'Nacho', 'nacho@kingbarber.com', '$2b$12$Mzl8Ey1ycv3OsR/ginwSoOoVZgfNL97aZ/L58PMSnyVTVDSa2HGtO', 'admin', 1, 73),
+	(36, 'jose', 'jose@kingbarber.com', '$2b$12$P3x9E5UcSNeuMA2UZBbZSeggHvT0NDM/npDRJXIR/sLK2BdfQw0da', 'barbero', 1, 77);
 
 -- Volcando estructura para tabla barber.cliente
 CREATE TABLE IF NOT EXISTS `cliente` (
@@ -65,44 +65,36 @@ CREATE TABLE IF NOT EXISTS `cliente` (
   `email` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.cliente: ~34 rows (aproximadamente)
+-- Volcando datos para la tabla barber.cliente: ~26 rows (aproximadamente)
 INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, `created_at`) VALUES
-	(1, 'Matias', '', NULL, 'csmatiperreng@gmail.com', '2025-12-14 18:34:26'),
-	(2, 'Matias', '', NULL, 'a@g', '2025-12-14 18:39:43'),
-	(3, 'Roberto', '', NULL, 'rperez@gmail.com', '2025-12-14 18:42:53'),
-	(4, 'rosario', '', NULL, 'as@gmail.com', '2025-12-14 19:06:59'),
-	(5, 'romina', '', NULL, 'romediana@maqwe', '2025-12-14 19:11:23'),
-	(6, 'jacinto', '', NULL, 'qma@gmail.com', '2025-12-14 19:14:05'),
-	(7, 'Matias', '', NULL, 'asesa@gmail.com', '2025-12-14 19:50:04'),
-	(8, 'Matias', '', '0981231', 'mp@gmail.com', '2025-12-22 19:40:39'),
-	(9, 'Manuel', '', '2131321321', 'mv@gmail.com', '2025-12-22 20:03:57'),
-	(10, 'Matiaw', '', '095065060', 'csmatiperreng@gmail.com', '2025-12-22 20:36:06'),
-	(11, 'Rodri', '', '095921321', 'rodridls@gmail.com', '2025-12-22 21:31:44'),
-	(12, 'ase', '', '12321321', 'a@gmail.com', '2025-12-22 21:51:32'),
-	(13, 'a', '', '12321321', 'a@gmail.com', '2025-12-22 21:56:05'),
-	(14, 'S', '', '091232131', 'aver@gmail.com', '2025-12-22 22:05:30'),
-	(15, '1', '', '09122322', 'csmatiperreng@live.com', '2025-12-22 22:26:28'),
-	(16, 'Matias', '', '095064060', 'csmatiperreng@gmail.com', '2025-12-23 15:51:02'),
-	(17, 'Adrian', '', '03221321', 'adrian@gmail.com', '2025-12-23 15:54:51'),
-	(18, 'Lolo', '', '01232131', 'laur@gmail.com', '2025-12-24 00:39:31'),
-	(19, 'Francisco', 'Ferre', '09623432', 'csmatiperreng@gmail.com', '2025-12-24 12:15:02'),
-	(20, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-24 20:39:24'),
-	(21, 'Kike ', 'Olivera', '092123452', 'matiperreng2019@gmail.com', '2025-12-24 20:46:12'),
-	(22, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-24 20:52:13'),
-	(23, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-25 20:08:21'),
-	(24, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-25 20:19:44'),
-	(25, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-25 20:22:35'),
-	(26, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-25 20:25:38'),
-	(27, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-26 02:42:17'),
-	(28, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-27 17:22:10'),
-	(29, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-27 19:55:38'),
-	(30, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 00:02:03'),
-	(31, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 18:27:44'),
-	(32, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 20:38:59'),
-	(33, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 22:52:14'),
-	(34, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-28 23:19:52');
+	(1, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 12:36:04'),
+	(2, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 12:36:40'),
+	(3, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 14:20:46'),
+	(4, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 14:21:27'),
+	(5, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 14:53:00'),
+	(6, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 15:09:49'),
+	(7, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:16:33'),
+	(8, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:22:14'),
+	(9, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:24:06'),
+	(10, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:25:48'),
+	(11, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:26:06'),
+	(12, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:28:48'),
+	(13, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 16:40:05'),
+	(14, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 17:00:38'),
+	(15, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2025-12-31 22:52:45'),
+	(16, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 14:58:11'),
+	(17, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 14:58:20'),
+	(18, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 14:58:47'),
+	(19, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 14:59:45'),
+	(20, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:00:10'),
+	(21, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:01:56'),
+	(22, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:04:30'),
+	(23, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:07:24'),
+	(24, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:08:41'),
+	(25, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:10:04'),
+	(26, 'Matias', 'Perreng', '095064060', 'csmatiperreng@gmail.com', '2026-01-01 15:19:19');
 
 -- Volcando estructura para tabla barber.horario_barbero
 CREATE TABLE IF NOT EXISTS `horario_barbero` (
@@ -117,20 +109,17 @@ CREATE TABLE IF NOT EXISTS `horario_barbero` (
   KEY `fk_horario_barbero` (`id_barbero`),
   CONSTRAINT `fk_horario_barbero` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`) ON DELETE CASCADE,
   CONSTRAINT `chk_hora_valida` CHECK ((`hora_desde` < `hora_hasta`))
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.horario_barbero: ~7 rows (aproximadamente)
+-- Volcando datos para la tabla barber.horario_barbero: ~4 rows (aproximadamente)
 INSERT INTO `horario_barbero` (`id_horario`, `id_barbero`, `dia_semana`, `hora_desde`, `hora_hasta`, `fecha_desde`, `fecha_hasta`) VALUES
-	(1, 3, 1, '09:00:00', '18:00:00', '2026-01-05', '2026-01-26'),
-	(6, 3, 2, '09:00:00', '18:00:00', '2026-01-06', '2026-01-27'),
-	(7, 3, 3, '09:00:00', '18:00:00', '2026-01-07', '2026-01-28'),
-	(8, 3, 6, '09:00:00', '18:00:00', '2026-01-10', '2026-01-31'),
-	(10, 43, 2, '09:00:00', '11:00:00', '2026-01-06', '2026-01-27'),
-	(14, 43, 1, '08:00:00', '21:36:00', '2026-02-02', '2026-02-23'),
-	(15, 43, 2, '08:00:00', '21:36:00', '2026-02-03', '2026-02-24'),
-	(16, 43, 3, '08:00:00', '21:36:00', '2026-02-04', '2026-02-25'),
-	(17, 43, 4, '08:00:00', '21:36:00', '2026-02-05', '2026-02-26'),
-	(18, 43, 5, '08:00:00', '21:36:00', '2026-02-06', '2026-02-27');
+	(30, 3, 1, '09:00:00', '18:00:00', '2025-12-01', '2026-01-26'),
+	(35, 73, 1, '07:16:00', '19:16:00', '2025-12-01', '2026-12-28'),
+	(36, 73, 2, '07:16:00', '19:16:00', '2025-12-02', '2026-12-29'),
+	(37, 73, 3, '07:16:00', '19:16:00', '2025-12-03', '2026-12-30'),
+	(38, 77, 1, '09:00:00', '18:00:00', '2025-12-29', '2026-07-06'),
+	(39, 77, 2, '09:00:00', '18:00:00', '2025-12-30', '2026-07-07'),
+	(40, 77, 3, '09:00:00', '18:00:00', '2025-12-31', '2026-07-08');
 
 -- Volcando estructura para tabla barber.horario_excepcion
 CREATE TABLE IF NOT EXISTS `horario_excepcion` (
@@ -156,19 +145,19 @@ CREATE TABLE IF NOT EXISTS `servicio` (
   `activo` tinyint(1) DEFAULT '1',
   `imagen` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_servicio`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcando datos para la tabla barber.servicio: ~3 rows (aproximadamente)
 INSERT INTO `servicio` (`id_servicio`, `nombre`, `duracion_min`, `precio`, `activo`, `imagen`) VALUES
-	(1, 'Corte rasurado', 45, 10.00, 1, 'corte-rasurado.jpg'),
-	(2, 'Color', 90, 1300.00, 1, 'mechas.jpeg'),
-	(3, 'Corte + Barba', 60, 400.00, 1, 'barba.jpg');
+	(1, 'Corte rasurado', 45, 410.00, 1, '0a646127-ed2b-4f25-9c4e-cfe4975c22f0.jpg'),
+	(2, 'Color', 90, 1300.00, 1, 'e7b8fc01-4ab0-443a-a116-98683d0d968b.jpeg'),
+	(3, 'Corte + Barba', 60, 400.00, 1, '636eff8a-e9c7-4f02-b9d0-11db74483127.jpg');
 
 -- Volcando estructura para tabla barber.visita
 CREATE TABLE IF NOT EXISTS `visita` (
   `id_visita` int unsigned NOT NULL AUTO_INCREMENT,
   `fecha_hora` datetime NOT NULL,
-  `estado` enum('reservado','cancelado','completado') DEFAULT 'reservado',
+  `estado` enum('CONFIRMADO','CANCELADO','COMPLETADO') NOT NULL,
   `id_cliente` int unsigned NOT NULL,
   `id_barbero` int unsigned NOT NULL,
   `id_servicio` int unsigned NOT NULL,
@@ -180,12 +169,12 @@ CREATE TABLE IF NOT EXISTS `visita` (
   CONSTRAINT `fk_visita_barbero` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`),
   CONSTRAINT `fk_visita_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `cliente` (`id_cliente`),
   CONSTRAINT `fk_visita_servicio` FOREIGN KEY (`id_servicio`) REFERENCES `servicio` (`id_servicio`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Volcando datos para la tabla barber.visita: ~2 rows (aproximadamente)
+-- Volcando datos para la tabla barber.visita: ~1 rows (aproximadamente)
 INSERT INTO `visita` (`id_visita`, `fecha_hora`, `estado`, `id_cliente`, `id_barbero`, `id_servicio`, `created_at`) VALUES
-	(2, '2025-12-30 10:00:00', 'reservado', 33, 3, 1, '2025-12-28 22:52:14'),
-	(3, '2025-12-29 09:00:00', 'reservado', 34, 43, 1, '2025-12-28 23:19:52');
+	(1, '2026-01-19 09:00:00', 'CANCELADO', 25, 77, 1, '2026-01-01 15:10:04'),
+	(2, '2026-01-26 10:30:00', 'CONFIRMADO', 26, 3, 3, '2026-01-01 15:19:19');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

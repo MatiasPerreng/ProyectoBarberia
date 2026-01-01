@@ -1,5 +1,5 @@
 const AgendaActions = ({ estado, onCompletar, onCancelar }) => {
-  if (estado !== "reservado") return null;
+  if (estado !== "CONFIRMADO") return null;
 
   return (
     <div className="d-flex gap-2">

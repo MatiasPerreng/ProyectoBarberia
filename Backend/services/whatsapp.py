@@ -1,5 +1,3 @@
-# services/whatsapp.py
-
 import os
 import requests
 from dotenv import load_dotenv
@@ -13,6 +11,11 @@ PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 
 BASE_URL = f"https://graph.facebook.com/v22.0/{PHONE_NUMBER_ID}/messages"
 
+HEADERS = {
+    "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+    "Content-Type": "application/json"
+}
+
 print("🔧 WHATSAPP CONFIG")
 print("TOKEN CARGADO:", "SI" if WHATSAPP_TOKEN else "NO")
 print("PHONE_NUMBER_ID:", PHONE_NUMBER_ID)
@@ -20,7 +23,7 @@ print("BASE_URL:", BASE_URL)
 
 
 # ==========================================================
-# TEMPLATE HELLO WORLD (PRUEBA)
+# TEMPLATE HELLO WORLD (PRUEBA INICIAL)
 # ==========================================================
 
 def enviar_template_hello_world(telefono: str):
@@ -33,37 +36,25 @@ def enviar_template_hello_world(telefono: str):
         "type": "template",
         "template": {
             "name": "hello_world",
-            "language": {
-                "code": "en_US"
-            }
+            "language": {"code": "en_US"}
         }
     }
 
-    headers = {
-        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
-        "Content-Type": "application/json"
-    }
+    response = requests.post(
+        BASE_URL,
+        json=payload,
+        headers=HEADERS,
+        timeout=10
+    )
 
-    try:
-        response = requests.post(
-            BASE_URL,
-            json=payload,
-            headers=headers,
-            timeout=10
-        )
+    print("📩 STATUS CODE:", response.status_code)
+    print("📩 RESPUESTA META:", response.text)
 
-        print("📩 STATUS CODE:", response.status_code)
-        print("📩 RESPUESTA META:", response.text)
-
-        return response.json()
-
-    except Exception as e:
-        print("❌ ERROR EN REQUEST WHATSAPP:", e)
-        return None
+    return response.json()
 
 
 # ==========================================================
-# TEMPLATE REAL (CUANDO LO TENGAS APROBADO)
+# TEMPLATE TURNO CONFIRMADO
 # ==========================================================
 
 def enviar_turno_confirmado(
@@ -72,21 +63,16 @@ def enviar_turno_confirmado(
     fecha: str,
     hora: str
 ):
-    print("📲 ENVIAR TURNO CONFIRMADO (TEMPLATE REAL)")
+    print("📲 ENVIAR TURNO CONFIRMADO")
     print("📞 TELEFONO:", telefono)
-    print("👤 NOMBRE:", nombre)
-    print("📅 FECHA:", fecha)
-    print("⏰ HORA:", hora)
 
     payload = {
         "messaging_product": "whatsapp",
         "to": telefono,
         "type": "template",
         "template": {
-            "name": "turno_confirmado",
-            "language": {
-                "code": "es"
-            },
+            "name": "turno_confirmado_king_barber",
+            "language": {"code": "es"},
             "components": [
                 {
                     "type": "body",
@@ -100,68 +86,83 @@ def enviar_turno_confirmado(
         }
     }
 
-    headers = {
-        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
-        "Content-Type": "application/json"
-    }
+    response = requests.post(
+        BASE_URL,
+        json=payload,
+        headers=HEADERS,
+        timeout=10
+    )
 
-    try:
-        response = requests.post(
-            BASE_URL,
-            json=payload,
-            headers=headers,
-            timeout=10
-        )
+    print("📩 STATUS CODE:", response.status_code)
+    print("📩 RESPUESTA META:", response.text)
 
-        print("📩 STATUS CODE:", response.status_code)
-        print("📩 RESPUESTA META:", response.text)
+    return response.json()
 
-        return response.json()
-
-    except Exception as e:
-        print("❌ ERROR EN REQUEST WHATSAPP:", e)
-        return None
-
-
-# ==========================================================
-# 🔥 FUNCIÓN PUENTE (LA QUE USA routers/visitas.py)
-# ==========================================================
 
 def enviar_turno_confirmado_whatsapp(visita):
-    """
-    Función que importa routers/visitas.py.
-    Recibe la visita completa, normaliza el teléfono
-    y decide qué template enviar.
-    """
+    print("📲 INTENTANDO ENVIAR WHATSAPP (CONFIRMACIÓN)")
 
-    print("📲 INTENTANDO ENVIAR WHATSAPP DESDE VISITA")
+    if not visita.cliente or not visita.cliente.telefono:
+        print("❌ CLIENTE SIN TELÉFONO")
+        return
 
-    if not visita.cliente:
-        print("❌ VISITA SIN CLIENTE")
-        return None
+    telefono = normalizar_telefono_uy(visita.cliente.telefono)
 
-    if not visita.cliente.telefono:
-        print("❌ CLIENTE SIN TELEFONO")
-        return None
+    return enviar_turno_confirmado(
+        telefono=telefono,
+        nombre=visita.cliente.nombre,
+        fecha=visita.fecha_hora.strftime("%d/%m/%Y"),
+        hora=visita.fecha_hora.strftime("%H:%M"),
+    )
 
-    telefono_original = visita.cliente.telefono
-    telefono = normalizar_telefono_uy(telefono_original)
 
-    print("📞 TELEFONO ORIGINAL:", telefono_original)
-    print("📞 TELEFONO NORMALIZADO:", telefono)
+# ==========================================================
+# TEMPLATE TURNO CANCELADO 🔥 (ESTO FALTABA)
+# ==========================================================
 
-    # 🔥 POR AHORA USAMOS HELLO WORLD
-    return enviar_template_hello_world(telefono)
+def enviar_turno_cancelado_whatsapp(visita):
+    print("📲 INTENTANDO ENVIAR WHATSAPP (CANCELACIÓN)")
 
-    # 👉 Cuando tengas el template real:
-    #
-    # nombre = visita.cliente.nombre
-    # fecha = visita.fecha_hora.strftime("%d/%m/%Y")
-    # hora = visita.fecha_hora.strftime("%H:%M")
-    #
-    # return enviar_turno_confirmado(
-    #     telefono=telefono,
-    #     nombre=nombre,
-    #     fecha=fecha,
-    #     hora=hora
-    # )
+    if not visita.cliente or not visita.cliente.telefono:
+        print("❌ CLIENTE SIN TELÉFONO")
+        return
+
+    telefono = normalizar_telefono_uy(visita.cliente.telefono)
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefono,
+        "type": "template",
+        "template": {
+            "name": "turno_cancelado_king_barber",
+            "language": {"code": "es"},
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": visita.cliente.nombre},
+                        {
+                            "type": "text",
+                            "text": visita.fecha_hora.strftime("%d/%m/%Y")
+                        },
+                        {
+                            "type": "text",
+                            "text": visita.fecha_hora.strftime("%H:%M")
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    response = requests.post(
+        BASE_URL,
+        json=payload,
+        headers=HEADERS,
+        timeout=10
+    )
+
+    print("📩 STATUS CODE:", response.status_code)
+    print("📩 RESPUESTA META:", response.text)
+
+    return response.json()

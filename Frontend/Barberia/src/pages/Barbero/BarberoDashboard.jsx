@@ -36,7 +36,7 @@ const BarberoDashboard = () => {
           servicio: v.servicio_nombre,
           duracion: v.servicio_duracion,
 
-          estado: v.estado || "reservado",
+          estado: v.estado || "CONFIRMADO",
           precio: v.precio || 0,
         }));
 

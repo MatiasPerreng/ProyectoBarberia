@@ -33,24 +33,18 @@ class VisitaUpdate(BaseModel):
 # ----------------------------------------------------------------------------------------------------------------------
 
 class VisitaOut(BaseModel):
-    # IDs
+
     id_visita: int
 
-    # Turno
     fecha_hora: datetime.datetime
     estado: Optional[str]
     created_at: Optional[datetime.datetime]
 
-    # ---------------------------
-    # CLIENTE (LO QUE TE FALTABA)
-    # ---------------------------
     cliente_nombre: str
     cliente_apellido: str
     cliente_telefono: Optional[str] = None
 
-    # ---------------------------
-    # SERVICIO
-    # ---------------------------
+
     servicio_nombre: str
     servicio_duracion: int
 

@@ -9,9 +9,14 @@ export default function SuccessModal({ show, onClose }) {
         <h2>Agendado con éxito</h2>
         <p>Tu turno fue registrado correctamente.</p>
 
-        <button onClick={onClose}>
-          Volver al inicio
-        </button>
+        <div className="modal-actions">
+          <button
+            className="modal-btn-confirm"
+            onClick={onClose}
+          >
+            Volver al inicio
+          </button>
+        </div>
       </div>
     </div>
   );

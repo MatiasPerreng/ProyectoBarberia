@@ -25,8 +25,8 @@ class Visita(Base):
     id_barbero: Mapped[int] = mapped_column(INTEGER, nullable=False)
     id_servicio: Mapped[int] = mapped_column(INTEGER, nullable=False)
     estado: Mapped[Optional[str]] = mapped_column(
-        Enum('reservado', 'cancelado', 'completado'),
-        server_default=text("'reservado'")
+        Enum('CONFIRMADO', 'CANCELADO', 'COMPLETADO'),
+        server_default=text("'CONFIRMADO'")
     )
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         TIMESTAMP,

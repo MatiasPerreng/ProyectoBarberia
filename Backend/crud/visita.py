@@ -67,7 +67,8 @@ def asignar_barbero_automatico(
             .filter(
                 Visita.id_barbero == barbero.id_barbero,
                 Visita.fecha_hora >= inicio_dia,
-                Visita.fecha_hora <= fin_dia
+                Visita.fecha_hora <= fin_dia,
+                Visita.estado != "CANCELADO"
             )
             .count()
         )
@@ -124,7 +125,8 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
         .filter(
             Visita.id_barbero == visita_in.id_barbero,
             Visita.fecha_hora >= inicio_dia,
-            Visita.fecha_hora <= fin_dia
+            Visita.fecha_hora <= fin_dia,
+            Visita.estado != "CANCELADO"
         )
         .all()
     )
@@ -141,7 +143,8 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
         fecha_hora=visita_in.fecha_hora,
         id_cliente=visita_in.id_cliente,
         id_barbero=visita_in.id_barbero,
-        id_servicio=visita_in.id_servicio
+        id_servicio=visita_in.id_servicio,
+        estado="CONFIRMADO"
     )
 
     db.add(visita)
@@ -171,11 +174,13 @@ def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visi
 
 
 def get_visitas(db: Session):
-    return db.query(Visita).all()
+    return db.query(Visita).filter(
+        Visita.estado != "CANCELADO"
+    ).all()
 
 
 # --------------------------------------------------------------------------------------------------
-# 🔥 AGENDA BARBERO (CON FILTRO POR FECHA EN SQL)
+# AGENDA BARBERO
 # --------------------------------------------------------------------------------------------------
 
 def get_visitas_by_barbero(
@@ -189,7 +194,10 @@ def get_visitas_by_barbero(
             joinedload(Visita.cliente),
             joinedload(Visita.servicio),
         )
-        .filter(Visita.id_barbero == barbero_id)
+        .filter(
+            Visita.id_barbero == barbero_id,
+            Visita.estado != "CANCELADO"
+        )
     )
 
     if fecha:
@@ -261,9 +269,9 @@ def get_disponibilidad(
     dia_semana = fecha.isoweekday()
 
     q_horarios = db.query(HorarioBarbero).filter(
-    HorarioBarbero.dia_semana == dia_semana,
-    HorarioBarbero.fecha_desde <= fecha,
-    HorarioBarbero.fecha_hasta >= fecha
+        HorarioBarbero.dia_semana == dia_semana,
+        HorarioBarbero.fecha_desde <= fecha,
+        HorarioBarbero.fecha_hasta >= fecha
     )
 
     if id_barbero:
@@ -281,7 +289,8 @@ def get_disponibilidad(
 
     q_visitas = db.query(Visita).filter(
         Visita.fecha_hora >= inicio_dia,
-        Visita.fecha_hora <= fin_dia
+        Visita.fecha_hora <= fin_dia,
+        Visita.estado != "CANCELADO"
     )
 
     if id_barbero:

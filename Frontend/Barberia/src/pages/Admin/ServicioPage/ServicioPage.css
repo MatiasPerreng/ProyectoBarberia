@@ -1,18 +1,11 @@
-/* ======================================================
-   SERVICIOS PAGE – CONTENEDOR
-====================================================== */
+
 
 .servicios-page__section {
   display: flex;
   justify-content: center;
   width: 100%;
   padding: 20px 0;
-  /* El min-height se quita para que el Footer no flote si hay poco contenido */
 }
-
-/* ======================================================
-   GRID (Optimizado igual que Horarios)
-====================================================== */
 
 .servicios-page__grid {
   width: 100%;
@@ -22,9 +15,6 @@
   gap: 32px;
 }
 
-/* ======================================================
-   ESTADOS (Loading / Empty)
-====================================================== */
 
 .servicios-page__loading,
 .servicios-page__empty {
@@ -40,11 +30,6 @@
   max-width: 500px;
 }
 
-/* ======================================================
-   RESPONSIVE
-====================================================== */
-
-/* Tablets */
 @media (max-width: 900px) {
   .servicios-page__grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -52,7 +37,7 @@
   }
 }
 
-/* Móviles */
+
 @media (max-width: 600px) {
   .servicios-page__section {
     padding: 10px 5px;
@@ -70,21 +55,19 @@
   }
 }
 
-/* Pantallas muy pequeñas */
+
 @media (max-width: 380px) {
   .servicios-page__grid {
     gap: 12px;
   }
 }
 
-/* FIX GLOBAL PARA FOOTER AL FINAL */
-/* Asegúrate que esto esté en tu App.css o index.css general */
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-main, .admin-layout-container { /* Ajusta según el nombre de tu clase de layout */
+main, .admin-layout-container { 
   flex: 1;
 }

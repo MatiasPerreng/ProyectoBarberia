@@ -11,16 +11,24 @@ import crud.horario as crud_horario
 from schemas import VisitaCreate, VisitaOut, VisitaUpdate
 from core.dependencias import get_current_login_barbero
 from core.email import enviar_email_confirmacion
-from core.email_templates import generar_email_confirmacion
+from core.email_templates import (
+    generar_email_confirmacion,
+    generar_email_cancelacion,
+)
 
-# 🔥 WHATSAPP
-from services.whatsapp import enviar_turno_confirmado_whatsapp
+from services.whatsapp import (
+    enviar_turno_confirmado_whatsapp,
+    enviar_turno_cancelado_whatsapp,
+)
 
 router = APIRouter(
     prefix="/visitas",
     tags=["Visitas"]
 )
 
+# ======================================================================================
+# SERIALIZADOR
+# ======================================================================================
 
 def visita_to_out(visita):
     if isinstance(visita, dict):
@@ -45,9 +53,8 @@ def visita_to_out(visita):
         ),
     }
 
-
 # ======================================================================================
-# AGENDA DEL BARBERO LOGUEADO (CON FILTRO POR FECHA)
+# AGENDA DEL BARBERO LOGUEADO
 # ======================================================================================
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
@@ -61,12 +68,10 @@ def mi_agenda(
         barbero_id=login.barbero_id,
         fecha=fecha
     )
-
     return [visita_to_out(v) for v in visitas]
 
-
 # ======================================================================================
-# ACTUALIZAR ESTADO
+# ACTUALIZAR ESTADO (GENÉRICO)
 # ======================================================================================
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
@@ -86,7 +91,6 @@ def actualizar_estado_visita(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
-
 
 # ======================================================================================
 # DISPONIBILIDAD POR FECHA
@@ -111,7 +115,6 @@ def obtener_disponibilidad(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-
 
 # ======================================================================================
 # DISPONIBILIDAD MENSUAL
@@ -171,7 +174,6 @@ def disponibilidad_mes(
 
     return resultado
 
-
 # ======================================================================================
 # CREAR VISITA + EMAIL + WHATSAPP
 # ======================================================================================
@@ -185,16 +187,16 @@ def crear_visita(
     try:
         visita = crud_visita.create_visita(db, visita_in)
 
-        # EMAIL
+        # 📧 EMAIL CONFIRMACIÓN
         if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
                 visita.cliente.email,
-                "✅ Turno confirmado - Barbería",
+                "✅ Turno confirmado - King Barber",
                 generar_email_confirmacion(visita)
             )
 
-        # 🔥 WHATSAPP (NO BLOQUEA NADA)
+        # 📲 WHATSAPP CONFIRMACIÓN
         background_tasks.add_task(
             enviar_turno_confirmado_whatsapp,
             visita
@@ -208,16 +210,54 @@ def crear_visita(
             detail=str(e)
         )
 
+# ======================================================================================
+# CANCELAR VISITA (🔥 ESTE ES EL ENDPOINT QUE FALTABA 🔥)
+# ======================================================================================
+
+@router.post("/{visita_id}/cancelar", status_code=status.HTTP_200_OK)
+def cancelar_visita(
+    visita_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    visita = crud_visita.get_visita_by_id(db, visita_id)
+
+    if not visita:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Visita no encontrada"
+        )
+
+    # 👉 NO BORRAR, SOLO CANCELAR
+    visita.estado = "CANCELADO"
+    db.commit()
+    db.refresh(visita)
+
+    # 📧 EMAIL CANCELACIÓN
+    if visita.cliente and visita.cliente.email:
+        background_tasks.add_task(
+            enviar_email_confirmacion,
+            visita.cliente.email,
+            "❌ Turno cancelado - King Barber",
+            generar_email_cancelacion(visita)
+        )
+
+    # 📲 WHATSAPP CANCELACIÓN
+    background_tasks.add_task(
+        enviar_turno_cancelado_whatsapp,
+        visita
+    )
+
+    return {"ok": True}
 
 # ======================================================================================
-# LISTAR TODAS
+# LISTAR TODAS (ADMIN)
 # ======================================================================================
 
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
     visitas = crud_visita.get_visitas(db)
     return [visita_to_out(v) for v in visitas]
-
 
 # ======================================================================================
 # OBTENER POR ID
@@ -234,21 +274,3 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
         )
 
     return visita_to_out(visita)
-
-
-# ======================================================================================
-# CANCELAR
-# ======================================================================================
-
-@router.delete("/{visita_id}", status_code=status.HTTP_204_NO_CONTENT)
-def cancelar_visita(visita_id: int, db: Session = Depends(get_db)):
-    visita = crud_visita.get_visita_by_id(db, visita_id)
-
-    if not visita:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Visita no encontrada"
-        )
-
-    crud_visita.delete_visita(db, visita)
-    return None
