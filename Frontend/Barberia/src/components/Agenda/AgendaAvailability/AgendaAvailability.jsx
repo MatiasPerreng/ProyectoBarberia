@@ -72,7 +72,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
                 id_servicio: servicio.id_servicio,
                 id_barbero: barbero?.id_barbero,
               });
-              const tieneTurnos = (data.turnos || []).some(hora => 
+              const tieneTurnos = (data.turnos || []).some(hora =>
                 d.fecha === hoyISO ? esHoraValida(d.fecha, hora) : true
               );
               nuevasDisponibilidades[d.fecha] = tieneTurnos;
@@ -98,7 +98,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
 
   const handleSelectDia = async (fecha) => {
     setFechaSeleccionada(fecha);
-    setHorarios([]); 
+    setHorarios([]);
     try {
       const data = await getDisponibilidad({
         fecha,
@@ -133,7 +133,12 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
               <li className="aa-step done"><span className="aa-step-number">✓</span><p className="aa-step-text">Personal</p></li>
               <li className="aa-step active"><span className="aa-step-number">3</span><p className="aa-step-text">Fecha y hora</p></li>
               <li className="aa-step"><span className="aa-step-number">4</span><p className="aa-step-text">Información</p></li>
+
             </ul>
+            <div className="af-sidebar-footer">
+              <p>¿Tenés alguna pregunta?</p>
+              <small>099 611 465</small>
+            </div>
           </aside>
 
           <section className="aa-booking-content">
@@ -179,8 +184,8 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
                     {horarios
                       .filter(h => fechaSeleccionada === hoyISO ? esHoraValida(fechaSeleccionada, h) : true)
                       .map(hora => (
-                        <button 
-                          key={hora} 
+                        <button
+                          key={hora}
                           className="aa-hora-card"
                           onClick={() => onSelectFechaHora(`${fechaSeleccionada} ${hora}`)}
                         >

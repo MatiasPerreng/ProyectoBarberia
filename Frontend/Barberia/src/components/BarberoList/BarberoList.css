@@ -99,12 +99,6 @@
   color: #111;
 }
 
-.bl-sidebar-footer {
-  margin-top: auto;
-  font-size: 12px;
-  color: #aaa;
-}
-
 /* =======================================================
    CONTENT
 ======================================================= */
@@ -320,4 +314,11 @@
   .bl-card.selected {
     border-left: 5px solid #e6c77b;
   }
+}
+
+
+.bl-sidebar-footer {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.5;
 }

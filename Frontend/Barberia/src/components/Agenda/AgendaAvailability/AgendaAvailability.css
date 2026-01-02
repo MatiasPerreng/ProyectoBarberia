@@ -110,16 +110,18 @@
   background: #fff;
   overflow-y: auto;
   /* Crucial para que el scroll automático sea fluido */
-  scroll-behavior: smooth; 
+  scroll-behavior: smooth;
 }
 
 /* Estilo para la barra de scroll */
 .aa-booking-content::-webkit-scrollbar {
   width: 6px;
 }
+
 .aa-booking-content::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
+
 .aa-booking-content::-webkit-scrollbar-thumb {
   background: #e6c77b;
   border-radius: 10px;
@@ -280,7 +282,8 @@
 .aa-horarios-container {
   border-top: 1px solid #eee;
   padding-top: 25px;
-  padding-bottom: 30px; /* Espacio extra para el scroll */
+  padding-bottom: 30px;
+  /* Espacio extra para el scroll */
   animation: fadeIn 0.4s ease;
 }
 
@@ -328,8 +331,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =======================================================
@@ -349,8 +359,13 @@
     padding: 25px 15px;
   }
 
-  .aa-logo { margin-bottom: 15px; }
-  .aa-logo img { width: 65px; }
+  .aa-logo {
+    margin-bottom: 15px;
+  }
+
+  .aa-logo img {
+    width: 65px;
+  }
 
   .aa-steps {
     display: flex;
@@ -358,12 +373,15 @@
     gap: 10px;
   }
 
-  .aa-step-text { display: none; }
+  .aa-step-text {
+    display: none;
+  }
 
   .aa-booking-content {
     padding: 30px 20px;
     flex: 1;
-    overflow-y: auto; /* Permite scroll en móvil */
+    overflow-y: auto;
+    /* Permite scroll en móvil */
   }
 
   .aa-calendar-grid {
@@ -372,7 +390,8 @@
   }
 
   .aa-calendar-day {
-    height: 48px; /* Touch target optimizado para dedos */
+    height: 48px;
+    /* Touch target optimizado para dedos */
     font-size: 14px;
   }
 
@@ -385,4 +404,10 @@
     padding: 15px 0;
     font-size: 13px;
   }
+}
+
+.af-sidebar-footer {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.5;
 }

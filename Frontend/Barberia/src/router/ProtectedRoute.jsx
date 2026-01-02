@@ -39,6 +39,6 @@ export default function ProtectedRoute({ children, role }) {
     return <Navigate to="/login-barbero" replace />;
   }
 
-  console.log("🟢 ACCESS GRANTED");
+
   return children;
 }

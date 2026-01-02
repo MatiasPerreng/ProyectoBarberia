@@ -1,7 +1,6 @@
 /* =======================================================
-   LISTA
+   LISTA CONTENEDOR
 ======================================================= */
-
 .barbero-agenda-list {
   display: flex;
   flex-direction: column;
@@ -9,15 +8,15 @@
 }
 
 /* =======================================================
-   ITEM TURNO (CARD PRO)
+   ITEM TURNO (DESKTOP ORIGINAL - RESTAURADO)
 ======================================================= */
-
 .barbero-agenda-item {
   position: relative;
   background: linear-gradient(180deg, #ffffff, #fafafa);
   border-radius: 18px;
   padding: 20px 26px;
 
+  /* Volvemos a tu grid original de 3 columnas */
   display: grid;
   grid-template-columns: 110px 1fr auto;
   align-items: center;
@@ -26,21 +25,13 @@
     0 10px 30px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
-  cursor: pointer;
-  transition: all 0.28s ease;
-}
-
-.barbero-agenda-item:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  /* Sin cursor pointer ni eventos para evitar el bloqueo que mencionaste */
+  cursor: default; 
 }
 
 /* =======================================================
-   HORA
+   HORA (DESKTOP)
 ======================================================= */
-
 .barbero-agenda-item .hora {
   font-size: 17px;
   font-weight: 800;
@@ -49,9 +40,8 @@
 }
 
 /* =======================================================
-   INFO CLIENTE / SERVICIO
+   INFO CLIENTE / SERVICIO (DESKTOP)
 ======================================================= */
-
 .barbero-agenda-item .info {
   display: flex;
   flex-direction: column;
@@ -74,37 +64,24 @@
 /* =======================================================
    ESTADO (BADGE)
 ======================================================= */
-
 .barbero-agenda-item .estado {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-
   padding: 8px 16px;
   border-radius: 999px;
   white-space: nowrap;
 }
 
-/* =======================================================
-   COLORES POR ESTADO
-======================================================= */
-
+/* COLORES POR ESTADO */
 .barbero-agenda-item.estado-reservado .estado {
-  background: linear-gradient(
-    135deg,
-    rgba(230, 199, 123, 0.25),
-    rgba(230, 199, 123, 0.12)
-  );
+  background: linear-gradient(135deg, rgba(230, 199, 123, 0.25), rgba(230, 199, 123, 0.12));
   color: #9a7400;
 }
 
 .barbero-agenda-item.estado-atendido .estado {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.25),
-    rgba(16, 185, 129, 0.12)
-  );
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.12));
   color: #047857;
 }
 
@@ -113,74 +90,64 @@
 }
 
 .barbero-agenda-item.estado-cancelado .estado {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.25),
-    rgba(239, 68, 68, 0.12)
-  );
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.12));
   color: #991b1b;
 }
 
 /* =======================================================
-   MICRO DETALLE
+   📱 RESPONSIVE MOBILE (MEJORADO Y AISLADO)
 ======================================================= */
-
-.barbero-agenda-item::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  pointer-events: none;
-}
-
-/* =======================================================
-   📱 RESPONSIVE MOBILE (CLAVE)
-======================================================= */
-
 @media (max-width: 700px) {
   .barbero-agenda-item {
-    grid-template-columns: 1fr;
+    /* Cambiamos a Flex para mejor control estético en mobile */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
-    padding: 18px 18px;
+    padding: 22px;
+    
+    /* Borde lateral estético basado en el estado */
+    border-left: 6px solid #eee;
   }
 
-  /* Hora arriba */
+  /* Colores del borde lateral según estado */
+  .barbero-agenda-item.estado-reservado { border-left-color: #e6c77b; }
+  .barbero-agenda-item.estado-atendido { border-left-color: #10b981; }
+  .barbero-agenda-item.estado-cancelado { border-left-color: #ef4444; }
+
+  /* Hora destacada arriba con separador */
   .barbero-agenda-item .hora {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 900;
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 4px;
   }
 
-  /* Info bien legible */
+  /* Info más legible */
   .barbero-agenda-item .info strong {
-    font-size: 14.5px;
+    font-size: 15.5px;
   }
 
   .barbero-agenda-item .info span {
-    font-size: 12.5px;
+    font-size: 13.5px;
+    margin-top: 4px;
   }
 
-  /* Estado como chip abajo */
+  /* Estado como chip sutil */
   .barbero-agenda-item .estado {
     align-self: flex-start;
     font-size: 10px;
-    padding: 6px 14px;
+    padding: 7px 15px;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
 }
 
-/* =======================================================
-   📱 EXTRA SMALL (CELUS CHICOS)
-======================================================= */
-
+/* EXTRA SMALL */
 @media (max-width: 420px) {
   .barbero-agenda-item {
-    padding: 16px 14px;
-  }
-
-  .barbero-agenda-item .hora {
-    font-size: 17px;
-  }
-
-  .barbero-agenda-item .info strong {
-    font-size: 14px;
+    padding: 16px 18px;
   }
 }

@@ -13,8 +13,6 @@ export const AuthProvider = ({ children }) => {
   // INIT – recuperar sesión
   // =========================
   useEffect(() => {
-    console.log("🟡 AuthContext INIT");
-
     const token = localStorage.getItem("token");
 
     if (token) {

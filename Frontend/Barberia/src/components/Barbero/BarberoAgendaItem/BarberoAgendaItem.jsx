@@ -1,14 +1,10 @@
+import getDiaTexto from '../../../../utils/date';
 
-import getDiaTexto from '../../../../utils/date'
-
-const BarberoAgendaItem = ({ turno, onClick }) => {
+const BarberoAgendaItem = ({ turno }) => {
   const diaTexto = getDiaTexto(turno.fechaHora);
 
   return (
-    <div
-      className={`barbero-agenda-item estado-${turno.estado}`}
-      onClick={onClick}
-    >
+    <div className={`barbero-agenda-item estado-${turno.estado}`}>
       {/* HORA */}
       <div className="hora">{turno.hora}</div>
 
