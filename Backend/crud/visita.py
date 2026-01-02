@@ -32,6 +32,31 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# VALIDACIÓN ANTI-SPAM CLIENTE (🔥 NUEVO 🔥)
+# ----------------------------------------------------------------------------------------------------------------------
+
+def cliente_tiene_turno_en_dia(
+    db: Session,
+    cliente_id: int,
+    fecha: date
+) -> bool:
+    inicio_dia = datetime.combine(fecha, time.min)
+    fin_dia = datetime.combine(fecha, time.max)
+
+    return (
+        db.query(Visita)
+        .filter(
+            Visita.id_cliente == cliente_id,
+            Visita.fecha_hora >= inicio_dia,
+            Visita.fecha_hora <= fin_dia,
+            Visita.estado == "CONFIRMADO"
+        )
+        .first()
+        is not None
+    )
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # ASIGNACIÓN AUTOMÁTICA DE BARBERO
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -100,6 +125,12 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
 
     if not servicio:
         raise ValueError("Servicio no existe")
+
+    # 🔒 VALIDACIÓN ANTI-SPAM (🔥 ACÁ ESTÁ LA CLAVE 🔥)
+    fecha_turno = visita_in.fecha_hora.date()
+
+    if cliente_tiene_turno_en_dia(db, visita_in.id_cliente, fecha_turno):
+        raise ValueError("Ya tenés un turno reservado para ese día")
 
     if visita_in.id_barbero is None:
         id_auto = asignar_barbero_automatico(

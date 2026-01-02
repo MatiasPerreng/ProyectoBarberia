@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Footer from "../../Footer/Footer";
 import SuccessModal from "../../SuccessModal/SuccessModal";
+import DuplicateBookingModal from "../../DuplicateBookingModal/DuplicateBookingModal";
 import "./AgendaForm.css";
 
 const AgendaForm = ({ onSubmit, onVolver }) => {
@@ -13,6 +14,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
 
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDuplicate, setShowDuplicate] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validarEmail = (email) =>
@@ -25,7 +27,8 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     const newErrors = {};
 
     if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
-    if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
+    if (!form.apellido.trim())
+      newErrors.apellido = "El apellido es obligatorio";
     if (form.email.trim() && !validarEmail(form.email))
       newErrors.email = "Email inválido";
     if (form.telefono.trim() && !validarTelefono(form.telefono))
@@ -45,15 +48,26 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     if (!validate()) return;
 
     setLoading(true);
+
     try {
       await onSubmit({
         ...form,
         email: form.email.trim() || null,
         telefono: form.telefono.trim() || null,
       });
+
       setShowSuccess(true);
-    } catch {
-      alert("Ocurrió un error al agendar el turno");
+    } catch (err) {
+      const message =
+        err?.response?.data?.detail ||
+        err?.message ||
+        "";
+
+      if (message.includes("Ya tenés un turno reservado")) {
+        setShowDuplicate(true);
+      } else {
+        alert("Ocurrió un error al agendar el turno");
+      }
     } finally {
       setLoading(false);
     }
@@ -171,12 +185,19 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         </div>
       </div>
 
+      {/* ✅ MODAL ÉXITO */}
       <SuccessModal
         show={showSuccess}
         onClose={() => {
           setShowSuccess(false);
           window.location.href = "/";
         }}
+      />
+
+      {/* ⚠️ MODAL TURNO DUPLICADO */}
+      <DuplicateBookingModal
+        show={showDuplicate}
+        onClose={() => setShowDuplicate(false)}
       />
 
       <Footer />

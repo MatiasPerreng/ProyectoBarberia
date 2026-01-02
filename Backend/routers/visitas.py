@@ -71,7 +71,7 @@ def mi_agenda(
     return [visita_to_out(v) for v in visitas]
 
 # ======================================================================================
-# ACTUALIZAR ESTADO (GENÉRICO)
+# ACTUALIZAR ESTADO
 # ======================================================================================
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
@@ -165,7 +165,7 @@ def disponibilidad_mes(
             id_barbero=id_barbero
         )
 
-        estado = "disponible" if len(turnos) > 0 else "completo"
+        estado = "disponible" if len(turnos["turnos"]) > 0 else "completo"
 
         resultado.append({
             "fecha": fecha_dia.isoformat(),
@@ -175,7 +175,7 @@ def disponibilidad_mes(
     return resultado
 
 # ======================================================================================
-# CREAR VISITA + EMAIL + WHATSAPP
+# CREAR VISITA (ANTI-SPAM + EMAIL + WHATSAPP)
 # ======================================================================================
 
 @router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
@@ -211,7 +211,7 @@ def crear_visita(
         )
 
 # ======================================================================================
-# CANCELAR VISITA (🔥 ESTE ES EL ENDPOINT QUE FALTABA 🔥)
+# CANCELAR VISITA (NO SE BORRA)
 # ======================================================================================
 
 @router.post("/{visita_id}/cancelar", status_code=status.HTTP_200_OK)
@@ -228,7 +228,6 @@ def cancelar_visita(
             detail="Visita no encontrada"
         )
 
-    # 👉 NO BORRAR, SOLO CANCELAR
     visita.estado = "CANCELADO"
     db.commit()
     db.refresh(visita)
