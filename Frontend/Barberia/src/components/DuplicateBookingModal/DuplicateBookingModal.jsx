@@ -4,19 +4,21 @@ export default function DuplicateBookingModal({ show, onClose }) {
   if (!show) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card">
-        <h2>No se puede agendar</h2>
+    <div className="success-modal-overlay">
+      <div className="success-modal-card">
+        <h2 className="success-modal-title">
+          No se puede agendar
+        </h2>
 
-        <p>
+        <p className="success-modal-text">
           Ya tenés un turno registrado para este día.
           <br />
           Si necesitás cambiarlo, primero cancelá el anterior.
         </p>
 
-        <div className="modal-actions">
+        <div className="success-modal-actions">
           <button
-            className="modal-btn-confirm"
+            className="success-modal-btn-confirm"
             onClick={onClose}
           >
             Entendido

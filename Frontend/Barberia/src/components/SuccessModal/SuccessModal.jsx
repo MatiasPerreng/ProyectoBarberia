@@ -4,14 +4,19 @@ export default function SuccessModal({ show, onClose }) {
   if (!show) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card">
-        <h2>Agendado con éxito</h2>
-        <p>Tu turno fue registrado correctamente.</p>
+    <div className="success-modal-overlay">
+      <div className="success-modal-card">
+        <h2 className="success-modal-title">
+          Agendado con éxito
+        </h2>
 
-        <div className="modal-actions">
+        <p className="success-modal-text">
+          Tu turno fue registrado correctamente.
+        </p>
+
+        <div className="success-modal-actions">
           <button
-            className="modal-btn-confirm"
+            className="success-modal-btn-confirm"
             onClick={onClose}
           >
             Volver al inicio

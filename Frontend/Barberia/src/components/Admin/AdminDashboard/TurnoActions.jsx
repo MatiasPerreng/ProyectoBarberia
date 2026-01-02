@@ -18,7 +18,6 @@ const TurnoActions = ({ turno, onCancelSuccess }) => {
 
       setShowModal(false);
 
-      // refresco prolijo
       if (onCancelSuccess) {
         onCancelSuccess();
       } else {
@@ -34,29 +33,27 @@ const TurnoActions = ({ turno, onCancelSuccess }) => {
 
   return (
     <>
-      {/* BOTÓN */}
-      <div className="turno-actions">
-        <button
-          className="turno-btn-cancel"
-          title="Cancelar turno"
-          onClick={() => setShowModal(true)}
-        >
-          ✕
-        </button>
-      </div>
+      {/* BOTÓN: Posicionado absolutamente para no mover el texto */}
+      <button
+        className="turno-btn-cancel-unique"
+        title="Cancelar turno"
+        onClick={() => setShowModal(true)}
+      >
+        ✕
+      </button>
 
-      {/* MODAL */}
+      {/* MODAL: Estilo Oscuro y Dorado solicitado */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <h3>Cancelar turno</h3>
+        <div className="cancel-modal-overlay-unique">
+          <div className="cancel-modal-card-unique">
+            <h2>Cancelar turno</h2>
 
             <p>
-              ¿Cancelar el turno de{" "}
+              ¿Estás seguro de cancelar el turno de{" "}
               <strong>{turno.cliente_nombre}</strong>?
             </p>
 
-            <p className="modal-sub">
+            <p className="cancel-modal-sub-unique">
               {new Date(turno.fecha_hora).toLocaleDateString("es-UY")} ·{" "}
               {new Date(turno.fecha_hora).toLocaleTimeString("es-UY", {
                 hour: "2-digit",
@@ -64,9 +61,9 @@ const TurnoActions = ({ turno, onCancelSuccess }) => {
               })}
             </p>
 
-            <div className="modal-actions">
+            <div className="cancel-modal-actions-unique">
               <button
-                className="btn-secondary"
+                className="cancel-modal-btn-cancel-unique"
                 disabled={loading}
                 onClick={() => setShowModal(false)}
               >
@@ -74,7 +71,7 @@ const TurnoActions = ({ turno, onCancelSuccess }) => {
               </button>
 
               <button
-                className="btn-danger"
+                className="cancel-modal-btn-confirm-unique"
                 disabled={loading}
                 onClick={cancelarTurno}
               >

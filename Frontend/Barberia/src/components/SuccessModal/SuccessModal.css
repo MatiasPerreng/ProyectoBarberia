@@ -1,8 +1,7 @@
 /* =======================================================
-   MODAL OVERLAY
+   OVERLAY
 ======================================================= */
-
-.modal-overlay {
+.success-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
@@ -10,120 +9,81 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
-  animation: fadeIn 0.2s ease;
+  z-index: 9999;
+  animation: successFadeIn 0.2s ease;
 }
 
 /* =======================================================
-   MODAL CARD
+   CARD
 ======================================================= */
-
-.modal-card {
+.success-modal-card {
   background: linear-gradient(180deg, #141414, #0f0f0f);
   border-radius: 16px;
-
-  /* ⚠️ padding corregido (antes 28px 26px) */
-  padding: 28px 28px;
-
+  padding: 28px;
   width: 90%;
   max-width: 420px;
   text-align: center;
-
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.6),
     0 0 40px rgba(230, 199, 123, 0.12);
-
   border: 1px solid rgba(230, 199, 123, 0.15);
-  animation: scaleIn 0.25s ease;
+  animation: successScaleIn 0.25s ease;
 }
 
 /* =======================================================
-   TEXT
+   TEXTOS
 ======================================================= */
-
-.modal-card h2 {
+.success-modal-title {
   color: #e6c77b;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: 0.3px;
 }
 
-.modal-card p {
-  color: #d1d5db !important;
-  margin-bottom: 26px;
+.success-modal-text {
+  color: #d1d5db;
   font-size: 0.95rem;
   line-height: 1.55;
+  margin-bottom: 26px;
 }
 
 /* =======================================================
    ACTIONS
 ======================================================= */
-
-.modal-actions {
+.success-modal-actions {
   display: flex;
-  gap: 12px;
   justify-content: center;
-  width: 100%; /* 🔥 clave para desktop */
 }
 
-/* Botón confirmar */
-.modal-btn-confirm {
+/* Botón dorado */
+.success-modal-btn-confirm {
   background: linear-gradient(135deg, #e6c77b, #f3db9c);
   border: none;
-  padding: 12px 22px;
+  padding: 12px 26px;
   border-radius: 12px;
   cursor: pointer;
-
   font-weight: 700;
   font-size: 0.95rem;
   color: #111;
-
-  margin: 0 auto; /* 🔥 centrado real */
-
   box-shadow: 0 8px 22px rgba(230, 199, 123, 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.modal-btn-confirm:hover {
+.success-modal-btn-confirm:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 30px rgba(230, 199, 123, 0.45);
-}
-
-/* Botón cancelar */
-.modal-btn-cancel {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 12px 22px;
-  border-radius: 12px;
-  cursor: pointer;
-
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #e5e7eb;
-
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.modal-btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* =======================================================
    ANIMATIONS
 ======================================================= */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes successFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes scaleIn {
+@keyframes successScaleIn {
   from {
     opacity: 0;
     transform: scale(0.96);
@@ -135,31 +95,22 @@
 }
 
 /* =======================================================
-   RESPONSIVE MOBILE FIX
+   RESPONSIVE
 ======================================================= */
-
 @media (max-width: 480px) {
-  .modal-card {
+  .success-modal-card {
     width: 100%;
     max-width: none;
     padding: 22px 18px;
     border-radius: 14px;
+    margin: 0 15px;
   }
 
-  .modal-card h2 {
-    font-size: 1.2rem;
-  }
-
-  .modal-card p {
-    font-size: 0.9rem;
-  }
-
-  .modal-btn-confirm {
+  .success-modal-btn-confirm {
     width: 100%;
   }
 
-  .modal-overlay {
-    padding: 20px!important;
-    box-sizing: border-box;
+  .success-modal-overlay {
+    padding: 20px;
   }
 }

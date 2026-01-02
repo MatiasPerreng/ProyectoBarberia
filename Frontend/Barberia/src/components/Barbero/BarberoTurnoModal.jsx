@@ -1,5 +1,4 @@
 import { useState } from "react";
-import CancelarTurnoModal from "./BarberoCancelarTurnoModal";
 
 const BarberoTurnoModal = ({
   turno,
@@ -7,44 +6,66 @@ const BarberoTurnoModal = ({
   onAtender,
   onCancelar,
 }) => {
-  const [cancelar, setCancelar] = useState(false);
+  const [modoCancelar, setModoCancelar] = useState(false);
+  const [motivo, setMotivo] = useState("");
 
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>{turno.cliente}</h2>
 
-        <p><strong>Hora:</strong> {turno.hora}</p>
-        <p><strong>Servicio:</strong> {turno.servicio}</p>
-        <p><strong>Estado:</strong> {turno.estado}</p>
+        {!modoCancelar ? (
+          <>
+            <h2>{turno.cliente}</h2>
 
-        <div className="acciones">
-          {turno.estado === "CONFIRMADO" && (
-            <>
-              <button onClick={() => onAtender(turno.id)}>
-                Marcar atendido
-              </button>
+            <p><strong>Hora:</strong> {turno.hora}</p>
+            <p><strong>Servicio:</strong> {turno.servicio}</p>
+            <p><strong>Estado:</strong> {turno.estado}</p>
+
+            <div className="acciones">
+              {turno.estado === "CONFIRMADO" && (
+                <>
+                  <button onClick={() => onAtender(turno.id)}>
+                    Marcar atendido
+                  </button>
+
+                  <button
+                    className="danger"
+                    onClick={() => setModoCancelar(true)}
+                  >
+                    Cancelar turno
+                  </button>
+                </>
+              )}
+
+              <button onClick={onClose}>Cerrar</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3>Cancelar turno</h3>
+
+            <textarea
+              placeholder="Motivo (opcional)"
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+            />
+
+            <div className="acciones">
               <button
                 className="danger"
-                onClick={() => setCancelar(true)}
+                onClick={() => onCancelar(turno.id, motivo)}
               >
-                Cancelar turno
+                Confirmar cancelación
               </button>
-            </>
-          )}
 
-          <button onClick={onClose}>Cerrar</button>
-        </div>
+              <button onClick={() => setModoCancelar(false)}>
+                Volver
+              </button>
+            </div>
+          </>
+        )}
+
       </div>
-
-      {cancelar && (
-        <CancelarTurnoModal
-          onConfirm={(motivo) =>
-            onCancelar(turno.id, motivo)
-          }
-          onCancel={() => setCancelar(false)}
-        />
-      )}
     </div>
   );
 };
