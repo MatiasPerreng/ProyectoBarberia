@@ -1,74 +1,104 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Footer from "../../Footer/Footer";
 import "./AgendaAvailability.css";
-
 import { getDisponibilidad } from "../../../services/agenda";
 
-/* ======================================================
-   VALIDACIÓN HORA (LOCAL TIME)
-====================================================== */
 const esHoraValida = (fecha, hora) => {
   const ahora = new Date();
-
   const [y, m, d] = fecha.split("-").map(Number);
   const [h, min] = hora.split(":").map(Number);
-
   const fechaHora = new Date(y, m - 1, d, h, min, 0, 0);
-
   return fechaHora > ahora;
 };
 
-const AgendaAvailability = ({
-  servicio,
-  barbero,
-  onSelectFechaHora,
-  onVolver,
-}) => {
-  const hoy = new Date();
+const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) => {
+  const hoy = useMemo(() => new Date(), []);
   const hoyISO = hoy.toISOString().split("T")[0];
+
+  // Referencia para el scroll automático
+  const horariosRef = useRef(null);
 
   const [mesActual, setMesActual] = useState(hoy.getMonth());
   const [anioActual, setAnioActual] = useState(hoy.getFullYear());
-
   const [dias, setDias] = useState([]);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [horarios, setHorarios] = useState([]);
+  const [disponibilidadDias, setDisponibilidadDias] = useState({});
+  const [loadingMes, setLoadingMes] = useState(false);
 
   const meses = [
-    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
   ];
-
   const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
+  // 1. Generar días del mes
   useEffect(() => {
     const primerDiaMes = new Date(anioActual, mesActual, 1);
     const offset = (primerDiaMes.getDay() + 6) % 7;
-
     const totalDias = new Date(anioActual, mesActual + 1, 0).getDate();
     const diasMes = [];
 
-    for (let i = 0; i < offset; i++) {
-      diasMes.push({ empty: true });
-    }
+    for (let i = 0; i < offset; i++) diasMes.push({ empty: true });
 
     for (let dia = 1; dia <= totalDias; dia++) {
       const fechaObj = new Date(anioActual, mesActual, dia);
       const fecha = fechaObj.toISOString().split("T")[0];
-
       diasMes.push({
         dia,
         fecha,
         disponible: fechaObj >= new Date(hoy.toDateString()),
       });
     }
-
     setDias(diasMes);
-    setFechaSeleccionada(null);
-    setHorarios([]);
-  }, [mesActual, anioActual]);
+  }, [mesActual, anioActual, hoy]);
 
-  const fetchHorarios = async (fecha) => {
+  // 2. Carga masiva de disponibilidad
+  useEffect(() => {
+    const cargarTodoElMes = async () => {
+      if (dias.length === 0) return;
+      const diasAConsultar = dias.filter(d => d.fecha && d.disponible && disponibilidadDias[d.fecha] === undefined);
+      if (diasAConsultar.length === 0) return;
+
+      setLoadingMes(true);
+      const nuevasDisponibilidades = { ...disponibilidadDias };
+
+      try {
+        await Promise.all(
+          diasAConsultar.map(async (d) => {
+            try {
+              const data = await getDisponibilidad({
+                fecha: d.fecha,
+                id_servicio: servicio.id_servicio,
+                id_barbero: barbero?.id_barbero,
+              });
+              const tieneTurnos = (data.turnos || []).some(hora => 
+                d.fecha === hoyISO ? esHoraValida(d.fecha, hora) : true
+              );
+              nuevasDisponibilidades[d.fecha] = tieneTurnos;
+            } catch {
+              nuevasDisponibilidades[d.fecha] = false;
+            }
+          })
+        );
+        setDisponibilidadDias(nuevasDisponibilidades);
+      } finally {
+        setLoadingMes(false);
+      }
+    };
+    cargarTodoElMes();
+  }, [dias, servicio.id_servicio, barbero?.id_barbero, hoyISO]);
+
+  // 3. Scroll automático cuando cargan los horarios
+  useEffect(() => {
+    if (horarios.length > 0 && horariosRef.current) {
+      horariosRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [horarios]);
+
+  const handleSelectDia = async (fecha) => {
+    setFechaSeleccionada(fecha);
+    setHorarios([]); 
     try {
       const data = await getDisponibilidad({
         fecha,
@@ -81,28 +111,15 @@ const AgendaAvailability = ({
     }
   };
 
-  const handleSelectDia = (fecha) => {
-    setFechaSeleccionada(fecha);
+  const cambiarMes = (delta) => {
+    let nuevoMes = mesActual + delta;
+    let nuevoAnio = anioActual;
+    if (nuevoMes < 0) { nuevoMes = 11; nuevoAnio--; }
+    else if (nuevoMes > 11) { nuevoMes = 0; nuevoAnio++; }
+    setMesActual(nuevoMes);
+    setAnioActual(nuevoAnio);
+    setFechaSeleccionada(null);
     setHorarios([]);
-    fetchHorarios(fecha);
-  };
-
-  const mesAnterior = () => {
-    if (mesActual === 0) {
-      setMesActual(11);
-      setAnioActual((a) => a - 1);
-    } else {
-      setMesActual((m) => m - 1);
-    }
-  };
-
-  const mesSiguiente = () => {
-    if (mesActual === 11) {
-      setMesActual(0);
-      setAnioActual((a) => a + 1);
-    } else {
-      setMesActual((m) => m + 1);
-    }
   };
 
   return (
@@ -110,112 +127,74 @@ const AgendaAvailability = ({
       <div className="aa-booking-overlay">
         <div className="aa-booking-container">
           <aside className="aa-booking-sidebar">
-            <div className="aa-logo">
-              <img src="/logo.jpg" alt="King Barber" />
-            </div>
-
+            <div className="aa-logo"><img src="/logo.jpg" alt="King Barber" /></div>
             <ul className="aa-steps">
-              <li className="aa-step done">
-                <span className="aa-step-number">✓</span>
-                <p className="aa-step-text">Servicio</p>
-              </li>
-              <li className="aa-step done">
-                <span className="aa-step-number">✓</span>
-                <p className="aa-step-text">Personal</p>
-              </li>
-              <li className="aa-step active">
-                <span className="aa-step-number">3</span>
-                <p className="aa-step-text">Fecha y hora</p>
-              </li>
-              <li className="aa-step">
-                <span className="aa-step-number">4</span>
-                <p className="aa-step-text">Información</p>
-              </li>
+              <li className="aa-step done"><span className="aa-step-number">✓</span><p className="aa-step-text">Servicio</p></li>
+              <li className="aa-step done"><span className="aa-step-number">✓</span><p className="aa-step-text">Personal</p></li>
+              <li className="aa-step active"><span className="aa-step-number">3</span><p className="aa-step-text">Fecha y hora</p></li>
+              <li className="aa-step"><span className="aa-step-number">4</span><p className="aa-step-text">Información</p></li>
             </ul>
-
-            <div className="aa-sidebar-footer">
-              <p>¿Tenés alguna pregunta?</p>
-              <small>099 611 465</small>
-            </div>
           </aside>
 
           <section className="aa-booking-content">
-            <button className="aa-btn-volver" onClick={onVolver}>
-              ← Volver
-            </button>
-
+            <button className="aa-btn-volver" onClick={onVolver}>← Volver</button>
             <h3>Selecciona la fecha y hora</h3>
 
             <div className="aa-calendar-header">
-              <button className="aa-month-btn" onClick={mesAnterior}>‹</button>
-              <span className="aa-month-label">
-                {meses[mesActual]} {anioActual}
-              </span>
-              <button className="aa-month-btn" onClick={mesSiguiente}>›</button>
+              <button className="aa-month-btn" onClick={() => cambiarMes(-1)}>‹</button>
+              <span className="aa-month-label">{meses[mesActual]} {anioActual}</span>
+              <button className="aa-month-btn" onClick={() => cambiarMes(1)}>›</button>
             </div>
 
             <div className="aa-calendar-weekdays">
-              {diasSemana.map((d) => (
-                <span key={d}>{d}</span>
-              ))}
+              {diasSemana.map((d) => <span key={d}>{d}</span>)}
             </div>
 
-            <div className="aa-calendar-grid">
-              {dias.map((d, idx) =>
-                d.empty ? (
-                  <div key={idx} className="aa-calendar-empty" />
-                ) : (
+            <div className={`aa-calendar-grid ${loadingMes ? 'is-loading' : ''}`}>
+              {dias.map((d, idx) => (
+                d.empty ? <div key={`empty-${idx}`} className="aa-calendar-empty" /> : (
                   <button
                     key={d.fecha}
-                    className={`aa-calendar-day
-                      ${d.disponible ? "available" : "disabled"}
+                    disabled={!d.disponible || disponibilidadDias[d.fecha] === false}
+                    className={`aa-calendar-day 
+                      ${!d.disponible ? "disabled" : ""}
+                      ${disponibilidadDias[d.fecha] === true ? "available" : ""}
+                      ${disponibilidadDias[d.fecha] === false ? "full" : ""}
                       ${fechaSeleccionada === d.fecha ? "selected" : ""}
                     `}
-                    disabled={!d.disponible}
                     onClick={() => handleSelectDia(d.fecha)}
                   >
                     {d.dia}
                   </button>
                 )
-              )}
+              ))}
             </div>
 
-            {fechaSeleccionada && (
-              <div className="aa-horarios-grid">
-                {horarios
-                  .filter((hora) =>
-                    fechaSeleccionada === hoyISO
-                      ? esHoraValida(fechaSeleccionada, hora)
-                      : true
-                  )
-                  .map((hora) => (
-                    <button
-                      key={hora}
-                      className="aa-hora-card"
-                      onClick={() =>
-                        onSelectFechaHora(`${fechaSeleccionada} ${hora}`)
-                      }
-                    >
-                      {hora}
-                    </button>
-                  ))}
-
-                {horarios.length > 0 &&
-                  horarios.filter((hora) =>
-                    fechaSeleccionada === hoyISO
-                      ? esHoraValida(fechaSeleccionada, hora)
-                      : true
-                  ).length === 0 && (
-                    <p className="aa-no-horarios">
-                      No hay horarios disponibles
-                    </p>
-                  )}
-              </div>
-            )}
+            {/* Este div es el "ancla" para el scroll */}
+            <div ref={horariosRef} style={{ paddingTop: '10px' }}>
+              {fechaSeleccionada && (
+                <div className="aa-horarios-container">
+                  <h4>Horarios para el {fechaSeleccionada.split('-').reverse().join('/')}</h4>
+                  <div className="aa-horarios-grid">
+                    {horarios
+                      .filter(h => fechaSeleccionada === hoyISO ? esHoraValida(fechaSeleccionada, h) : true)
+                      .map(hora => (
+                        <button 
+                          key={hora} 
+                          className="aa-hora-card"
+                          onClick={() => onSelectFechaHora(`${fechaSeleccionada} ${hora}`)}
+                        >
+                          {hora}
+                        </button>
+                      ))}
+                    {horarios.length === 0 && <p className="aa-no-horarios">No hay turnos disponibles para este día.</p>}
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
         </div>
       </div>
-
       <Footer />
     </>
   );
