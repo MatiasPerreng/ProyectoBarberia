@@ -36,7 +36,7 @@ const BarberosPage = () => {
     rol: "barbero",
   });
 
-  
+
 
   /* =========================
       LOAD BARBEROS
@@ -303,11 +303,24 @@ const BarberosPage = () => {
 
 
       {alertError && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <h3>Atención</h3>
-            <p style={{ textAlign: "center" }}>{alertError}</p>
-            <button onClick={() => setAlertError(null)}>Entendido</button>
+        <div className="success-modal-overlay">
+          <div className="success-modal-card">
+            <h2 className="success-modal-title">
+              Atención
+            </h2>
+
+            <p className="success-modal-text">
+              {alertError}
+            </p>
+
+            <div className="success-modal-actions">
+              <button
+                className="success-modal-btn-confirm"
+                onClick={() => setAlertError(null)}
+              >
+                Entendido
+              </button>
+            </div>
           </div>
         </div>
       )}

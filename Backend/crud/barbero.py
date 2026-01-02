@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import time
+
 from models import Barbero, Visita, Cliente, Servicio
 from schemas import BarberoCreate, BarberoUpdate
 
@@ -11,22 +12,23 @@ from schemas import BarberoCreate, BarberoUpdate
 
 def serialize_barbero(barbero: Barbero) -> dict:
     foto = barbero.foto_url or "default.jpg"
-    
-    # Construir ruta base
+
     if not foto.startswith("/media/"):
         url_final = f"/media/barberos/{foto}"
     else:
         url_final = foto
+
     url_con_tiempo = f"{url_final}?t={int(time.time())}"
 
     return {
         "id_barbero": barbero.id_barbero,
         "nombre": barbero.nombre,
         "activo": barbero.activo,
-        "foto_url": url_con_tiempo, 
+        "foto_url": url_con_tiempo,
         "created_at": barbero.created_at,
         "tiene_usuario": barbero.login is not None
     }
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # BARBEROS
@@ -94,26 +96,33 @@ def toggle_barbero_estado(db: Session, barbero: Barbero) -> Barbero:
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# ELIMINAR BARBERO (PROTEGIDO)
+# ELIMINAR BARBERO (✔ CORREGIDO)
 # ----------------------------------------------------------------------------------------------------------------------
 
 def delete_barbero(db: Session, barbero: Barbero) -> None:
     """
-    Elimina un barbero SOLO si no tiene visitas asociadas.
+    Elimina un barbero SOLO si NO tiene visitas activas.
+    Las visitas CANCELADAS NO bloquean la eliminación.
     """
-
-    tiene_visitas = (
-        db.query(Visita)
-        .filter(Visita.id_barbero == barbero.id_barbero)
+    # Buscamos si existe alguna visita que NO esté cancelada
+    tiene_visitas_activas = (
+        db.query(Visita.id_visita)
+        .filter(
+            Visita.id_barbero == barbero.id_barbero,
+            Visita.estado != "CANCELADO"  # Asegúrate que en DB sea exactamente este texto
+        )
         .first()
     )
 
-    if tiene_visitas:
+    if tiene_visitas_activas:
         raise ValueError("BARBERO_CON_VISITAS")
 
+    # Si llegamos aquí, solo tiene visitas canceladas o ninguna
+    # IMPORTANTE: Debes borrar primero las visitas (o que la FK sea CASCADE)
+    db.query(Visita).filter(Visita.id_barbero == barbero.id_barbero).delete()
+    
     db.delete(barbero)
     db.commit()
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # AGENDA DEL BARBERO (LECTURA)
