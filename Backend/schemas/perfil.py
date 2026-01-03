@@ -15,5 +15,9 @@ class PerfilOut(BaseModel):
 class PerfilUpdateIn(BaseModel):
     nombre: Optional[str] = None
     email: Optional[EmailStr] = None
-    password: Optional[str] = None
     foto_url: Optional[str] = None
+
+
+class ChangePasswordIn(BaseModel):
+    actual: str
+    nueva: str

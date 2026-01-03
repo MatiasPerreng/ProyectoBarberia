@@ -1,6 +1,6 @@
 import { useState } from "react";
-import './ChangePasswordModal.css'
-
+import API_URL from "../../services/api";
+import "./ChangePasswordModal.css";
 
 export default function ChangePasswordModal({ show, onClose }) {
   const [form, setForm] = useState({
@@ -15,7 +15,7 @@ export default function ChangePasswordModal({ show, onClose }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (form.nueva !== form.repetir) {
@@ -23,9 +23,24 @@ export default function ChangePasswordModal({ show, onClose }) {
       return;
     }
 
-    // 👉 acá después va el fetch al backend
-    console.log(form);
+    const res = await fetch(`${API_URL}/perfil/me/password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        actual: form.actual,
+        nueva: form.nueva,
+      }),
+    });
 
+    if (!res.ok) {
+      alert("Contraseña actual incorrecta");
+      return;
+    }
+
+    alert("Contraseña actualizada");
     onClose();
   };
 

@@ -137,26 +137,52 @@
 
 /* BOTÓN VOLVER */
 .aa-btn-volver {
-  background: rgba(230, 199, 123, 0.1);
-  border: 1px solid rgba(230, 199, 123, 0.4);
+  background: rgba(230, 199, 123, 0.15);
+  border: 1px solid rgba(230, 199, 123, 0.6);
   color: #111;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
-  padding: 8px 16px;
-  margin-bottom: 25px;
+  padding: 8px 18px;
+  margin-bottom: 28px;
   border-radius: 999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+
+.aa-btn-volver::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent,
+      #e6c77b,
+      transparent);
+  transition: width 0.35s ease;
 }
 
 .aa-btn-volver:hover {
   background: #e6c77b;
   color: #000;
-  transform: translateX(-3px);
+  transform: translateX(-2px);
 }
 
+.aa-btn-volver:hover::after {
+  width: 100%;
+}
+
+.aa-btn-volver:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.35);
+}
 /* =======================================================
    CALENDARIO
 ======================================================= */
