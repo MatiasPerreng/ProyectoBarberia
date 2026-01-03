@@ -1,6 +1,5 @@
 import TurnosList from "./TurnosList/TurnosList";
 import BarberoAgendaView from "./BarberoAgendaView";
-import "./DashboardDrawer.css";
 
 const DashboardDrawer = ({ open, type, onClose }) => {
   if (!open) return null;

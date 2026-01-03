@@ -18,7 +18,7 @@
 .aa-booking-container {
   width: 100%;
   max-width: 900px;
-  height: 620px;
+  height: auto;
   background: #f6f7f8;
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -108,7 +108,7 @@
 .aa-booking-content {
   padding: 50px;
   background: #fff;
-  overflow-y: auto;
+  overflow-y: visible;
   /* Crucial para que el scroll automático sea fluido */
   scroll-behavior: smooth;
 }
@@ -352,7 +352,6 @@
     flex-direction: column;
     width: 95%;
     height: auto;
-    max-height: 92vh;
   }
 
   .aa-booking-sidebar {
