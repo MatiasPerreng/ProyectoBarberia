@@ -17,19 +17,17 @@ export default function LoginBarbero() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🟡 SUBMIT LOGIN");
     setError("");
     setLoading(true);
 
     try {
-      console.log("🟡 FETCH LOGIN...");
       const response = await fetch(`${API_URL}/auth/login-barbero`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("🟢 RESPONSE STATUS:", response.status);
+
 
       if (!response.ok) {
         const err = await response.json();
@@ -37,11 +35,10 @@ export default function LoginBarbero() {
       }
 
       const data = await response.json();
-      console.log("🟢 DATA LOGIN:", data);
+ 
 
       // 🔐 Decodificar JWT (FUENTE DE LA VERDAD)
       const decoded = jwtDecode(data.access_token);
-      console.log("🟢 JWT DECODED:", decoded);
 
       const role = decoded.role;
 
@@ -55,20 +52,13 @@ export default function LoginBarbero() {
         role,
       });
 
-      console.log("🟢 LOGIN() EJECUTADO");
-      console.log("🟢 ROL FINAL:", role);
-      console.log("🟢 NAVEGANDO...");
-
       if (role === "admin") {
-        console.log("➡️ navigate('/admin')");
         navigate("/admin", { replace: true });
       } else {
-        console.log("➡️ navigate('/barbero')");
         navigate("/barbero", { replace: true });
       }
 
     } catch (err) {
-      console.error("🔴 ERROR LOGIN:", err);
       setError(err.message);
     } finally {
       setLoading(false);

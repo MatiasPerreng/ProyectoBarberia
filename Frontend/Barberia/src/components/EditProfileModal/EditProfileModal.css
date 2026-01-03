@@ -1,0 +1,116 @@
+/* ===============================
+   OVERLAY
+================================ */
+.edit-profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* ===============================
+   CARD
+================================ */
+.edit-profile-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 360px;
+  padding: 24px 22px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: editProfileFadeIn 0.2s ease-out;
+}
+
+.edit-profile-title {
+  margin-bottom: 18px;
+  font-size: 20px;
+  text-align: center;
+  color: #111;
+}
+
+/* ===============================
+   FORM / INPUTS
+================================ */
+.edit-profile-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-profile-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  color: #111;
+  background: #fff;
+}
+
+.edit-profile-input::placeholder {
+  color: #888;
+}
+
+.edit-profile-input:focus {
+  outline: none;
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.25);
+}
+
+/* ===============================
+   ACTIONS
+================================ */
+.edit-profile-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.edit-profile-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* Cancelar */
+.edit-profile-btn.cancel {
+  background: #f1f1f1;
+  color: #333;
+}
+
+.edit-profile-btn.cancel:hover {
+  background: #e5e5e5;
+}
+
+/* Guardar */
+.edit-profile-btn.submit {
+  background: #e6c77b;
+  color: #111;
+}
+
+.edit-profile-btn.submit:hover {
+  background: #ddbe6f;
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   ANIMATION
+================================ */
+@keyframes editProfileFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

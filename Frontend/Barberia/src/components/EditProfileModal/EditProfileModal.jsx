@@ -43,12 +43,13 @@ function EditProfileModal({ show, onClose, user, onSuccess }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card">
-        <h3>Editar perfil</h3>
+    <div className="edit-profile-overlay">
+      <div className="edit-profile-card">
+        <h3 className="edit-profile-title">Editar perfil</h3>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="edit-profile-form">
           <input
+            className="edit-profile-input"
             name="nombre"
             value={form.nombre}
             onChange={(e) =>
@@ -58,6 +59,7 @@ function EditProfileModal({ show, onClose, user, onSuccess }) {
           />
 
           <input
+            className="edit-profile-input"
             name="email"
             type="email"
             value={form.email}
@@ -67,11 +69,20 @@ function EditProfileModal({ show, onClose, user, onSuccess }) {
             required
           />
 
-          <div className="modal-actions">
-            <button type="button" onClick={onClose}>
+          <div className="edit-profile-actions">
+            <button
+              type="button"
+              className="edit-profile-btn cancel"
+              onClick={onClose}
+            >
               Cancelar
             </button>
-            <button type="submit">Guardar</button>
+            <button
+              type="submit"
+              className="edit-profile-btn submit"
+            >
+              Guardar
+            </button>
           </div>
         </form>
       </div>

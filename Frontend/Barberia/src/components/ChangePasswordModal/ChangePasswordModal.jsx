@@ -9,6 +9,8 @@ export default function ChangePasswordModal({ show, onClose }) {
     repetir: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false); // 👁️
+
   if (!show) return null;
 
   const handleChange = (e) => {
@@ -44,6 +46,8 @@ export default function ChangePasswordModal({ show, onClose }) {
     onClose();
   };
 
+  const inputType = showPassword ? "text" : "password";
+
   return (
     <div className="modal-overlay">
       <div className="modal-card">
@@ -51,7 +55,7 @@ export default function ChangePasswordModal({ show, onClose }) {
 
         <form onSubmit={handleSubmit}>
           <input
-            type="password"
+            type={inputType}
             name="actual"
             placeholder="Contraseña actual"
             onChange={handleChange}
@@ -59,7 +63,7 @@ export default function ChangePasswordModal({ show, onClose }) {
           />
 
           <input
-            type="password"
+            type={inputType}
             name="nueva"
             placeholder="Nueva contraseña"
             onChange={handleChange}
@@ -67,12 +71,22 @@ export default function ChangePasswordModal({ show, onClose }) {
           />
 
           <input
-            type="password"
+            type={inputType}
             name="repetir"
             placeholder="Repetir nueva contraseña"
             onChange={handleChange}
             required
           />
+
+          {/* 👁️ TOGGLE */}
+          <label className="show-password-toggle">
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+            />
+            <span>Mostrar contraseñas</span>
+          </label>
 
           <div className="modal-actions">
             <button type="button" onClick={onClose}>

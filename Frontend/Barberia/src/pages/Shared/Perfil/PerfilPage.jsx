@@ -5,9 +5,9 @@ import EditProfileModal from "../../../components/EditProfileModal/EditProfileMo
 import "./PerfilPage.css";
 
 const PerfilPage = () => {
-  const { user, updateUser } = useAuthContext(); // 🆕
+  const { user, updateUser } = useAuthContext();
   const [showPassModal, setShowPassModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false); // 🆕
+  const [showEditModal, setShowEditModal] = useState(false);
 
   if (!user) return null;
 
@@ -22,11 +22,6 @@ const PerfilPage = () => {
         </div>
 
         <div className="perfil-row">
-          <span className="perfil-label">Apellido</span>
-          <span className="perfil-value">{user.apellido || "-"}</span>
-        </div>
-
-        <div className="perfil-row">
           <span className="perfil-label">Email</span>
           <span className="perfil-value">{user.email}</span>
         </div>
@@ -35,7 +30,7 @@ const PerfilPage = () => {
       <div className="perfil-actions">
         <button
           className="perfil-action-btn"
-          onClick={() => setShowEditModal(true)} // 🆕
+          onClick={() => setShowEditModal(true)}
         >
           Cambiar nombre / email
         </button>
