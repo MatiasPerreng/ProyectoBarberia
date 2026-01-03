@@ -75,17 +75,17 @@ section {
 
 /* BOTÓN */
 .hero-section .btn {
-  border-radius: 999px!important;
-  border: 1px solid rgba(230, 199, 123, 0.6)!important;
-  color: #e6c77b!important;
-  padding: 14px 36px!important;
-  transition: all 0.3s ease!important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(230, 199, 123, 0.6) !important;
+  color: #e6c77b !important;
+  padding: 14px 36px !important;
+  transition: all 0.3s ease !important;
 }
 
 .hero-section .btn:hover {
-  background: #e6c77b!important;
-  color: #000!important;
-  transform: translateY(-2px)!important;
+  background: #e6c77b !important;
+  color: #000 !important;
+  transform: translateY(-2px) !important;
 }
 
 /* =======================================================
@@ -100,8 +100,6 @@ section {
   background: #f8f9fa;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
-
-
 
 /* =======================================================
    DESKTOP BAJO (ALTURA)
@@ -147,14 +145,26 @@ section {
 }
 
 /* =======================================================
-   MOBILE
+   MOBILE (MISMO HERO QUE DESKTOP)
 ======================================================= */
 
 @media (max-width: 600px) {
   .hero-section {
     padding-top: calc(68px + 24px);
     padding-bottom: 50px;
-    background: #1c1f24;
+
+    /* 🔥 MISMO FONDO QUE DESKTOP */
+    background:
+      linear-gradient(
+        180deg,
+        rgba(20, 18, 12, 0.95),
+        #000 55%
+      ),
+      url("/noise.png");
+
+    background-blend-mode: overlay;
+    background-size: cover;
+    background-position: center;
   }
 
   .hero-logo {
@@ -180,7 +190,6 @@ section {
   }
 }
 
-
 /* =======================================================
    TITULO – NUESTROS SERVICIOS (PRO)
 ======================================================= */
@@ -195,7 +204,7 @@ section {
   text-transform: uppercase;
 
   color: #111;
-  margin: 0 auto 3rem; 
+  margin: 0 auto 3rem;
   text-align: center;
 }
 
@@ -232,14 +241,14 @@ section {
 }
 
 /* =======================================================
-   MOBILE
+   MOBILE – SERVICES TITLE
 ======================================================= */
 
 @media (max-width: 600px) {
   .services-title {
     font-size: 1.6rem;
     letter-spacing: 2px;
-      text-align: center;
+    text-align: center;
   }
 
   .services-title::after {
