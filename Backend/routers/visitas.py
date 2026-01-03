@@ -54,7 +54,7 @@ def visita_to_out(visita):
     }
 
 # ======================================================================================
-# AGENDA DEL BARBERO LOGUEADO
+# MI AGENDA (CONFIRMADOS FUTUROS)
 # ======================================================================================
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
@@ -63,15 +63,44 @@ def mi_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
+    # 🔥 actualizar estados vencidos antes de responder
+    crud_visita.marcar_visitas_completadas(db)
+
     visitas = crud_visita.get_visitas_by_barbero(
         db=db,
         barbero_id=login.barbero_id,
         fecha=fecha
     )
+
     return [visita_to_out(v) for v in visitas]
 
 # ======================================================================================
-# ACTUALIZAR ESTADO
+# HISTORIAL (SOLO COMPLETADOS)
+# ======================================================================================
+
+@router.get("/historial", response_model=List[VisitaOut])
+def historial_agenda(
+    login=Depends(get_current_login_barbero),
+    db: Session = Depends(get_db)
+):
+    # 🔥 asegurar estados correctos
+    crud_visita.marcar_visitas_completadas(db)
+
+    # ADMIN → todos los COMPLETADOS
+    if login.role == "admin":
+        visitas = crud_visita.get_visitas_completadas(db)
+
+    # BARBERO → solo sus COMPLETADOS
+    else:
+        visitas = crud_visita.get_visitas_completadas_por_barbero(
+            db=db,
+            barbero_id=login.barbero_id
+        )
+
+    return [visita_to_out(v) for v in visitas]
+
+# ======================================================================================
+# ACTUALIZAR ESTADO (MANUAL)
 # ======================================================================================
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
@@ -175,7 +204,7 @@ def disponibilidad_mes(
     return resultado
 
 # ======================================================================================
-# CREAR VISITA (ANTI-SPAM + EMAIL + WHATSAPP)
+# CREAR VISITA
 # ======================================================================================
 
 @router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
@@ -187,7 +216,7 @@ def crear_visita(
     try:
         visita = crud_visita.create_visita(db, visita_in)
 
-        # 📧 EMAIL CONFIRMACIÓN
+        # EMAIL CONFIRMACIÓN
         if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
@@ -196,7 +225,7 @@ def crear_visita(
                 generar_email_confirmacion(visita)
             )
 
-        # 📲 WHATSAPP CONFIRMACIÓN
+        # WHATSAPP CONFIRMACIÓN
         background_tasks.add_task(
             enviar_turno_confirmado_whatsapp,
             visita
@@ -211,7 +240,7 @@ def crear_visita(
         )
 
 # ======================================================================================
-# CANCELAR VISITA (NO SE BORRA)
+# CANCELAR VISITA
 # ======================================================================================
 
 @router.post("/{visita_id}/cancelar", status_code=status.HTTP_200_OK)
@@ -232,7 +261,7 @@ def cancelar_visita(
     db.commit()
     db.refresh(visita)
 
-    # 📧 EMAIL CANCELACIÓN
+    # EMAIL CANCELACIÓN
     if visita.cliente and visita.cliente.email:
         background_tasks.add_task(
             enviar_email_confirmacion,
@@ -241,7 +270,7 @@ def cancelar_visita(
             generar_email_cancelacion(visita)
         )
 
-    # 📲 WHATSAPP CANCELACIÓN
+    # WHATSAPP CANCELACIÓN
     background_tasks.add_task(
         enviar_turno_cancelado_whatsapp,
         visita
@@ -250,11 +279,12 @@ def cancelar_visita(
     return {"ok": True}
 
 # ======================================================================================
-# LISTAR TODAS (ADMIN)
+# LISTAR TODAS (ADMIN – NO HISTORIAL)
 # ======================================================================================
 
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
+    crud_visita.marcar_visitas_completadas(db)
     visitas = crud_visita.get_visitas(db)
     return [visita_to_out(v) for v in visitas]
 

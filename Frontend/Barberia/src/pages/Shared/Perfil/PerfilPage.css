@@ -1,0 +1,136 @@
+/* =======================================================
+   PERFIL · KING BARBER
+======================================================= */
+
+.perfil-page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+/* -------------------------------------------------------
+   TÍTULO
+------------------------------------------------------- */
+
+.perfil-title {
+  font-family: "Cinzel", serif;
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 2.2rem;
+  color: #111;
+  position: relative;
+}
+
+.perfil-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #e6c77b,
+    transparent
+  );
+}
+
+/* -------------------------------------------------------
+   FORM
+------------------------------------------------------- */
+
+.perfil-form {
+  background: #0f0f0f;
+  padding: 2rem 1.8rem;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* -------------------------------------------------------
+   FIELD
+------------------------------------------------------- */
+
+.perfil-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.3rem;
+}
+
+.perfil-field label {
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: rgba(230, 199, 123, 0.8);
+}
+
+/* -------------------------------------------------------
+   INPUT
+------------------------------------------------------- */
+
+.perfil-field input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(230, 199, 123, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: #fff;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.perfil-field input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.perfil-field input:focus {
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.15);
+}
+
+/* -------------------------------------------------------
+   BOTÓN
+------------------------------------------------------- */
+
+.perfil-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 199, 123, 0.6);
+  background: transparent;
+  color: #e6c77b;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.perfil-btn:hover {
+  background: #e6c77b;
+  color: #000;
+  transform: translateY(-2px);
+}
+
+/* =======================================================
+   MOBILE
+======================================================= */
+
+@media (max-width: 480px) {
+  .perfil-page {
+    padding: 2rem 1rem;
+  }
+
+  .perfil-form {
+    padding: 1.6rem 1.3rem;
+  }
+
+  .perfil-title {
+    font-size: 1.5rem;
+  }
+}

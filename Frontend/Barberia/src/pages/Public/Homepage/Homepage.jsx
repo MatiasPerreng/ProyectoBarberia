@@ -43,7 +43,7 @@ export default function HomePage() {
 
       {/* SERVICIOS */}
       <section id="servicios" className="container py-5">
-        <h2 className="mb-4 text-center">Nuestros servicios</h2>
+        <h2 className="services-title mb-4 text-center">Nuestros servicios</h2>
         <ServiciosList onSelectServicio={handleServicioSelect} />
       </section>
 

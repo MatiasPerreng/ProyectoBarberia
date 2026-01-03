@@ -6,7 +6,7 @@ const BarberoAgendaView = () => {
   const [barberos, setBarberos] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_URL}/barberos`)
+    fetch(`${API_URL}/barberos/`)
       .then((res) => res.json())
       .then(setBarberos);
   }, []);

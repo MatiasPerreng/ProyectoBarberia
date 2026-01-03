@@ -8,7 +8,7 @@ const ServiciosList = ({ onSelectServicio }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/servicios`)
+    fetch(`${API_URL}/servicios/`)
       .then((res) => res.json())
       .then((data) => {
         setServicios(data);

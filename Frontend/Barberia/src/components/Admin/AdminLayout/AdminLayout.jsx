@@ -39,6 +39,8 @@ const AdminLayout = ({ children }) => {
           <nav className="admin-nav">
             <NavLink to="/admin" end>Dashboard</NavLink>
             <NavLink to="/admin/mi-agenda">Mi agenda</NavLink>
+            <NavLink to="/admin/historial">Historial</NavLink>
+            <NavLink to="/admin/perfil">Mi perfil</NavLink>
             <NavLink to="/admin/barberos">Barberos</NavLink>
             <NavLink to="/admin/horarios">Horarios</NavLink>
             <NavLink to="/admin/servicios">Servicios</NavLink>

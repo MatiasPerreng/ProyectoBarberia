@@ -179,3 +179,70 @@ section {
     font-size: 0.75rem;
   }
 }
+
+
+/* =======================================================
+   TITULO – NUESTROS SERVICIOS (PRO)
+======================================================= */
+
+.services-title {
+  position: relative;
+  display: inline-block;
+
+  font-family: "Cinzel", serif;
+  font-size: 2.2rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+
+  color: #111;
+  margin: 0 auto 3rem; 
+  text-align: center;
+}
+
+/* Línea dorada inferior */
+.services-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+
+  width: 90px;
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #e6c77b,
+    transparent
+  );
+}
+
+/* Halo sutil de lujo */
+.services-title::before {
+  content: "";
+  position: absolute;
+  inset: -12px -24px;
+  background: radial-gradient(
+    circle,
+    rgba(230, 199, 123, 0.12),
+    transparent 70%
+  );
+  z-index: -1;
+}
+
+/* =======================================================
+   MOBILE
+======================================================= */
+
+@media (max-width: 600px) {
+  .services-title {
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+      text-align: center;
+  }
+
+  .services-title::after {
+    width: 70px;
+  }
+}

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime, timedelta, time, date
 import random
 
@@ -7,9 +7,9 @@ from models import Visita, Servicio, HorarioBarbero, Barbero
 from schemas import VisitaCreate
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # UTILIDADES
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 def overlaps(inicio_a: datetime, fin_a: datetime, inicio_b: datetime, fin_b: datetime) -> bool:
     return inicio_a < fin_b and fin_a > inicio_b
@@ -17,7 +17,6 @@ def overlaps(inicio_a: datetime, fin_a: datetime, inicio_b: datetime, fin_b: dat
 
 def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
     slots = []
-
     paso = timedelta(minutes=30)
     duracion = timedelta(minutes=duracion_min)
 
@@ -31,24 +30,46 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
     return slots
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# VALIDACIÓN ANTI-SPAM CLIENTE (🔥 NUEVO 🔥)
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
+# 🔥 AUTO-COMPLETAR VISITAS
+# ======================================================================================
 
-def cliente_tiene_turno_en_dia(
-    db: Session,
-    cliente_id: int,
-    fecha: date
-) -> bool:
-    inicio_dia = datetime.combine(fecha, time.min)
-    fin_dia = datetime.combine(fecha, time.max)
+def marcar_visitas_completadas(db: Session) -> None:
+    ahora = datetime.now()
+
+    visitas = (
+        db.query(Visita)
+        .options(joinedload(Visita.servicio))
+        .filter(Visita.estado == "CONFIRMADO")
+        .all()
+    )
+
+    for v in visitas:
+        if not v.servicio:
+            continue
+
+        fin_turno = v.fecha_hora + timedelta(minutes=v.servicio.duracion_min)
+
+        if fin_turno <= ahora:
+            v.estado = "COMPLETADO"
+
+    db.commit()
+
+
+# ======================================================================================
+# VALIDACIÓN ANTI-SPAM
+# ======================================================================================
+
+def cliente_tiene_turno_en_dia(db: Session, cliente_id: int, fecha: date) -> bool:
+    inicio = datetime.combine(fecha, time.min)
+    fin = datetime.combine(fecha, time.max)
 
     return (
         db.query(Visita)
         .filter(
             Visita.id_cliente == cliente_id,
-            Visita.fecha_hora >= inicio_dia,
-            Visita.fecha_hora <= fin_dia,
+            Visita.fecha_hora >= inicio,
+            Visita.fecha_hora <= fin,
             Visita.estado == "CONFIRMADO"
         )
         .first()
@@ -56,9 +77,9 @@ def cliente_tiene_turno_en_dia(
     )
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # ASIGNACIÓN AUTOMÁTICA DE BARBERO
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 def asignar_barbero_automatico(
     db: Session,
@@ -69,13 +90,12 @@ def asignar_barbero_automatico(
     fecha = fecha_hora.date()
     hora_str = fecha_hora.strftime("%H:%M")
 
-    inicio_dia = datetime.combine(fecha, time.min)
-    fin_dia = datetime.combine(fecha, time.max)
+    inicio = datetime.combine(fecha, time.min)
+    fin = datetime.combine(fecha, time.max)
 
-    barberos = db.query(Barbero).all()
     candidatos = []
 
-    for barbero in barberos:
+    for barbero in db.query(Barbero).all():
         disponibilidad = get_disponibilidad(
             db=db,
             fecha=fecha,
@@ -87,36 +107,31 @@ def asignar_barbero_automatico(
         if hora_str not in disponibilidad["turnos"]:
             continue
 
-        cantidad_turnos = (
+        turnos = (
             db.query(Visita)
             .filter(
                 Visita.id_barbero == barbero.id_barbero,
-                Visita.fecha_hora >= inicio_dia,
-                Visita.fecha_hora <= fin_dia,
-                Visita.estado != "CANCELADO"
+                Visita.fecha_hora >= inicio,
+                Visita.fecha_hora <= fin,
+                Visita.estado == "CONFIRMADO"
             )
             .count()
         )
 
-        candidatos.append({
-            "id_barbero": barbero.id_barbero,
-            "turnos": cantidad_turnos
-        })
+        candidatos.append((barbero.id_barbero, turnos))
 
     if not candidatos:
         return None
 
-    min_turnos = min(c["turnos"] for c in candidatos)
-    menos_cargados = [
-        c["id_barbero"] for c in candidatos if c["turnos"] == min_turnos
-    ]
+    min_turnos = min(t[1] for t in candidatos)
+    menos_cargados = [idb for idb, t in candidatos if t == min_turnos]
 
     return random.choice(menos_cargados)
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 # CRUD VISITA
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     servicio = db.query(Servicio).filter(
@@ -126,49 +141,18 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     if not servicio:
         raise ValueError("Servicio no existe")
 
-    # 🔒 VALIDACIÓN ANTI-SPAM (🔥 ACÁ ESTÁ LA CLAVE 🔥)
-    fecha_turno = visita_in.fecha_hora.date()
-
-    if cliente_tiene_turno_en_dia(db, visita_in.id_cliente, fecha_turno):
+    if cliente_tiene_turno_en_dia(db, visita_in.id_cliente, visita_in.fecha_hora.date()):
         raise ValueError("Ya tenés un turno reservado para ese día")
 
     if visita_in.id_barbero is None:
-        id_auto = asignar_barbero_automatico(
+        visita_in.id_barbero = asignar_barbero_automatico(
             db,
             visita_in.fecha_hora,
             servicio.duracion_min
         )
 
-        if not id_auto:
-            raise ValueError("No hay barberos disponibles para ese horario")
-
-        visita_in.id_barbero = id_auto
-
-    inicio_nuevo = visita_in.fecha_hora
-    fin_nuevo = inicio_nuevo + timedelta(minutes=servicio.duracion_min)
-
-    inicio_dia = datetime.combine(inicio_nuevo.date(), time.min)
-    fin_dia = datetime.combine(inicio_nuevo.date(), time.max)
-
-    visitas_existentes = (
-        db.query(Visita)
-        .options(joinedload(Visita.servicio))
-        .filter(
-            Visita.id_barbero == visita_in.id_barbero,
-            Visita.fecha_hora >= inicio_dia,
-            Visita.fecha_hora <= fin_dia,
-            Visita.estado != "CANCELADO"
-        )
-        .all()
-    )
-
-    for visita in visitas_existentes:
-        duracion_existente = visita.servicio.duracion_min
-        inicio_existente = visita.fecha_hora
-        fin_existente = inicio_existente + timedelta(minutes=duracion_existente)
-
-        if overlaps(inicio_nuevo, fin_nuevo, inicio_existente, fin_existente):
-            raise ValueError("Horario no disponible")
+        if not visita_in.id_barbero:
+            raise ValueError("No hay barberos disponibles")
 
     visita = Visita(
         fecha_hora=visita_in.fecha_hora,
@@ -182,17 +166,11 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     db.commit()
     db.refresh(visita)
 
-    visita.cliente
-    visita.servicio
-    visita.barbero
-
     return visita
 
 
 def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visita:
-    visita = db.query(Visita).filter(
-        Visita.id_visita == visita_id
-    ).first()
+    visita = db.query(Visita).get(visita_id)
 
     if not visita:
         raise ValueError("Visita no encontrada")
@@ -204,21 +182,31 @@ def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visi
     return visita
 
 
-def get_visitas(db: Session):
-    return db.query(Visita).filter(
-        Visita.estado != "CANCELADO"
-    ).all()
+# 🔥 NECESARIA PARA CANCELAR TURNO
+def get_visita_by_id(db: Session, visita_id: int) -> Optional[Visita]:
+    return (
+        db.query(Visita)
+        .options(
+            joinedload(Visita.cliente),
+            joinedload(Visita.servicio),
+            joinedload(Visita.barbero),
+        )
+        .filter(Visita.id_visita == visita_id)
+        .first()
+    )
 
 
-# --------------------------------------------------------------------------------------------------
-# AGENDA BARBERO
-# --------------------------------------------------------------------------------------------------
+# ======================================================================================
+# AGENDA (SOLO CONFIRMADOS)
+# ======================================================================================
 
-def get_visitas_by_barbero(
+def get_agenda_by_barbero(
     db: Session,
     barbero_id: int,
     fecha: Optional[date] = None
 ):
+    marcar_visitas_completadas(db)
+
     query = (
         db.query(Visita)
         .options(
@@ -227,55 +215,74 @@ def get_visitas_by_barbero(
         )
         .filter(
             Visita.id_barbero == barbero_id,
-            Visita.estado != "CANCELADO"
+            Visita.estado == "CONFIRMADO"
         )
     )
 
     if fecha:
         inicio = datetime.combine(fecha, time.min)
         fin = datetime.combine(fecha, time.max)
-
         query = query.filter(
             Visita.fecha_hora >= inicio,
             Visita.fecha_hora <= fin
         )
 
-    visitas = query.order_by(Visita.fecha_hora).all()
-
-    resultado = []
-
-    for v in visitas:
-        resultado.append({
-            "id_visita": v.id_visita,
-            "fecha_hora": v.fecha_hora,
-            "estado": v.estado,
-            "created_at": v.created_at,
-
-            "cliente_nombre": v.cliente.nombre if v.cliente else "",
-            "cliente_apellido": v.cliente.apellido if v.cliente else "",
-            "cliente_telefono": v.cliente.telefono if v.cliente else "",
-
-            "servicio_nombre": v.servicio.nombre if v.servicio else "",
-            "servicio_duracion": v.servicio.duracion_min if v.servicio else 0,
-        })
-
-    return resultado
+    return query.order_by(Visita.fecha_hora).all()
 
 
-def get_visita_by_id(db: Session, visita_id: int) -> Optional[Visita]:
-    return db.query(Visita).filter(
-        Visita.id_visita == visita_id
-    ).first()
+# ======================================================================================
+# 🔥 ALIAS PARA COMPATIBILIDAD CON ROUTER
+# ======================================================================================
+
+def get_visitas_by_barbero(
+    db: Session,
+    barbero_id: int,
+    fecha: Optional[date] = None
+):
+    return get_agenda_by_barbero(db, barbero_id, fecha)
 
 
-def delete_visita(db: Session, visita: Visita) -> None:
-    db.delete(visita)
-    db.commit()
+# ======================================================================================
+# HISTORIAL (SOLO COMPLETADOS)
+# ======================================================================================
+
+def get_visitas_completadas(db: Session):
+    marcar_visitas_completadas(db)
+
+    return (
+        db.query(Visita)
+        .options(
+            joinedload(Visita.cliente),
+            joinedload(Visita.servicio),
+            joinedload(Visita.barbero),
+        )
+        .filter(Visita.estado == "COMPLETADO")
+        .order_by(Visita.fecha_hora.desc())
+        .all()
+    )
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+def get_visitas_completadas_por_barbero(db: Session, barbero_id: int):
+    marcar_visitas_completadas(db)
+
+    return (
+        db.query(Visita)
+        .options(
+            joinedload(Visita.cliente),
+            joinedload(Visita.servicio),
+        )
+        .filter(
+            Visita.estado == "COMPLETADO",
+            Visita.id_barbero == barbero_id
+        )
+        .order_by(Visita.fecha_hora.desc())
+        .all()
+    )
+
+
+# ======================================================================================
 # DISPONIBILIDAD
-# ----------------------------------------------------------------------------------------------------------------------
+# ======================================================================================
 
 def get_disponibilidad(
     db: Session,
