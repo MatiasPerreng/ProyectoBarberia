@@ -122,3 +122,38 @@
     font-size: 14px;
   }
 }
+
+
+.kb-filtro-fecha {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.kb-date-filter {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  font-weight: 500;
+}
+
+.kb-btn-todos {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #e6c77b, #d9b45f);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .kb-filtro-fecha {
+    flex-direction: column;
+  }
+
+  .kb-date-filter,
+  .kb-btn-todos {
+    width: 100%;
+  }
+}

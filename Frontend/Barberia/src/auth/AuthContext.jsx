@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
           nombre: payload.nombre,
           apellido: payload.apellido,
           id: payload.sub,
+          email: payload.email, // 🆕
         });
       } catch (err) {
         console.error("❌ Token inválido", err);
@@ -50,7 +51,18 @@ export const AuthProvider = ({ children }) => {
       nombre: payload.nombre,
       apellido: payload.apellido,
       id: payload.sub,
+      email: payload.email, // 🆕
     });
+  };
+
+  // =========================
+  // UPDATE USER (🆕)
+  // =========================
+  const updateUser = (data) => {
+    setUser((prev) => ({
+      ...prev,
+      ...data, // nombre / email / foto, lo que venga
+    }));
   };
 
   // =========================
@@ -68,6 +80,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         logout,
+        updateUser, // 🆕
         loading,
         isAuthenticated: !!user,
       }}

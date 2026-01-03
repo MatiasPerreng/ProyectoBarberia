@@ -51,32 +51,68 @@ const formatearFecha = (fechaHoraStr) => {
 const TurnosList = ({ filtro }) => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fecha, setFecha] = useState(""); // 🆕
 
+  // 🔁 Fetch turnos
   useEffect(() => {
     if (!filtro) return;
 
     setLoading(true);
 
-    fetch(`${API_URL}/admin/turnos?filtro=${filtro}`)
+    let url = `${API_URL}/admin/turnos?filtro=${filtro}`;
+    if (fecha) {
+      url += `&fecha=${fecha}`;
+    }
+
+    fetch(url)
       .then((res) => res.json())
       .then((data) => setTurnos(data))
       .finally(() => setLoading(false));
+  }, [filtro, fecha]);
+
+  // 🧼 Limpiar fecha al cambiar filtro
+  useEffect(() => {
+    setFecha("");
   }, [filtro]);
 
   if (loading) return <p>Cargando turnos…</p>;
-  if (!turnos.length) return <p>No hay turnos</p>;
 
   return (
     <div className="turnos-list">
+      {/* 📅 Calendario solo para pendientes y cancelados */}
+      {filtro !== "hoy" && (
+        <div className="turnos-filtro-fecha">
+          <input
+            type="date"
+            className="turnos-date-filter"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+          />
+
+          <button
+            type="button"
+            className="turnos-btn-todos"
+            onClick={() => setFecha("")}
+          >
+            Todos
+          </button>
+        </div>
+      )}
+
+
+      {!turnos.length && <p>No hay turnos</p>}
+
       {turnos.map((t) => {
         const { fechaTexto, hora } = formatearFecha(t.fecha_hora);
 
         return (
           <div key={t.id_visita} className="turno-row">
             <div className="turno-info">
-              {/* 👤 Cliente */}
               <p className="turno-cliente">
-                <strong>{t.cliente}</strong>
+                <strong>
+                  {t.cliente_nombre}
+                  {t.cliente_apellido && ` ${t.cliente_apellido}`}
+                </strong>
               </p>
 
               {/* ✂️ Servicio + Barbero */}

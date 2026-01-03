@@ -1,136 +1,104 @@
-/* =======================================================
-   PERFIL · KING BARBER
-======================================================= */
+/* ================================
+   PERFIL – KING BARBER STYLE
+================================ */
 
 .perfil-page {
   max-width: 480px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  margin: auto;
+  padding: 28px 20px;
+  background: #f7f7f5;
+  min-height: 100vh;
 }
 
-/* -------------------------------------------------------
-   TÍTULO
-------------------------------------------------------- */
-
+/* ---------- TÍTULO ---------- */
 .perfil-title {
-  font-family: "Cinzel", serif;
-  font-size: 1.8rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 2.2rem;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 22px;
   color: #111;
-  position: relative;
+  letter-spacing: 0.2px;
 }
 
-.perfil-title::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -12px;
-  transform: translateX(-50%);
-  width: 70px;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #e6c77b,
-    transparent
-  );
+/* ---------- CARD PERFIL ---------- */
+.perfil-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 18px;
+  margin-bottom: 26px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-/* -------------------------------------------------------
-   FORM
-------------------------------------------------------- */
-
-.perfil-form {
-  background: #0f0f0f;
-  padding: 2rem 1.8rem;
-  border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+/* ---------- FILAS ---------- */
+.perfil-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 }
 
-/* -------------------------------------------------------
-   FIELD
-------------------------------------------------------- */
+.perfil-row:last-child {
+  border-bottom: none;
+}
 
-.perfil-field {
+/* ---------- LABEL / VALUE ---------- */
+.perfil-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #777;
+}
+
+.perfil-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* ---------- ACCIONES ---------- */
+.perfil-actions {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.3rem;
+  gap: 14px;
 }
 
-.perfil-field label {
-  font-size: 0.75rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-  color: rgba(230, 199, 123, 0.8);
-}
-
-/* -------------------------------------------------------
-   INPUT
-------------------------------------------------------- */
-
-.perfil-field input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(230, 199, 123, 0.25);
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 0.9rem;
-  color: #fff;
-  outline: none;
-  transition: all 0.25s ease;
-}
-
-.perfil-field input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.perfil-field input:focus {
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.15);
-}
-
-/* -------------------------------------------------------
-   BOTÓN
-------------------------------------------------------- */
-
-.perfil-btn {
-  width: 100%;
-  margin-top: 1.5rem;
-  padding: 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(230, 199, 123, 0.6);
-  background: transparent;
-  color: #e6c77b;
-  font-size: 0.8rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+/* ---------- BOTONES ---------- */
+.perfil-action-btn {
+  background: linear-gradient(
+    135deg,
+    #e6c77b 0%,
+    #d9b45f 100%
+  );
+  border: none;
+  padding: 15px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  color: #111;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
-.perfil-btn:hover {
-  background: #e6c77b;
-  color: #000;
-  transform: translateY(-2px);
+.perfil-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
 }
 
-/* =======================================================
-   MOBILE
-======================================================= */
+.perfil-action-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
 
+/* ---------- RESPONSIVE ---------- */
 @media (max-width: 480px) {
-  .perfil-page {
-    padding: 2rem 1rem;
-  }
-
-  .perfil-form {
-    padding: 1.6rem 1.3rem;
-  }
-
   .perfil-title {
-    font-size: 1.5rem;
+    font-size: 22px;
+  }
+
+  .perfil-action-btn {
+    font-size: 14px;
+    padding: 14px;
   }
 }

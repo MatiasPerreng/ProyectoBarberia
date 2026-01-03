@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime, time
 from calendar import monthrange
 
 from database import get_db
@@ -46,7 +46,6 @@ def visita_to_out(visita):
         "servicio_nombre": visita.servicio.nombre if visita.servicio else "",
         "servicio_duracion": visita.servicio.duracion_min if visita.servicio else 0,
 
-        # 🔥 FIX CLAVE
         "barbero_id": visita.barbero.id_barbero if visita.barbero else None,
         "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
     }
@@ -77,17 +76,22 @@ def mi_agenda(
 
 @router.get("/historial", response_model=List[VisitaOut])
 def historial_agenda(
+    fecha: Optional[date] = None,  # 🔥 FIX CLAVE
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
     crud_visita.marcar_visitas_completadas(db)
 
     if login.role == "admin":
-        visitas = crud_visita.get_visitas_completadas(db)
+        visitas = crud_visita.get_visitas_completadas(
+            db=db,
+            fecha=fecha   # 🔥
+        )
     else:
         visitas = crud_visita.get_visitas_completadas_por_barbero(
             db=db,
-            barbero_id=login.barbero_id
+            barbero_id=login.barbero_id,
+            fecha=fecha   # 🔥
         )
 
     return [visita_to_out(v) for v in visitas]

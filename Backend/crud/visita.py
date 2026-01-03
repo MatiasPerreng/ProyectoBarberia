@@ -182,7 +182,6 @@ def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visi
     return visita
 
 
-# 🔥 NECESARIA PARA CANCELAR TURNO
 def get_visita_by_id(db: Session, visita_id: int) -> Optional[Visita]:
     return (
         db.query(Visita)
@@ -230,10 +229,6 @@ def get_agenda_by_barbero(
     return query.order_by(Visita.fecha_hora).all()
 
 
-# ======================================================================================
-# 🔥 ALIAS PARA COMPATIBILIDAD CON ROUTER
-# ======================================================================================
-
 def get_visitas_by_barbero(
     db: Session,
     barbero_id: int,
@@ -243,13 +238,16 @@ def get_visitas_by_barbero(
 
 
 # ======================================================================================
-# HISTORIAL (SOLO COMPLETADOS)
+# HISTORIAL (SOLO COMPLETADOS) 🔥 FIX
 # ======================================================================================
 
-def get_visitas_completadas(db: Session):
+def get_visitas_completadas(
+    db: Session,
+    fecha: Optional[date] = None
+):
     marcar_visitas_completadas(db)
 
-    return (
+    query = (
         db.query(Visita)
         .options(
             joinedload(Visita.cliente),
@@ -257,15 +255,27 @@ def get_visitas_completadas(db: Session):
             joinedload(Visita.barbero),
         )
         .filter(Visita.estado == "COMPLETADO")
-        .order_by(Visita.fecha_hora.desc())
-        .all()
     )
 
+    if fecha:
+        inicio = datetime.combine(fecha, time.min)
+        fin = datetime.combine(fecha, time.max)
+        query = query.filter(
+            Visita.fecha_hora >= inicio,
+            Visita.fecha_hora <= fin
+        )
 
-def get_visitas_completadas_por_barbero(db: Session, barbero_id: int):
+    return query.order_by(Visita.fecha_hora.desc()).all()
+
+
+def get_visitas_completadas_por_barbero(
+    db: Session,
+    barbero_id: int,
+    fecha: Optional[date] = None
+):
     marcar_visitas_completadas(db)
 
-    return (
+    query = (
         db.query(Visita)
         .options(
             joinedload(Visita.cliente),
@@ -275,9 +285,17 @@ def get_visitas_completadas_por_barbero(db: Session, barbero_id: int):
             Visita.estado == "COMPLETADO",
             Visita.id_barbero == barbero_id
         )
-        .order_by(Visita.fecha_hora.desc())
-        .all()
     )
+
+    if fecha:
+        inicio = datetime.combine(fecha, time.min)
+        fin = datetime.combine(fecha, time.max)
+        query = query.filter(
+            Visita.fecha_hora >= inicio,
+            Visita.fecha_hora <= fin
+        )
+
+    return query.order_by(Visita.fecha_hora.desc()).all()
 
 
 # ======================================================================================

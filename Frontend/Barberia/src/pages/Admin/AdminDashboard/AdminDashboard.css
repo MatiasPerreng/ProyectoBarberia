@@ -43,11 +43,9 @@ h1 {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at top,
-    rgba(230, 199, 123, 0.25),
-    transparent 70%
-  );
+  background: radial-gradient(circle at top,
+      rgba(230, 199, 123, 0.25),
+      transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -132,5 +130,81 @@ h1 {
 
   .admin-card p {
     font-size: 1.9rem;
+  }
+}
+
+
+/* ================================
+   FILTRO DE FECHA – TURNOS
+================================ */
+
+.turnos-filtro-fecha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* ---------- CALENDARIO ---------- */
+.turnos-date-filter {
+  flex: 1;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  font-weight: 500;
+  background: #fff;
+  color: #111;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.turnos-date-filter:focus {
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.25);
+}
+
+/* ---------- BOTÓN TODOS ---------- */
+.turnos-btn-todos {
+  padding: 13px 18px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #e6c77b, #d9b45f);
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.turnos-btn-todos:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.turnos-btn-todos:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 480px) {
+  .turnos-filtro-fecha {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .turnos-date-filter,
+  .turnos-btn-todos {
+    width: 100%;
+  }
+
+  .turnos-btn-todos {
+    text-align: center;
   }
 }
