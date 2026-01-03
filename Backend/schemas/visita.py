@@ -29,7 +29,7 @@ class VisitaUpdate(BaseModel):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# OUTPUT (AGENDA BARBERO / ADMIN)
+# OUTPUT (AGENDA BARBERO / ADMIN / HISTORIAL)
 # ----------------------------------------------------------------------------------------------------------------------
 
 class VisitaOut(BaseModel):
@@ -44,9 +44,12 @@ class VisitaOut(BaseModel):
     cliente_apellido: str
     cliente_telefono: Optional[str] = None
 
-
     servicio_nombre: str
     servicio_duracion: int
+
+    # 🔥 CAMPOS QUE FALTABAN (FIX REAL)
+    barbero_id: Optional[int] = None
+    barbero_nombre: str = ""
 
     class Config:
         from_attributes = True

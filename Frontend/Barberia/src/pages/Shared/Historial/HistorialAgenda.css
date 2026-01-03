@@ -1,0 +1,101 @@
+/* ===============================
+   KING BARBER – HISTORIAL AGENDA
+   ESTILO CLARO / PREMIUM
+================================ */
+
+.kb-historial {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: linear-gradient(180deg, #fafafa, #f3f4f6);
+}
+
+/* TÍTULO */
+.kb-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #9a7b28; /* dorado sobrio */
+  text-transform: uppercase;
+}
+
+/* ERROR */
+.kb-error {
+  text-align: center;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+/* TEXTO VACÍO */
+.kb-empty {
+  text-align: center;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* LISTA */
+.kb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CARD */
+.kb-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px 22px;
+
+  border-left: 5px solid #d4af37; /* dorado king barber */
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kb-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.35);
+}
+
+/* TEXTO */
+.kb-text {
+  font-size: 15px;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+/* FECHA */
+.kb-date {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* SERVICIO */
+.kb-service {
+  color: #9a7b28;
+  font-weight: 700;
+}
+
+/* BARBERO */
+.kb-barbero {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .kb-card {
+    padding: 16px;
+  }
+
+  .kb-text {
+    font-size: 14px;
+  }
+}

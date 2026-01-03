@@ -46,11 +46,9 @@ def visita_to_out(visita):
         "servicio_nombre": visita.servicio.nombre if visita.servicio else "",
         "servicio_duracion": visita.servicio.duracion_min if visita.servicio else 0,
 
-        "barbero_id": (
-            visita.barbero.id_barbero
-            if getattr(visita, "barbero", None)
-            else None
-        ),
+        # 🔥 FIX CLAVE
+        "barbero_id": visita.barbero.id_barbero if visita.barbero else None,
+        "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
     }
 
 # ======================================================================================
@@ -63,7 +61,6 @@ def mi_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
-    # 🔥 actualizar estados vencidos antes de responder
     crud_visita.marcar_visitas_completadas(db)
 
     visitas = crud_visita.get_visitas_by_barbero(
@@ -83,14 +80,10 @@ def historial_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
-    # 🔥 asegurar estados correctos
     crud_visita.marcar_visitas_completadas(db)
 
-    # ADMIN → todos los COMPLETADOS
     if login.role == "admin":
         visitas = crud_visita.get_visitas_completadas(db)
-
-    # BARBERO → solo sus COMPLETADOS
     else:
         visitas = crud_visita.get_visitas_completadas_por_barbero(
             db=db,
@@ -216,7 +209,6 @@ def crear_visita(
     try:
         visita = crud_visita.create_visita(db, visita_in)
 
-        # EMAIL CONFIRMACIÓN
         if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
@@ -225,7 +217,6 @@ def crear_visita(
                 generar_email_confirmacion(visita)
             )
 
-        # WHATSAPP CONFIRMACIÓN
         background_tasks.add_task(
             enviar_turno_confirmado_whatsapp,
             visita
@@ -261,7 +252,6 @@ def cancelar_visita(
     db.commit()
     db.refresh(visita)
 
-    # EMAIL CANCELACIÓN
     if visita.cliente and visita.cliente.email:
         background_tasks.add_task(
             enviar_email_confirmacion,
@@ -270,7 +260,6 @@ def cancelar_visita(
             generar_email_cancelacion(visita)
         )
 
-    # WHATSAPP CANCELACIÓN
     background_tasks.add_task(
         enviar_turno_cancelado_whatsapp,
         visita
@@ -279,7 +268,7 @@ def cancelar_visita(
     return {"ok": True}
 
 # ======================================================================================
-# LISTAR TODAS (ADMIN – NO HISTORIAL)
+# LISTAR TODAS (ADMIN)
 # ======================================================================================
 
 @router.get("/", response_model=List[VisitaOut])
