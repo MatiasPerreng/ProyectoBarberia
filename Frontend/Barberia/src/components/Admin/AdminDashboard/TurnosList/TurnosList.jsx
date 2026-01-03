@@ -31,7 +31,6 @@ const meses = [
 ];
 
 const formatearFecha = (fechaHoraStr) => {
-  // ⚠️ backend manda "YYYY-MM-DD HH:mm"
   const date = new Date(fechaHoraStr.replace(" ", "T"));
 
   const diaSemana = dias[date.getDay()];
@@ -44,21 +43,6 @@ const formatearFecha = (fechaHoraStr) => {
       minute: "2-digit",
     }),
   };
-};
-
-// -----------------------------
-// FILTRO DE TURNOS VIGENTES
-// -----------------------------
-const turnoSigueVigente = (fechaHoraStr, duracionMin) => {
-  const inicio = new Date(fechaHoraStr.replace(" ", "T"));
-
-  // Si no hay duración, solo validamos que no sea pasado
-  if (!duracionMin || isNaN(duracionMin)) {
-    return inicio > new Date();
-  }
-
-  const fin = new Date(inicio.getTime() + duracionMin * 60000);
-  return fin > new Date();
 };
 
 // -----------------------------
@@ -80,52 +64,33 @@ const TurnosList = ({ filtro }) => {
   }, [filtro]);
 
   if (loading) return <p>Cargando turnos…</p>;
-
-  const turnosFiltrados = turnos.filter((t) => {
-    // 🟥 CANCELADOS → mostrar tal cual (NO aplicar lógica de vigencia)
-    if (filtro === "cancelados") {
-      return t.estado?.toLowerCase() === "cancelado";
-    }
-
-    // 🟦 HOY / PENDIENTES
-    if (
-      t.estado === "CANCELADO" ||
-      t.estado === "COMPLETADO" ||
-      t.estado === "cancelado"
-    ) {
-      return false;
-    }
-
-    return turnoSigueVigente(
-      t.fecha_hora,
-      t.servicio_duracion
-    );
-  });
-
-  if (!turnosFiltrados.length) {
-    return <p>No hay turnos</p>;
-  }
+  if (!turnos.length) return <p>No hay turnos</p>;
 
   return (
     <div className="turnos-list">
-      {turnosFiltrados.map((t) => {
+      {turnos.map((t) => {
         const { fechaTexto, hora } = formatearFecha(t.fecha_hora);
 
         return (
           <div key={t.id_visita} className="turno-row">
             <div className="turno-info">
-              <p>
-                <strong>{t.cliente}</strong> se va a hacer{" "}
-                <strong>{t.servicio}</strong> con{" "}
-                <strong>{t.barbero}</strong>
+              {/* 👤 Cliente */}
+              <p className="turno-cliente">
+                <strong>{t.cliente}</strong>
               </p>
 
-              <small>
+              {/* ✂️ Servicio + Barbero */}
+              <p className="turno-detalle">
+                {t.servicio} con <strong>{t.barbero}</strong>
+              </p>
+
+              {/* 📅 Fecha */}
+              <small className="turno-fecha">
                 📅 {fechaTexto} · ⏰ {hora}
               </small>
             </div>
 
-            {/* ❌ En cancelados no hay acciones */}
+            {/* ❌ En cancelados NO hay acciones */}
             {filtro !== "cancelados" && (
               <TurnoActions turno={t} />
             )}

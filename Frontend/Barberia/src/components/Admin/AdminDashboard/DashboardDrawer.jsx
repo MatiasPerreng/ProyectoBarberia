@@ -33,6 +33,10 @@ const DashboardDrawer = ({ open, type, onClose }) => {
           {type === "barberos" && (
             <BarberoAgendaView />
           )}
+
+          {type === "cancelados" && (
+            <TurnosList filtro="cancelados" />
+          )}
         </div>
       </div>
     </div>

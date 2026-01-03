@@ -22,12 +22,18 @@ def admin_dashboard(db: Session = Depends(get_db)):
     inicio_hoy = datetime.combine(hoy, time.min)
     fin_hoy = datetime.combine(hoy, time.max)
 
+    # ------------------
+    # BARBEROS ACTIVOS
+    # ------------------
     barberos_activos = (
         db.query(Barbero)
         .filter(Barbero.activo == True)
         .count()
     )
 
+    # ------------------
+    # TURNOS HOY (confirmados)
+    # ------------------
     turnos_hoy = (
         db.query(Visita)
         .filter(
@@ -38,6 +44,9 @@ def admin_dashboard(db: Session = Depends(get_db)):
         .count()
     )
 
+    # ------------------
+    # TURNOS PENDIENTES (confirmados futuros)
+    # ------------------
     turnos_pendientes = (
         db.query(Visita)
         .filter(
@@ -47,13 +56,12 @@ def admin_dashboard(db: Session = Depends(get_db)):
         .count()
     )
 
-    turnos_cancelados_hoy = (
+    # ------------------
+    # TURNOS CANCELADOS (HISTÓRICOS)
+    # ------------------
+    turnos_cancelados = (
         db.query(Visita)
-        .filter(
-            Visita.estado.ilike("cancelado"),
-            Visita.fecha_hora >= inicio_hoy,
-            Visita.fecha_hora <= fin_hoy
-        )
+        .filter(Visita.estado.ilike("cancelado"))
         .count()
     )
 
@@ -61,7 +69,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
         "barberos_activos": barberos_activos,
         "turnos_hoy": turnos_hoy,
         "turnos_pendientes": turnos_pendientes,
-        "turnos_cancelados_hoy": turnos_cancelados_hoy
+        "turnos_cancelados": turnos_cancelados
     }
 
 
@@ -77,10 +85,15 @@ def admin_turnos(
     ahora = datetime.now()
     hoy = date.today()
 
-    query = db.query(Visita)
+    query = (
+        db.query(Visita)
+        .join(Visita.cliente)
+        .join(Visita.servicio)
+        .join(Visita.barbero)
+    )
 
     # ------------------
-    # PENDIENTES
+    # PENDIENTES (confirmados futuros)
     # ------------------
     if filtro == "pendientes":
         query = query.filter(
@@ -89,7 +102,7 @@ def admin_turnos(
         )
 
     # ------------------
-    # TURNOS HOY (Confirmados del día)
+    # HOY (confirmados del día)
     # ------------------
     elif filtro == "hoy":
         inicio = datetime.combine(hoy, time.min)
@@ -102,19 +115,14 @@ def admin_turnos(
         )
 
     # ------------------
-    # CANCELADOS HOY
+    # CANCELADOS (HISTÓRICOS)
     # ------------------
     elif filtro == "cancelados":
-        inicio = datetime.combine(hoy, time.min)
-        fin = datetime.combine(hoy, time.max)
-
         query = query.filter(
-            Visita.estado.ilike("cancelado"),
-            Visita.fecha_hora >= inicio,
-            Visita.fecha_hora <= fin
+            Visita.estado.ilike("cancelado")
         )
 
-    turnos = query.order_by(Visita.fecha_hora).all()
+    turnos = query.order_by(Visita.fecha_hora.desc()).all()
 
     return [
         {
@@ -122,8 +130,9 @@ def admin_turnos(
             "fecha_hora": t.fecha_hora.strftime("%Y-%m-%d %H:%M"),
             "cliente": t.cliente.nombre,
             "servicio": t.servicio.nombre,
+            "servicio_duracion": t.servicio.duracion_min,
             "barbero": t.barbero.nombre,
-            "estado": t.estado
+            "estado": t.estado.upper()
         }
         for t in turnos
     ]

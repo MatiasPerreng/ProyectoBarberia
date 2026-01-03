@@ -19,8 +19,8 @@ const DashboardCards = ({ stats, onOpen }) => {
       </div>
 
       <div className="admin-card" onClick={() => onOpen("cancelados")}>
-        <h3>Cancelados hoy</h3>
-        <p>{stats.turnos_cancelados_hoy}</p>
+        <h3>Cancelados</h3>
+        <p>{stats.turnos_cancelados}</p>
       </div>
     </div>
   );
