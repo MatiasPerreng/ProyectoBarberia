@@ -31,7 +31,8 @@ const meses = [
 ];
 
 const formatearFecha = (fechaHoraStr) => {
-  const date = new Date(fechaHoraStr);
+  // ⚠️ backend manda "YYYY-MM-DD HH:mm"
+  const date = new Date(fechaHoraStr.replace(" ", "T"));
 
   const diaSemana = dias[date.getDay()];
   const mes = meses[date.getMonth()];
@@ -49,7 +50,7 @@ const formatearFecha = (fechaHoraStr) => {
 // FILTRO DE TURNOS VIGENTES
 // -----------------------------
 const turnoSigueVigente = (fechaHoraStr, duracionMin) => {
-  const inicio = new Date(fechaHoraStr);
+  const inicio = new Date(fechaHoraStr.replace(" ", "T"));
 
   // Si no hay duración, solo validamos que no sea pasado
   if (!duracionMin || isNaN(duracionMin)) {
@@ -60,11 +61,16 @@ const turnoSigueVigente = (fechaHoraStr, duracionMin) => {
   return fin > new Date();
 };
 
+// -----------------------------
+// COMPONENTE
+// -----------------------------
 const TurnosList = ({ filtro }) => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!filtro) return;
+
     setLoading(true);
 
     fetch(`${API_URL}/admin/turnos?filtro=${filtro}`)
@@ -75,8 +81,18 @@ const TurnosList = ({ filtro }) => {
 
   if (loading) return <p>Cargando turnos…</p>;
 
-  const turnosVigentes = turnos.filter((t) => {
-    if (t.estado === "CANCELADO" || t.estado === "COMPLETADO") {
+  const turnosFiltrados = turnos.filter((t) => {
+    // 🟥 CANCELADOS → mostrar tal cual (NO aplicar lógica de vigencia)
+    if (filtro === "cancelados") {
+      return t.estado?.toLowerCase() === "cancelado";
+    }
+
+    // 🟦 HOY / PENDIENTES
+    if (
+      t.estado === "CANCELADO" ||
+      t.estado === "COMPLETADO" ||
+      t.estado === "cancelado"
+    ) {
       return false;
     }
 
@@ -86,13 +102,13 @@ const TurnosList = ({ filtro }) => {
     );
   });
 
-  if (!turnosVigentes.length) {
-    return <p>No hay turnos vigentes</p>;
+  if (!turnosFiltrados.length) {
+    return <p>No hay turnos</p>;
   }
 
   return (
     <div className="turnos-list">
-      {turnosVigentes.map((t) => {
+      {turnosFiltrados.map((t) => {
         const { fechaTexto, hora } = formatearFecha(t.fecha_hora);
 
         return (
@@ -109,7 +125,10 @@ const TurnosList = ({ filtro }) => {
               </small>
             </div>
 
-            <TurnoActions turno={t} />
+            {/* ❌ En cancelados no hay acciones */}
+            {filtro !== "cancelados" && (
+              <TurnoActions turno={t} />
+            )}
           </div>
         );
       })}

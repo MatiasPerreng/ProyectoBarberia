@@ -33,6 +33,13 @@
   cursor: pointer;
 }
 
+.barbero-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
 /* =======================================================
    SIDEBAR
 ======================================================= */
@@ -164,7 +171,8 @@
 
 /* CONTENIDO REAL */
 .barbero-content-inner {
-  flex: 1;              /* 🔥 EMPUJA EL FOOTER */
+  flex: 1;
+  /* 🔥 EMPUJA EL FOOTER */
   padding: 42px;
   box-sizing: border-box;
 }

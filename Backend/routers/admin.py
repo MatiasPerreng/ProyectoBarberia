@@ -31,6 +31,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
     turnos_hoy = (
         db.query(Visita)
         .filter(
+            Visita.estado.ilike("confirmado"),
             Visita.fecha_hora >= inicio_hoy,
             Visita.fecha_hora <= fin_hoy
         )
@@ -40,7 +41,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
     turnos_pendientes = (
         db.query(Visita)
         .filter(
-            Visita.estado == "CONFIRMADO",
+            Visita.estado.ilike("confirmado"),
             Visita.fecha_hora > ahora
         )
         .count()
@@ -49,7 +50,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
     turnos_cancelados_hoy = (
         db.query(Visita)
         .filter(
-            Visita.estado == "cancelado",
+            Visita.estado.ilike("cancelado"),
             Visita.fecha_hora >= inicio_hoy,
             Visita.fecha_hora <= fin_hoy
         )
@@ -83,18 +84,19 @@ def admin_turnos(
     # ------------------
     if filtro == "pendientes":
         query = query.filter(
-            Visita.estado == "CONFIRMADO",
+            Visita.estado.ilike("confirmado"),
             Visita.fecha_hora > ahora
         )
 
     # ------------------
-    # TURNOS HOY
+    # TURNOS HOY (Confirmados del día)
     # ------------------
     elif filtro == "hoy":
         inicio = datetime.combine(hoy, time.min)
         fin = datetime.combine(hoy, time.max)
 
         query = query.filter(
+            Visita.estado.ilike("confirmado"),
             Visita.fecha_hora >= inicio,
             Visita.fecha_hora <= fin
         )
@@ -107,14 +109,13 @@ def admin_turnos(
         fin = datetime.combine(hoy, time.max)
 
         query = query.filter(
-            Visita.estado == "cancelado",
+            Visita.estado.ilike("cancelado"),
             Visita.fecha_hora >= inicio,
             Visita.fecha_hora <= fin
         )
 
     turnos = query.order_by(Visita.fecha_hora).all()
 
-    # salida limpia para el dashboard
     return [
         {
             "id_visita": t.id_visita,

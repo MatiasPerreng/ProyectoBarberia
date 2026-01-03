@@ -1,3 +1,4 @@
+
 import "./ContactBar.css";
 
 export default function ContactBar() {
@@ -35,7 +36,7 @@ export default function ContactBar() {
           rel="noopener noreferrer"
           aria-label="WhatsApp"
         >
-          <img src="icons/whatsapp.svg" alt="WhatsApp" />
+          <img src="/icons/whatsapp.svg" alt="WhatsApp" />
         </a>
 
         <a
@@ -44,7 +45,7 @@ export default function ContactBar() {
           rel="noopener noreferrer"
           aria-label="Instagram"
         >
-          <img src="icons/instagram.svg" alt="Instagram" />
+          <img src="/icons/instagram.svg" alt="Instagram" />
         </a>
       </div>
     </div>
