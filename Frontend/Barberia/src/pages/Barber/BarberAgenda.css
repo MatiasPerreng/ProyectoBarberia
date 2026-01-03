@@ -124,19 +124,20 @@
 }
 
 /* =========================
-   RESPONSIVE – MOBILE (🔥 FIX REAL)
+   RESPONSIVE – MOBILE (🔥 COMPRIMIDO)
 ========================= */
 
 @media (max-width: 600px) {
   .barbero-summary {
-    padding: 20px 18px;
-    gap: 18px;
+    padding: 14px 16px;   
+    gap: 12px;           
+    margin-bottom: 16px;  
   }
 
-  /* 👉 TODO EN COLUMNA */
+  /* TODO EN COLUMNA */
   .barbero-summary-info {
     flex-direction: column;
-    gap: 14px;
+    gap: 4px;         
   }
 
   .summary-item {
@@ -144,37 +145,42 @@
     text-align: center;
   }
 
+  .summary-label {
+    font-size: 0.65rem;  
+  }
+
   .summary-value {
-    font-size: 1.6rem;
+    font-size: 1.35rem;   
   }
 
   .summary-date-wrapper {
     width: 100%;
+    gap: 4px;
   }
 
   .summary-date-wrapper label {
     text-align: center;
+    font-size: 0.65rem;
   }
 
   .barbero-summary-date {
     width: 100%;
+    height: 38px;        
+    font-size: 0.9rem;
     max-width: 100%;
     box-sizing: border-box;
 
-    /* 🔥 iOS Safari hacks */
+    /* iOS Safari fixes */
     -webkit-appearance: none;
     appearance: none;
   }
 
-  /* Evita que Safari meta padding interno raro */
   .barbero-summary-date::-webkit-date-and-time-value {
     text-align: center;
     white-space: nowrap;
   }
 
-  /* Contenedor blindado */
   .summary-date-wrapper {
-    width: 100%;
     max-width: 100%;
     overflow: hidden;
   }
@@ -243,14 +249,14 @@
   color: #1b5e20;
 }
 
-/* Si preferís separar estados por clase */
+/* Estado inactivo */
 .barbero-block.inactivo small {
   background: rgba(164, 0, 0, 0.12);
   color: #8b0000;
 }
 
 /* ======================================================
-   RESPONSIVE
+   RESPONSIVE GRID
 ====================================================== */
 
 @media (max-width: 480px) {
@@ -258,7 +264,6 @@
     grid-template-columns: 1fr;
   }
 }
-
 
 /* ======================================================
    OVERLAY
@@ -343,7 +348,6 @@
 .drawer-content {
   flex: 1;
   overflow-y: auto;
-
   padding: 20px;
 }
 
@@ -361,7 +365,7 @@
 }
 
 /* ======================================================
-   MOBILE
+   MOBILE DRAWER
 ====================================================== */
 
 @media (max-width: 480px) {

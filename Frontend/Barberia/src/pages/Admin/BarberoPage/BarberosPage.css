@@ -60,12 +60,12 @@
 .barberos-row {
   background: linear-gradient(180deg, #ffffff, #f6f7f8);
   border-radius: 18px;
-  padding: 22px;
+  padding: 22px 26px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -131,13 +131,13 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .barberos-actions button {
   width: 100%;
-  height: 46px;
+  height: 48px;
 
   border-radius: 16px;
   border: none;
@@ -162,9 +162,9 @@
   transform: translateY(0);
 }
 
-/* ELIMINAR – separado y dominante */
+/* ELIMINAR */
 .barberos-actions button.danger {
-  margin-top: 8px;
+  margin-top: 10px;
 
   background: linear-gradient(135deg, #b91c1c, #dc2626);
   color: #fff;
@@ -180,36 +180,47 @@
 }
 
 /* ======================================================
-   DESKTOP (solo mejora layout)
+   DESKTOP – FIX BOTONES COMPRIMIDOS 🔥
 ====================================================== */
 
 @media (min-width: 768px) {
   .barberos-row {
     flex-direction: row;
     align-items: center;
+    gap: 22px;
   }
 
   .barberos-info {
     text-align: left;
+    min-width: 160px;
+  }
+
+  .barberos-status {
+    margin-left: 8px;
   }
 
   .barberos-actions {
     flex-direction: row;
-    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;              /* 🔥 MÁS AIRE */
     width: auto;
     margin-left: auto;
+    margin-top: 0;
   }
 
   .barberos-actions button {
     width: auto;
-    height: 36px;
-    font-size: 0.8rem;
-    border-radius: 12px;
+    height: 40px;           /* 🔥 MÁS ALTOS */
+    padding: 0 18px;        /* 🔥 MÁS ANCHOS */
+    font-size: 0.85rem;
+    border-radius: 14px;
+    white-space: nowrap;
   }
 
   .barberos-actions button.danger {
     margin-top: 0;
-    height: 36px;
+    height: 40px;
+    padding: 0 20px;
   }
 }
 
@@ -245,7 +256,6 @@
   animation: barberosModalIn 0.25s ease;
 }
 
-/* Animación */
 @keyframes barberosModalIn {
   from {
     opacity: 0;
@@ -258,7 +268,7 @@
 }
 
 /* ======================================================
-   CONTENIDO
+   CONTENIDO MODAL
 ====================================================== */
 
 .barberos-access-card h3 {
@@ -280,10 +290,6 @@
   color: #fff;
 }
 
-/* ======================================================
-   INPUTS
-====================================================== */
-
 .barberos-access-card input,
 .barberos-access-card select {
   width: 100%;
@@ -298,21 +304,6 @@
   font-size: 0.95rem;
 }
 
-.barberos-access-card input::placeholder {
-  color: #aaa;
-}
-
-.barberos-access-card input:focus,
-.barberos-access-card select:focus {
-  outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
-}
-
-/* ======================================================
-   ACCIONES
-====================================================== */
-
 .barberos-access-actions {
   display: flex;
   gap: 12px;
@@ -322,37 +313,8 @@
 .barberos-access-actions button {
   flex: 1;
   height: 44px;
-
   border-radius: 14px;
   border: none;
-
   font-weight: 700;
   cursor: pointer;
-}
-
-/* Cancelar */
-.barberos-access-actions button:first-child {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #eee;
-}
-
-/* Crear */
-.barberos-access-actions button:last-child {
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
-  color: #111;
-}
-
-/* ======================================================
-   MOBILE AJUSTES
-====================================================== */
-
-@media (max-width: 480px) {
-  .barberos-access-card {
-    padding: 22px;
-  }
-
-  .barberos-access-card h3 {
-    font-size: 1.15rem;
-  }
 }

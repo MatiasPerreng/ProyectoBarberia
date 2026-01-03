@@ -11,15 +11,38 @@
 }
 
 /* TÍTULO */
+/* TÍTULO – KING BARBER */
 .kb-title {
   font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
   margin-bottom: 30px;
   text-align: center;
-  color: #9a7b28; /* dorado sobrio */
   text-transform: uppercase;
+
+  color: #111; /* negro barber */
+
+  position: relative;
 }
+
+/* Línea dorada inferior */
+.kb-title::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin: 10px auto 0;
+
+  background: linear-gradient(
+    90deg,
+    #cfa85a,
+    #f0d27a,
+    #cfa85a
+  );
+
+  border-radius: 999px;
+}
+
 
 /* ERROR */
 .kb-error {

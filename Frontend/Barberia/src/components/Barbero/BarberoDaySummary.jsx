@@ -1,7 +1,6 @@
-import "./BarberoDaySummary.css";
+
 
 const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
-  // 🔥 Turnos válidos (no cancelados)
   const turnosValidos = turnos.filter(
     (t) => t.estado !== "cancelado"
   );

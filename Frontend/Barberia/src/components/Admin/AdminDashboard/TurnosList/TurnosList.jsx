@@ -16,32 +16,48 @@ const dias = [
 ];
 
 const meses = [
-  "enero",
-  "febrero",
-  "marzo",
-  "abril",
-  "mayo",
-  "junio",
-  "julio",
-  "agosto",
-  "septiembre",
-  "octubre",
-  "noviembre",
-  "diciembre",
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ];
 
 const formatearFecha = (fechaHoraStr) => {
-  const [fecha, hora] = fechaHoraStr.split(" ");
-  const [y, m, d] = fecha.split("-").map(Number);
+  const date = new Date(fechaHoraStr);
 
-  const date = new Date(y, m - 1, d);
   const diaSemana = dias[date.getDay()];
   const mes = meses[date.getMonth()];
 
   return {
-    fechaTexto: `${diaSemana} ${d} de ${mes}`,
-    hora,
+    fechaTexto: `${diaSemana} ${date.getDate()} de ${mes}`,
+    hora: date.toLocaleTimeString("es-UY", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
   };
+};
+
+// -----------------------------
+// FILTRO DE TURNOS VIGENTES
+// -----------------------------
+const turnoSigueVigente = (fechaHoraStr, duracionMin) => {
+  const inicio = new Date(fechaHoraStr);
+
+  // Si no hay duración, solo validamos que no sea pasado
+  if (!duracionMin || isNaN(duracionMin)) {
+    return inicio > new Date();
+  }
+
+  const fin = new Date(inicio.getTime() + duracionMin * 60000);
+  return fin > new Date();
 };
 
 const TurnosList = ({ filtro }) => {
@@ -53,16 +69,30 @@ const TurnosList = ({ filtro }) => {
 
     fetch(`${API_URL}/admin/turnos?filtro=${filtro}`)
       .then((res) => res.json())
-      .then(setTurnos)
+      .then((data) => setTurnos(data))
       .finally(() => setLoading(false));
   }, [filtro]);
 
   if (loading) return <p>Cargando turnos…</p>;
-  if (!turnos.length) return <p>No hay turnos</p>;
+
+  const turnosVigentes = turnos.filter((t) => {
+    if (t.estado === "CANCELADO" || t.estado === "COMPLETADO") {
+      return false;
+    }
+
+    return turnoSigueVigente(
+      t.fecha_hora,
+      t.servicio_duracion
+    );
+  });
+
+  if (!turnosVigentes.length) {
+    return <p>No hay turnos vigentes</p>;
+  }
 
   return (
     <div className="turnos-list">
-      {turnos.map((t) => {
+      {turnosVigentes.map((t) => {
         const { fechaTexto, hora } = formatearFecha(t.fecha_hora);
 
         return (
