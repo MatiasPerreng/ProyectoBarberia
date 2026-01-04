@@ -20,10 +20,12 @@
 }
 
 .barberos-header h2 {
-  font-size: 1.9rem;
+  font-size: 1.75rem;
   font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
   margin-right: auto;
-  color: #111;
+
 }
 
 .barberos-btn-primary {
@@ -275,6 +277,7 @@
     opacity: 0;
     transform: translateY(16px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: none;
