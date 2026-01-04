@@ -14,23 +14,20 @@ export default function TvAgendaPage() {
   useEffect(() => {
     const actualizarHora = () => {
       const now = new Date();
-      const horaStr = now.toLocaleTimeString("es-UY", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+      setHoraActual(
+        now.toLocaleTimeString("es-UY", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+      );
 
       const minuto = now.getMinutes();
-      if (
-        lastMinuteRef.current !== null &&
-        minuto !== lastMinuteRef.current
-      ) {
+      if (lastMinuteRef.current !== null && minuto !== lastMinuteRef.current) {
         setMinuteTick(true);
         setTimeout(() => setMinuteTick(false), 400);
       }
-
       lastMinuteRef.current = minuto;
-      setHoraActual(horaStr);
     };
 
     actualizarHora();
@@ -46,11 +43,10 @@ export default function TvAgendaPage() {
 
   useEffect(() => {
     if (proximos.length === 0) return;
-
-    const rotador = setInterval(() => {
-      setIndiceProximo((prev) => (prev + 1) % proximos.length);
-    }, 5000);
-
+    const rotador = setInterval(
+      () => setIndiceProximo((i) => (i + 1) % proximos.length),
+      5000
+    );
     return () => clearInterval(rotador);
   }, [proximos]);
 
@@ -67,6 +63,7 @@ export default function TvAgendaPage() {
   };
 
   const proximo = proximos[indiceProximo];
+  const usarGrid = enCurso.length >= 3;
 
   return (
     <div className="tv-agenda-container tv-43">
@@ -75,69 +72,62 @@ export default function TvAgendaPage() {
           <img src="/logo.jpg" alt="King Barber" className="tv-logo" />
           <span className="tv-brand-text">KING BARBER</span>
         </div>
-
         <div className={`tv-clock ${minuteTick ? "minute-tick" : ""}`}>
           {horaActual}
         </div>
       </header>
 
       <main className="tv-main-content">
-        {/* ===================== EN CURSO ===================== */}
         <section className="tv-section">
           <div className="tv-section-header">
             <h2 className="tv-title">SERVICIOS EN CURSO</h2>
             <div className="live-badge">EN VIVO</div>
           </div>
 
-          <div className="tv-list">
-            {enCurso.length === 0 ? (
-              <p className="tv-muted">No hay servicios activos</p>
-            ) : (
-              enCurso.slice(0, 2).map((s, i) => (
-                <div key={i} className="tv-item">
-                  <div className="tv-barbero-col">
-                    <span className="tv-label">BARBERO</span>
-                    <div className="tv-barbero">{s.barbero}</div>
-                  </div>
-
-                  <div className="tv-info-col">
-                    <div className="tv-servicio">{s.servicio}</div>
-                    <div className="tv-cliente">{s.cliente}</div>
-                  </div>
+          <div className={`tv-list ${usarGrid ? "tv-list-grid" : ""}`}>
+            {enCurso.slice(0, 4).map((s, i) => (
+              <div key={i} className="tv-item">
+                <div>
+                  <span className="tv-label">BARBERO</span>
+                  <div className="tv-barbero">{s.barbero}</div>
                 </div>
-              ))
-            )}
+                <div>
+                  <div className="tv-servicio">{s.servicio}</div>
+                  <div className="tv-cliente">{s.cliente}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* ===================== PRÓXIMO ===================== */}
         <section className="tv-section next">
           <h2 className="tv-title gold">PRÓXIMO SERVICIO</h2>
 
-          {proximo ? (
-            <div key={indiceProximo} className="tv-next-card tv-animate">
+          {proximo && (
+            <div className="tv-next-card tv-animate">
               <div className="tv-next-hora">{proximo.hora}</div>
 
-              <div className="tv-next-details">
-                <span className="tv-next-serv">{proximo.servicio}</span>
-                <span className="tv-sep">|</span>
-                <span className="tv-next-cli">{proximo.cliente}</span>
+              <div className="tv-next-text">
+                <div className="tv-next-servicio">
+                  {proximo.servicio}
+                </div>
+                <div className="tv-next-cliente">
+                  {proximo.cliente}
+                </div>
               </div>
 
               <div className="tv-next-barbero">
                 con <strong>{proximo.barbero}</strong>
               </div>
-
               <div className="shimmer-effect" />
             </div>
-          ) : (
-            <p className="tv-muted">Agenda completa</p>
           )}
         </section>
       </main>
 
       <footer className="tv-footer">
-        DESARROLLADO POR <strong>MATIAS PERRENG</strong>
+        <span>DESARROLLADO POR</span>
+        <strong>MATIAS PERRENG</strong>
       </footer>
     </div>
   );

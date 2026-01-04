@@ -1,16 +1,11 @@
 /* =======================================================
-   CONTENEDOR GENERAL
+   CONTENEDOR
 ======================================================= */
 
 .tv-agenda-container {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(
-      circle at top right,
-      rgba(212, 175, 55, 0.1),
-      transparent 60%
-    ),
-    #0a0a0a;
+  background: radial-gradient(circle at top right, rgba(212,175,55,0.1), transparent 60%), #0a0a0a;
   color: #fff;
   padding: clamp(20px, 3vh, 40px) clamp(30px, 5vw, 70px);
   box-sizing: border-box;
@@ -29,14 +24,14 @@
   justify-content: space-between;
   align-items: center;
   height: clamp(80px, 10vh, 120px);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 2px solid rgba(255,255,255,0.05);
   margin-bottom: clamp(20px, 3vh, 40px);
 }
 
 .tv-brand {
   display: flex;
   align-items: center;
-  gap: clamp(10px, 1.5vw, 20px);
+  gap: 15px;
 }
 
 .tv-logo {
@@ -63,8 +58,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: clamp(30px, 4vh, 60px);
+  gap: clamp(24px, 3.5vh, 50px);
 }
 
 /* =======================================================
@@ -80,13 +74,12 @@
 
 .tv-title {
   font-size: clamp(1.2rem, 1.6vw, 1.8rem);
-  letter-spacing: 2px;
   font-weight: 800;
+  letter-spacing: 2px;
 }
 
 .tv-title.gold {
   color: #d4af37;
-  margin-top: 0.5vh;
 }
 
 .live-badge {
@@ -105,14 +98,14 @@
 .tv-list {
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 1.5vh, 24px);
+  gap: clamp(12px, 1.5vh, 22px);
 }
 
 .tv-item {
   display: grid;
   grid-template-columns: clamp(200px, 18vw, 260px) 1fr;
-  background: rgba(255, 255, 255, 0.03);
-  padding: clamp(14px, 2vh, 28px) clamp(20px, 3vw, 40px);
+  background: rgba(255,255,255,0.03);
+  padding: clamp(14px, 2vh, 26px) clamp(20px, 3vw, 38px);
   border-radius: 14px;
   border-left: 5px solid #d4af37;
   align-items: center;
@@ -122,15 +115,12 @@
   font-size: 0.7rem;
   color: #d4af37;
   font-weight: bold;
-  margin-bottom: 4px;
-  display: block;
 }
 
 .tv-barbero {
   font-size: clamp(1.8rem, 2.4vw, 2.6rem);
   font-weight: 900;
   text-transform: uppercase;
-  line-height: 1;
 }
 
 .tv-servicio {
@@ -144,41 +134,66 @@
 }
 
 /* =======================================================
-   PRÓXIMO SERVICIO
+   GRID 2x2 (3 o 4 servicios)
+======================================================= */
+
+.tv-list-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(12px, 2vh, 22px);
+}
+
+.tv-list-grid .tv-item {
+  grid-template-columns: clamp(150px, 13vw, 220px) 1fr;
+  padding: clamp(12px, 1.6vh, 22px) clamp(16px, 2.2vw, 32px);
+}
+
+.tv-list-grid .tv-barbero {
+  font-size: clamp(1.5rem, 2vw, 2.2rem);
+}
+
+.tv-list-grid .tv-servicio {
+  font-size: clamp(1.3rem, 1.8vw, 2rem);
+}
+
+/* =======================================================
+   PRÓXIMO SERVICIO (CORREGIDO)
 ======================================================= */
 
 .tv-next-card {
-  background: linear-gradient(
-    145deg,
-    rgba(212, 175, 55, 0.12),
-    rgba(255, 255, 255, 0.02)
-  );
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(145deg, rgba(212,175,55,0.12), rgba(255,255,255,0.02));
+  border: 1px solid rgba(212,175,55,0.3);
   border-radius: 22px;
-  padding: clamp(25px, 3vh, 45px);
+  padding: clamp(22px, 3vh, 40px);
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
 }
 
 .tv-next-hora {
-  font-size: clamp(4rem, 6vw, 6rem);
+  font-size: clamp(3.8rem, 5.5vw, 5.5rem);
   font-weight: 900;
   color: #d4af37;
-  line-height: 1;
+  margin-bottom: clamp(10px, 1.5vh, 20px);
 }
 
-.tv-next-details {
-  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
-  margin: clamp(8px, 1vh, 18px) 0;
-  font-weight: 700;
+.tv-next-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: clamp(8px, 1.2vh, 16px);
 }
 
-.tv-sep {
-  margin: 0 15px;
-  color: #d4af37;
-  opacity: 0.5;
+.tv-next-servicio {
+  font-size: clamp(1.7rem, 2.4vw, 2.3rem);
+  font-weight: 800;
+}
+
+.tv-next-cliente {
+  font-size: clamp(1.5rem, 2vw, 1.8rem);
+  color: #fff;
+  opacity: 0.9;
 }
 
 .tv-next-barbero {
@@ -188,7 +203,6 @@
 
 .tv-next-barbero strong {
   color: #d4af37;
-  text-transform: uppercase;
 }
 
 /* =======================================================
@@ -200,10 +214,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
   font-size: 0.85rem;
   opacity: 0.4;
   letter-spacing: 3px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255,255,255,0.05);
   margin-top: auto;
 }
 
@@ -217,26 +232,17 @@
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.04),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
   transform: skewX(-20deg);
   animation: shine 5s infinite;
 }
 
 @keyframes shine {
-  100% {
-    left: 200%;
-  }
+  100% { left: 200%; }
 }
 
 @keyframes blink {
-  50% {
-    opacity: 0.4;
-  }
+  50% { opacity: 0.4; }
 }
 
 .tv-animate {
@@ -244,12 +250,6 @@
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
