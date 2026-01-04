@@ -48,10 +48,14 @@ const formatearFecha = (fechaHoraStr) => {
 // -----------------------------
 // COMPONENTE
 // -----------------------------
+const hoy = new Date().toISOString().split("T")[0];
+
 const TurnosList = ({ filtro }) => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [fecha, setFecha] = useState(""); // 🆕
+
+  const [fecha, setFecha] = useState(hoy);
+  const [modoTodos, setModoTodos] = useState(true);
 
   // 🔁 Fetch turnos
   useEffect(() => {
@@ -60,7 +64,7 @@ const TurnosList = ({ filtro }) => {
     setLoading(true);
 
     let url = `${API_URL}/admin/turnos?filtro=${filtro}`;
-    if (fecha) {
+    if (!modoTodos) {
       url += `&fecha=${fecha}`;
     }
 
@@ -68,11 +72,12 @@ const TurnosList = ({ filtro }) => {
       .then((res) => res.json())
       .then((data) => setTurnos(data))
       .finally(() => setLoading(false));
-  }, [filtro, fecha]);
+  }, [filtro, fecha, modoTodos]);
 
-  // 🧼 Limpiar fecha al cambiar filtro
+  // 🧼 Al cambiar filtro → volvemos a TODOS
   useEffect(() => {
-    setFecha("");
+    setModoTodos(true);
+    setFecha(hoy);
   }, [filtro]);
 
   if (loading) return <p>Cargando turnos…</p>;
@@ -86,19 +91,26 @@ const TurnosList = ({ filtro }) => {
             type="date"
             className="turnos-date-filter"
             value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
+            onChange={(e) => {
+              setFecha(e.target.value);
+              setModoTodos(false);
+            }}
           />
 
-          <button
-            type="button"
-            className="turnos-btn-todos"
-            onClick={() => setFecha("")}
-          >
-            Todos
-          </button>
+          {!modoTodos && (
+            <button
+              type="button"
+              className="turnos-btn-todos"
+              onClick={() => {
+                setModoTodos(true);
+                setFecha(hoy); // 🔥 nunca vacío
+              }}
+            >
+              Todos
+            </button>
+          )}
         </div>
       )}
-
 
       {!turnos.length && <p>No hay turnos</p>}
 
@@ -115,18 +127,15 @@ const TurnosList = ({ filtro }) => {
                 </strong>
               </p>
 
-              {/* ✂️ Servicio + Barbero */}
               <p className="turno-detalle">
                 {t.servicio} con <strong>{t.barbero}</strong>
               </p>
 
-              {/* 📅 Fecha */}
               <small className="turno-fecha">
                 📅 {fechaTexto} · ⏰ {hora}
               </small>
             </div>
 
-            {/* ❌ En cancelados NO hay acciones */}
             {filtro !== "cancelados" && (
               <TurnoActions turno={t} />
             )}

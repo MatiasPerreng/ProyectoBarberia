@@ -2,16 +2,20 @@ import { useEffect, useState } from "react";
 import API_URL from "../../../services/api";
 import "./HistorialAgenda.css";
 
+const hoy = new Date().toISOString().split("T")[0];
+
 const HistorialAgenda = () => {
   const [turnos, setTurnos] = useState([]);
   const [error, setError] = useState(null);
-  const [fecha, setFecha] = useState(""); // 🆕 calendario
+
+  const [fecha, setFecha] = useState(hoy);
+  const [modoTodos, setModoTodos] = useState(true);
 
   useEffect(() => {
     setError(null);
 
     let url = `${API_URL}/visitas/historial`;
-    if (fecha) {
+    if (!modoTodos) {
       url += `?fecha=${fecha}`;
     }
 
@@ -32,7 +36,7 @@ const HistorialAgenda = () => {
       .catch(() => {
         setError("Error de conexión");
       });
-  }, [fecha]);
+  }, [fecha, modoTodos]);
 
   if (error) {
     return <p className="kb-error">{error}</p>;
@@ -42,20 +46,26 @@ const HistorialAgenda = () => {
     <div className="kb-historial">
       <h2 className="kb-title">Historial de agenda</h2>
 
-      {/* 📅 FILTRO POR FECHA */}
+      {/* 📅 FILTRO */}
       <div className="kb-filtro-fecha">
         <input
           type="date"
           className="kb-date-filter"
           value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
+          onChange={(e) => {
+            setFecha(e.target.value);
+            setModoTodos(false);
+          }}
         />
 
-        {fecha && (
+        {!modoTodos && (
           <button
             type="button"
             className="kb-btn-todos"
-            onClick={() => setFecha("")}
+            onClick={() => {
+              setModoTodos(true);
+              setFecha(hoy); // 🔥 nunca vacío
+            }}
           >
             Todos
           </button>
@@ -91,8 +101,7 @@ const HistorialAgenda = () => {
                 con{" "}
                 <strong className="kb-barbero">
                   {t.barbero_nombre}
-                </strong>
-                .
+                </strong>.
               </p>
             </div>
           );
