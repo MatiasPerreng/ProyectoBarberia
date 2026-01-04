@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuthContext } from "../../../../auth/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import "./LoginBarbero.css";
@@ -8,13 +8,26 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function LoginBarbero() {
   const navigate = useNavigate();
-  const { login } = useAuthContext();
+  const { login, user } = useAuthContext();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /* ======================================================
+     🔐 VALIDACIÓN: SI YA HAY SESIÓN → REDIRIGIR
+  ====================================================== */
+  if (user?.token && user?.role) {
+    if (user.role === "admin") {
+      return <Navigate to="/admin" replace />;
+    }
+    return <Navigate to="/barbero" replace />;
+  }
+
+  /* ======================================================
+     SUBMIT LOGIN
+  ====================================================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -27,31 +40,28 @@ export default function LoginBarbero() {
         body: JSON.stringify({ email, password }),
       });
 
-
-
       if (!response.ok) {
         const err = await response.json();
         throw new Error(err.detail || "Credenciales incorrectas");
       }
 
       const data = await response.json();
- 
 
-      // 🔐 Decodificar JWT (FUENTE DE LA VERDAD)
+      // 🔐 Decodificar JWT (fuente de la verdad)
       const decoded = jwtDecode(data.access_token);
-
       const role = decoded.role;
 
       if (!role) {
         throw new Error("El token no contiene el rol");
       }
 
-      // 🔐 Guardar sesión
+      // 🔐 Guardar sesión en AuthContext
       login({
         token: data.access_token,
         role,
       });
 
+      // 🔁 Redirigir según rol
       if (role === "admin") {
         navigate("/admin", { replace: true });
       } else {
@@ -65,6 +75,9 @@ export default function LoginBarbero() {
     }
   };
 
+  /* ======================================================
+     UI
+  ====================================================== */
   return (
     <div className="kb-login-container">
       <form className="kb-login-form" onSubmit={handleSubmit}>
