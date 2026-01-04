@@ -1,4 +1,4 @@
-
+const hoy = new Date().toISOString().split("T")[0];
 
 const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
   const turnosValidos = turnos.filter(
@@ -9,6 +9,9 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
     (acc, t) => acc + (t.precio || 0),
     0
   );
+
+  // 🔥 si viene vacío, mostramos hoy (pero el padre decide si filtra o no)
+  const fechaInput = fecha || hoy;
 
   return (
     <div className="barbero-summary">
@@ -34,7 +37,7 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
       </div>
 
       {/* =========================
-         FECHA + TODOS
+         FECHA + TODOS (FIX iOS)
       ========================= */}
       <div className="summary-date-wrapper">
         <label>Fecha</label>
@@ -43,7 +46,7 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
           <input
             type="date"
             className="barbero-summary-date"
-            value={fecha}
+            value={fechaInput}
             onChange={(e) => onChangeFecha(e.target.value)}
           />
 
@@ -51,7 +54,7 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
             <button
               type="button"
               className="summary-btn-todos"
-              onClick={() => onChangeFecha("")}
+              onClick={() => onChangeFecha(null)} // 👈 NO ""
             >
               Todos
             </button>
@@ -63,4 +66,3 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
 };
 
 export default BarberoDaySummary;
-

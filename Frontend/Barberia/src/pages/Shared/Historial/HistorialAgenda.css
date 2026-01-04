@@ -41,7 +41,7 @@
   padding: 16px;
   border-radius: 18px;
   background: #fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 /* INPUT DATE – DESKTOP OK */
@@ -58,13 +58,30 @@
 
 /* BOTÓN TODOS */
 .kb-btn-todos {
-  height: 52px;
-  padding: 0 20px;
-  border-radius: 14px;
-  border: 1px solid #d6b25e;
-  background: linear-gradient(135deg, #e6c77b, #d9b45f);
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
+  color: #111;
+
+  font-size: 0.85rem;
   font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+
   cursor: pointer;
+  box-shadow: 0 10px 26px rgba(230, 199, 123, 0.45);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.kb-btn-todos:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(230, 199, 123, 0.65);
 }
 
 /* ===============================
@@ -94,7 +111,7 @@
   border-radius: 18px;
   padding: 18px 22px;
   border-left: 5px solid #d4af37;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 .kb-text {

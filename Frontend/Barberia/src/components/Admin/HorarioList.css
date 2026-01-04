@@ -71,20 +71,30 @@
 ====================================================== */
 
 .btn-copy {
-  background: #e6c77b;
+  padding: 12px 24px;
+  border-radius: 999px;
   border: none;
-  padding: 7px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
+
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
+  color: #111;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+
   cursor: pointer;
-  color: #000;
-  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 10px 26px rgba(230, 199, 123, 0.45);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .btn-copy:hover {
-  background: #f0d58d;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(230, 199, 123, 0.65);
 }
 
 .btn-copy:active {
