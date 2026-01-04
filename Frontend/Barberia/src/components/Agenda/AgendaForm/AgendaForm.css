@@ -209,7 +209,7 @@
   padding: 12px 15px;
   border: 1px solid #eee;
   border-radius: 0;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .af-input-error {
@@ -335,6 +335,7 @@
     border: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     padding: 15px;
+    font-size: 16px;
   }
 
   .af-form-actions {
