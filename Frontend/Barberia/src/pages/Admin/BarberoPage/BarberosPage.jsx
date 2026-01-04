@@ -36,15 +36,12 @@ const BarberosPage = () => {
     rol: "barbero",
   });
 
-
-
   /* =========================
       LOAD BARBEROS
   ========================= */
   const loadBarberos = async () => {
     try {
       const data = await getBarberos();
-
       setBarberos((prev) =>
         data.map((b) => {
           const prevB = prev.find((p) => p.id_barbero === b.id_barbero);
@@ -69,7 +66,7 @@ const BarberosPage = () => {
   const handleCreate = async (data) => {
     try {
       const nuevoBarbero = await crearBarbero(data);
-      return nuevoBarbero; // 🔥 necesario para BarberoForm
+      return nuevoBarbero;
     } catch (err) {
       setAlertError("Error al crear el barbero en el servidor");
       throw err;
@@ -99,7 +96,7 @@ const BarberosPage = () => {
     } catch (err) {
       setAlertError(
         err?.message ||
-        "No se puede eliminar el barbero tiene datos asociados."
+          "No se puede eliminar el barbero, tiene datos asociados."
       );
     }
   };
@@ -125,10 +122,10 @@ const BarberosPage = () => {
         prev.map((b) =>
           b.id_barbero === barberoFotoTargetId
             ? {
-              ...b,
-              foto_url: res?.foto_url || b.foto_url,
-              _fotoUpdatedAt: ts,
-            }
+                ...b,
+                foto_url: res?.foto_url || b.foto_url,
+                _fotoUpdatedAt: ts,
+              }
             : b
         )
       );
@@ -192,8 +189,9 @@ const BarberosPage = () => {
             </div>
 
             <span
-              className={`barberos-status ${b.activo ? "active" : "inactive"
-                }`}
+              className={`barberos-status ${
+                b.activo ? "active" : "inactive"
+              }`}
             >
               {b.activo ? "Activo" : "Inactivo"}
             </span>
@@ -203,11 +201,8 @@ const BarberosPage = () => {
                 {b.activo ? "Desactivar" : "Activar"}
               </button>
 
-              <button onClick={() => handleSelectFoto(b)}>
-                Cambiar foto
-              </button>
+              <button onClick={() => handleSelectFoto(b)}>Cambiar foto</button>
 
-              {/* 🔐 SOLO SI NO TIENE USUARIO */}
               {!b.tiene_usuario && (
                 <button onClick={() => setAccountTarget(b)}>
                   Crear acceso
@@ -232,17 +227,25 @@ const BarberosPage = () => {
           }}
         />
       )}
-      {/* MODAL CREAR ACCESO */}
-      {accountTarget && (
-        <div className="barberos-access-overlay">
-          <div className="barberos-access-card">
-            <h3>Crear acceso</h3>
 
-            <p>
+      {/* =========================
+          MODAL CREAR ACCESO (AISLADO)
+      ========================= */}
+      {accountTarget && (
+        <div className="barberos-access-modal-overlay">
+          <div className="barberos-access-modal-card">
+            <h3 className="barberos-access-modal-title">
+              Crear acceso
+            </h3>
+
+            <p className="barberos-access-modal-text">
               Barbero: <strong>{accountTarget.nombre}</strong>
             </p>
 
-            <form onSubmit={handleCreateAccount}>
+            <form
+              className="barberos-access-modal-form"
+              onSubmit={handleCreateAccount}
+            >
               <input
                 type="email"
                 placeholder="Email"
@@ -282,7 +285,7 @@ const BarberosPage = () => {
                 <option value="admin">Admin</option>
               </select>
 
-              <div className="barberos-access-actions">
+              <div className="barberos-access-modal-actions">
                 <button
                   type="button"
                   onClick={() => setAccountTarget(null)}
@@ -290,37 +293,9 @@ const BarberosPage = () => {
                   Cancelar
                 </button>
 
-                <button type="submit">
-                  Crear
-                </button>
+                <button type="submit">Crear</button>
               </div>
-
             </form>
-          </div>
-        </div>
-      )}
-
-
-
-      {alertError && (
-        <div className="success-modal-overlay">
-          <div className="success-modal-card">
-            <h2 className="success-modal-title">
-              Atención
-            </h2>
-
-            <p className="success-modal-text">
-              {alertError}
-            </p>
-
-            <div className="success-modal-actions">
-              <button
-                className="success-modal-btn-confirm"
-                onClick={() => setAlertError(null)}
-              >
-                Entendido
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -334,6 +309,21 @@ const BarberosPage = () => {
         style={{ display: "none" }}
         onChange={handleUploadFoto}
       />
+
+      {alertError && (
+        <div className="success-modal-overlay">
+          <div className="success-modal-card">
+            <h2 className="success-modal-title">Atención</h2>
+            <p className="success-modal-text">{alertError}</p>
+            <button
+              className="success-modal-btn-confirm"
+              onClick={() => setAlertError(null)}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

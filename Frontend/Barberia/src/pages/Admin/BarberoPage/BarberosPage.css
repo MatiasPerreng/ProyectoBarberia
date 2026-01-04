@@ -180,7 +180,7 @@
 }
 
 /* ======================================================
-   DESKTOP – FIX BOTONES COMPRIMIDOS 🔥
+   DESKTOP
 ====================================================== */
 
 @media (min-width: 768px) {
@@ -202,7 +202,7 @@
   .barberos-actions {
     flex-direction: row;
     align-items: center;
-    gap: 14px;              /* 🔥 MÁS AIRE */
+    gap: 14px;
     width: auto;
     margin-left: auto;
     margin-top: 0;
@@ -210,8 +210,8 @@
 
   .barberos-actions button {
     width: auto;
-    height: 40px;           /* 🔥 MÁS ALTOS */
-    padding: 0 18px;        /* 🔥 MÁS ANCHOS */
+    height: 40px;
+    padding: 0 18px;
     font-size: 0.85rem;
     border-radius: 14px;
     white-space: nowrap;
@@ -225,104 +225,168 @@
 }
 
 /* ======================================================
-   MODAL CREAR ACCESO
+   MODAL CREAR ACCESO – CLASES ÚNICAS 🔐
 ====================================================== */
 
-.barberos-access-overlay {
+/* ======================================================
+   MODAL CREAR ACCESO – MISMO ESTILO EDIT PROFILE 🔥
+====================================================== */
+
+.barberos-access-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-
-  z-index: 1000;
+  z-index: 1200;
   padding: 20px;
 }
 
-.barberos-access-card {
+.barberos-access-modal-card {
   width: 100%;
-  max-width: 420px;
-
+  max-width: 480px;
   background: #111;
   color: #f5f5f5;
-
-  border-radius: 18px;
-  padding: 28px;
-
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
-  animation: barberosModalIn 0.25s ease;
+  border-radius: 22px;
+  padding: 32px 30px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(230, 199, 123, 0.15);
+  animation: barberosAccessIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes barberosModalIn {
+@keyframes barberosAccessIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.97);
+    transform: translateY(16px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: none;
   }
 }
 
 /* ======================================================
-   CONTENIDO MODAL
+   TITLE
 ====================================================== */
 
-.barberos-access-card h3 {
-  margin: 0 0 18px;
+.barberos-access-modal-title {
+  margin-bottom: 26px;
   text-align: center;
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: #e6c77b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.barberos-access-card p {
+.barberos-access-modal-text {
   text-align: center;
   margin-bottom: 18px;
   font-size: 0.9rem;
   color: #ddd;
 }
 
-.barberos-access-card strong {
-  color: #fff;
-}
+/* ======================================================
+   FORM
+====================================================== */
 
-.barberos-access-card input,
-.barberos-access-card select {
-  width: 100%;
-  margin-bottom: 14px;
-  padding: 12px 14px;
-
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #1b1b1b;
-  color: #f5f5f5;
-
-  font-size: 0.95rem;
-}
-
-.barberos-access-actions {
+.barberos-access-modal-form {
   display: flex;
-  gap: 12px;
-  margin-top: 18px;
+  flex-direction: column;
 }
 
-.barberos-access-actions button {
-  flex: 1;
-  height: 44px;
+.barberos-access-modal-form input,
+.barberos-access-modal-form select {
+  height: 46px;
+  padding: 0 16px;
   border-radius: 14px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1b1b1b;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 14px;
 }
 
+.barberos-access-modal-form input::placeholder {
+  color: #888;
+}
 
-/* =========================
+.barberos-access-modal-form input:focus,
+.barberos-access-modal-form select:focus {
+  outline: none;
+  border-color: #e6c77b;
+  box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.15);
+}
+
+/* ======================================================
+   ACTIONS – EXACTO EDIT PROFILE
+====================================================== */
+
+.barberos-access-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.barberos-access-modal-actions button {
+  height: 52px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* Cancelar */
+.barberos-access-modal-actions button[type="button"] {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f5f5f5;
+}
+
+.barberos-access-modal-actions button[type="button"]:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Crear */
+.barberos-access-modal-actions button[type="submit"] {
+  background: linear-gradient(135deg, #e6c77b, #cfa85a);
+  color: #111;
+  box-shadow: 0 8px 18px rgba(207, 168, 90, 0.25);
+}
+
+.barberos-access-modal-actions button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(207, 168, 90, 0.35);
+}
+
+/* ======================================================
+   RESPONSIVE – IGUAL A EDIT PROFILE
+====================================================== */
+
+@media (max-width: 420px) {
+  .barberos-access-modal-card {
+    padding: 26px 20px;
+  }
+
+  .barberos-access-modal-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .barberos-access-modal-actions button {
+    height: 54px;
+    font-size: 1rem;
+  }
+}
+
+/* ======================================================
    FECHA + BOTÓN TODOS
-========================= */
+====================================================== */
 
 .summary-date-wrapper {
   display: flex;
@@ -343,7 +407,6 @@
   font-weight: 500;
 }
 
-/* BOTÓN TODOS */
 .summary-btn-todos {
   padding: 10px 14px;
   border-radius: 12px;
@@ -358,9 +421,10 @@
   opacity: 0.9;
 }
 
-/* =========================
+/* ======================================================
    RESPONSIVE
-========================= */
+====================================================== */
+
 @media (max-width: 600px) {
   .summary-date-actions {
     flex-direction: column;
