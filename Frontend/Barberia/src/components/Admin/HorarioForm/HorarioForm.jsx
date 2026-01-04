@@ -193,13 +193,22 @@ const HorarioForm = ({
           </label>
 
           <div className="form-actions">
-            <button type="button" onClick={onClose} className="btn-secondary">
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Guardando…" : "Guardar"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-secondary"
+            >
               Cancelar
             </button>
 
-            <button type="submit" disabled={loading}>
-              {loading ? "Guardando…" : "Guardar"}
-            </button>
+
           </div>
         </form>
       </div>

@@ -151,7 +151,16 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
         {/* =========================
             ACTIONS
         ========================= */}
+
+
         <div className="form-actions">
+
+          <button
+            type="submit"
+            className="btn-primary"
+          >
+            Guardar
+          </button>
           <button
             type="button"
             className="btn-cancel"
@@ -160,12 +169,7 @@ const ServicioForm = ({ servicioInicial, onSubmit, onCancel }) => {
             Cancelar
           </button>
 
-          <button
-            type="submit"
-            className="btn-primary"
-          >
-            Guardar
-          </button>
+
         </div>
       </form>
     </div>

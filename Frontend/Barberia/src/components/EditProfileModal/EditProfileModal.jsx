@@ -68,7 +68,12 @@ function EditProfileModal({ show, onClose, user, onSuccess }) {
             }
             required
           />
-
+          <button
+            type="submit"
+            className="edit-profile-btn submit"
+          >
+            Guardar
+          </button>
           <div className="edit-profile-actions">
             <button
               type="button"
@@ -77,12 +82,7 @@ function EditProfileModal({ show, onClose, user, onSuccess }) {
             >
               Cancelar
             </button>
-            <button
-              type="submit"
-              className="edit-profile-btn submit"
-            >
-              Guardar
-            </button>
+
           </div>
         </form>
       </div>
