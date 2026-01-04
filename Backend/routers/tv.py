@@ -8,9 +8,22 @@ from models import Visita
 router = APIRouter(prefix="/tv", tags=["TV"])
 
 
+DIAS_ES = {
+    0: "Lun",
+    1: "Mar",
+    2: "Mié",
+    3: "Jue",
+    4: "Vie",
+    5: "Sáb",
+    6: "Dom",
+}
+
+
 @router.get("/agenda-estado")
 def agenda_estado_tv(db: Session = Depends(get_db)):
     ahora = datetime.now()
+    hoy = ahora.date()
+
     inicio_dia = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
 
     visitas = (
@@ -47,9 +60,20 @@ def agenda_estado_tv(db: Session = Depends(get_db)):
                 "cliente": nombre_cliente,
                 "servicio": visita.servicio.nombre,
             })
+
         elif inicio > ahora:
+            es_hoy = inicio.date() == hoy
+
+            if es_hoy:
+                fecha_texto = None
+            else:
+                dia = DIAS_ES[inicio.weekday()]
+                fecha_texto = f"{dia} {inicio.strftime('%d/%m')}"
+
             proximos.append({
-                "hora": visita.fecha_hora.strftime("%H:%M"),
+                "hora": inicio.strftime("%H:%M"),
+                "fecha_texto": fecha_texto,
+                "es_hoy": es_hoy,
                 "cliente": nombre_cliente,
                 "barbero": visita.barbero.nombre,
                 "servicio": visita.servicio.nombre,

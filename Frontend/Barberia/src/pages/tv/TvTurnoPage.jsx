@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import "./TvTurnoPage.css";
 import API_URL from "../../services/api";
 
+
 export default function TvAgendaPage() {
   const [enCurso, setEnCurso] = useState([]);
   const [proximos, setProximos] = useState([]);
@@ -11,6 +12,7 @@ export default function TvAgendaPage() {
 
   const lastMinuteRef = useRef(null);
 
+  /* ===================== RELOJ ===================== */
   useEffect(() => {
     const actualizarHora = () => {
       const now = new Date();
@@ -35,6 +37,7 @@ export default function TvAgendaPage() {
     return () => clearInterval(reloj);
   }, []);
 
+  /* ===================== AGENDA ===================== */
   useEffect(() => {
     cargarAgenda();
     const interval = setInterval(cargarAgenda, 30000);
@@ -67,6 +70,7 @@ export default function TvAgendaPage() {
 
   return (
     <div className="tv-agenda-container tv-43">
+      {/* ===================== HEADER ===================== */}
       <header className="tv-header">
         <div className="tv-brand">
           <img src="/logo.jpg" alt="King Barber" className="tv-logo" />
@@ -77,7 +81,9 @@ export default function TvAgendaPage() {
         </div>
       </header>
 
+      {/* ===================== MAIN ===================== */}
       <main className="tv-main-content">
+        {/* ---------- EN CURSO ---------- */}
         <section className="tv-section">
           <div className="tv-section-header">
             <h2 className="tv-title">SERVICIOS EN CURSO</h2>
@@ -100,11 +106,18 @@ export default function TvAgendaPage() {
           </div>
         </section>
 
+        {/* ---------- PRÓXIMO ---------- */}
         <section className="tv-section next">
           <h2 className="tv-title gold">PRÓXIMO SERVICIO</h2>
 
           {proximo && (
             <div className="tv-next-card tv-animate">
+              {!proximo.es_hoy && (
+                <div className="tv-next-fecha">
+                  {proximo.fecha_texto}
+                </div>
+              )}
+
               <div className="tv-next-hora">{proximo.hora}</div>
 
               <div className="tv-next-text">
@@ -119,12 +132,14 @@ export default function TvAgendaPage() {
               <div className="tv-next-barbero">
                 con <strong>{proximo.barbero}</strong>
               </div>
+
               <div className="shimmer-effect" />
             </div>
           )}
         </section>
       </main>
 
+      {/* ===================== FOOTER ===================== */}
       <footer className="tv-footer">
         <span>DESARROLLADO POR</span>
         <strong>MATIAS PERRENG</strong>
