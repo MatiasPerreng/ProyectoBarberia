@@ -1,0 +1,255 @@
+/* =======================================================
+   CONTENEDOR GENERAL
+======================================================= */
+
+.tv-agenda-container {
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+      circle at top right,
+      rgba(212, 175, 55, 0.1),
+      transparent 60%
+    ),
+    #0a0a0a;
+  color: #fff;
+  padding: clamp(20px, 3vh, 40px) clamp(30px, 5vw, 70px);
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* =======================================================
+   HEADER
+======================================================= */
+
+.tv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: clamp(80px, 10vh, 120px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: clamp(20px, 3vh, 40px);
+}
+
+.tv-brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.5vw, 20px);
+}
+
+.tv-logo {
+  height: clamp(50px, 6.5vh, 80px);
+}
+
+.tv-brand-text {
+  font-size: clamp(1.6rem, 2vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+
+.tv-clock {
+  font-size: clamp(1.8rem, 2.2vw, 2.6rem);
+  font-weight: 700;
+  font-family: monospace;
+}
+
+/* =======================================================
+   MAIN
+======================================================= */
+
+.tv-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(30px, 4vh, 60px);
+}
+
+/* =======================================================
+   TITULOS
+======================================================= */
+
+.tv-section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: clamp(10px, 2vh, 25px);
+}
+
+.tv-title {
+  font-size: clamp(1.2rem, 1.6vw, 1.8rem);
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+.tv-title.gold {
+  color: #d4af37;
+  margin-top: 0.5vh;
+}
+
+.live-badge {
+  background: #c0392b;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  animation: blink 1.2s infinite;
+}
+
+/* =======================================================
+   LISTA EN CURSO
+======================================================= */
+
+.tv-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.5vh, 24px);
+}
+
+.tv-item {
+  display: grid;
+  grid-template-columns: clamp(200px, 18vw, 260px) 1fr;
+  background: rgba(255, 255, 255, 0.03);
+  padding: clamp(14px, 2vh, 28px) clamp(20px, 3vw, 40px);
+  border-radius: 14px;
+  border-left: 5px solid #d4af37;
+  align-items: center;
+}
+
+.tv-label {
+  font-size: 0.7rem;
+  color: #d4af37;
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.tv-barbero {
+  font-size: clamp(1.8rem, 2.4vw, 2.6rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.tv-servicio {
+  font-size: clamp(1.6rem, 2.2vw, 2.4rem);
+  font-weight: 800;
+}
+
+.tv-cliente {
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  color: #888;
+}
+
+/* =======================================================
+   PRÓXIMO SERVICIO
+======================================================= */
+
+.tv-next-card {
+  background: linear-gradient(
+    145deg,
+    rgba(212, 175, 55, 0.12),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 22px;
+  padding: clamp(25px, 3vh, 45px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.tv-next-hora {
+  font-size: clamp(4rem, 6vw, 6rem);
+  font-weight: 900;
+  color: #d4af37;
+  line-height: 1;
+}
+
+.tv-next-details {
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
+  margin: clamp(8px, 1vh, 18px) 0;
+  font-weight: 700;
+}
+
+.tv-sep {
+  margin: 0 15px;
+  color: #d4af37;
+  opacity: 0.5;
+}
+
+.tv-next-barbero {
+  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
+  color: #ccc;
+}
+
+.tv-next-barbero strong {
+  color: #d4af37;
+  text-transform: uppercase;
+}
+
+/* =======================================================
+   FOOTER
+======================================================= */
+
+.tv-footer {
+  height: clamp(40px, 6vh, 70px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.85rem;
+  opacity: 0.4;
+  letter-spacing: 3px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+}
+
+/* =======================================================
+   EFECTOS
+======================================================= */
+
+.shimmer-effect {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.04),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 5s infinite;
+}
+
+@keyframes shine {
+  100% {
+    left: 200%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.tv-animate {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

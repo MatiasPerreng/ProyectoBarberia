@@ -1,5 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 
+
+/* =====================
+       TELEVISION
+===================== */
+
+import TvTurnoPage from "../pages/tv/TvTurnoPage";
+
 /* =====================
    PUBLIC
 ===================== */
@@ -181,6 +188,7 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
+      <Route path="/tv" element={<TvTurnoPage />} />
     </Routes>
   );
 }

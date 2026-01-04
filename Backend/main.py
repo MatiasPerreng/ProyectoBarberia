@@ -14,6 +14,7 @@ from routers import (
     admin,
     test,
     perfil,
+    tv,
 )
 
 app = FastAPI(
@@ -63,7 +64,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://192.168.1.62:5173",
-        "http://167.62.213.75:5173",
+        "http://179.24.75.180:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -83,6 +84,7 @@ app.include_router(visitas.router)
 app.include_router(admin.router)
 app.include_router(test.router)
 app.include_router(perfil.router)
+app.include_router(tv.router)
 
 # =======================
 # HEALTH CHECK
