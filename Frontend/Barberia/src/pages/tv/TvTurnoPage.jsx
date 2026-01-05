@@ -141,7 +141,7 @@ export default function TvAgendaPage() {
 
       {/* ===================== FOOTER ===================== */}
       <footer className="tv-footer">
-        <span>DESARROLLADO POR</span>
+        <span>DEVELOPED BY</span>
         <strong>MATIAS PERRENG</strong>
       </footer>
     </div>

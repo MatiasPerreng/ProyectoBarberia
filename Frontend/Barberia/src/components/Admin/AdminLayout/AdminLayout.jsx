@@ -1,20 +1,44 @@
 import "./AdminLayout.css";
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuthContext } from "../../../auth/AuthContext";
 import Footer from "../../Footer/Footer";
+
+const MOBILE_BREAKPOINT = 768;
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { logout, user } = useAuthContext();
+  const location = useLocation();
+
+  /* =========================
+     CERRAR SIDEBAR AL CAMBIAR RUTA (MOBILE)
+  ========================= */
+  useEffect(() => {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
+  /* =========================
+     HANDLER MENU ITEM
+  ========================= */
+  const handleNavClick = () => {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      setSidebarOpen(false);
+    }
+  };
 
   return (
     <>
-      {/* HEADER MOBILE */}
+      {/* =========================
+         HEADER MOBILE
+      ========================= */}
       <header className="admin-mobile-header">
         <button
           className="admin-hamburger"
           onClick={() => setSidebarOpen(true)}
+          aria-label="Abrir menú"
         >
           ☰
         </button>
@@ -22,7 +46,9 @@ const AdminLayout = ({ children }) => {
         <img src="/logo.jpg" alt="King Barber" />
       </header>
 
-      {/* OVERLAY */}
+      {/* =========================
+         OVERLAY (MOBILE)
+      ========================= */}
       {sidebarOpen && (
         <div
           className="admin-overlay"
@@ -30,22 +56,49 @@ const AdminLayout = ({ children }) => {
         />
       )}
 
+      {/* =========================
+         LAYOUT
+      ========================= */}
       <div className="admin-layout">
+        {/* SIDEBAR */}
         <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
+          {/* LOGO */}
           <div className="admin-logo">
             <img src="/logo.jpg" alt="King Barber" />
           </div>
 
+          {/* NAV */}
           <nav className="admin-nav">
-            <NavLink to="/admin" end>Dashboard</NavLink>
-            <NavLink to="/admin/mi-agenda">Mi agenda</NavLink>
-            <NavLink to="/admin/historial">Historial</NavLink>
-            <NavLink to="/admin/perfil">Mi perfil</NavLink>
-            <NavLink to="/admin/barberos">Barberos</NavLink>
-            <NavLink to="/admin/horarios">Horarios</NavLink>
-            <NavLink to="/admin/servicios">Servicios</NavLink>
+            <NavLink to="/admin" end onClick={handleNavClick}>
+              Dashboard
+            </NavLink>
+
+            <NavLink to="/admin/mi-agenda" onClick={handleNavClick}>
+              Mi agenda
+            </NavLink>
+
+            <NavLink to="/admin/historial" onClick={handleNavClick}>
+              Historial
+            </NavLink>
+
+            <NavLink to="/admin/perfil" onClick={handleNavClick}>
+              Mi perfil
+            </NavLink>
+
+            <NavLink to="/admin/barberos" onClick={handleNavClick}>
+              Barberos
+            </NavLink>
+
+            <NavLink to="/admin/horarios" onClick={handleNavClick}>
+              Horarios
+            </NavLink>
+
+            <NavLink to="/admin/servicios" onClick={handleNavClick}>
+              Servicios
+            </NavLink>
           </nav>
 
+          {/* USER */}
           <div className="admin-user">
             <div className="admin-user-info">
               <span className="admin-user-name">
@@ -56,13 +109,18 @@ const AdminLayout = ({ children }) => {
               </span>
             </div>
 
-            <button className="admin-logout" onClick={logout}>
+            <button
+              className="admin-logout"
+              onClick={logout}
+            >
               Cerrar sesión
             </button>
           </div>
         </aside>
 
-        {/* CONTENT + FOOTER */}
+        {/* =========================
+           CONTENT + FOOTER
+        ========================= */}
         <main className="admin-content">
           <div className="admin-content-inner">
             {children}

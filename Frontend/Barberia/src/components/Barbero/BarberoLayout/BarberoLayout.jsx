@@ -1,12 +1,33 @@
 import "./BarberoLayout.css";
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuthContext } from "../../../auth/AuthContext";
 import Footer from "../../Footer/Footer";
+
+const MOBILE_BREAKPOINT = 768;
 
 const BarberoLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuthContext();
+  const location = useLocation();
+
+  /* =========================
+     CERRAR SIDEBAR AL CAMBIAR RUTA (MOBILE)
+  ========================= */
+  useEffect(() => {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
+  /* =========================
+     HANDLER MENU ITEM
+  ========================= */
+  const handleNavClick = () => {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      setSidebarOpen(false);
+    }
+  };
 
   return (
     <>
@@ -17,6 +38,7 @@ const BarberoLayout = ({ children }) => {
         <button
           className="barbero-hamburger"
           onClick={() => setSidebarOpen(true)}
+          aria-label="Abrir menú"
         >
           ☰
         </button>
@@ -25,7 +47,7 @@ const BarberoLayout = ({ children }) => {
       </header>
 
       {/* =========================
-         OVERLAY
+         OVERLAY (MOBILE)
       ========================= */}
       {sidebarOpen && (
         <div
@@ -38,6 +60,7 @@ const BarberoLayout = ({ children }) => {
          LAYOUT
       ========================= */}
       <div className="barbero-layout">
+        {/* SIDEBAR */}
         <aside className={`barbero-sidebar ${sidebarOpen ? "open" : ""}`}>
           {/* LOGO */}
           <div className="barbero-logo">
@@ -46,15 +69,25 @@ const BarberoLayout = ({ children }) => {
 
           {/* NAV */}
           <nav className="barbero-nav">
-            <NavLink to="/barbero" end onClick={() => setSidebarOpen(false)}>
+            <NavLink
+              to="/barbero"
+              end
+              onClick={handleNavClick}
+            >
               Mi agenda
             </NavLink>
 
-            <NavLink to="/barbero/historial" onClick={() => setSidebarOpen(false)}>
+            <NavLink
+              to="/barbero/historial"
+              onClick={handleNavClick}
+            >
               Historial
             </NavLink>
 
-            <NavLink to="/barbero/perfil" onClick={() => setSidebarOpen(false)}>
+            <NavLink
+              to="/barbero/perfil"
+              onClick={handleNavClick}
+            >
               Mi perfil
             </NavLink>
           </nav>
@@ -70,7 +103,10 @@ const BarberoLayout = ({ children }) => {
               </span>
             </div>
 
-            <button className="barbero-logout" onClick={logout}>
+            <button
+              className="barbero-logout"
+              onClick={logout}
+            >
               Cerrar sesión
             </button>
           </div>
@@ -80,12 +116,10 @@ const BarberoLayout = ({ children }) => {
            CONTENT + FOOTER
         ========================= */}
         <main className="barbero-content">
-          {/* CONTENIDO REAL */}
           <div className="barbero-content-inner">
             {children}
           </div>
 
-          {/* FOOTER */}
           <Footer />
         </main>
       </div>
