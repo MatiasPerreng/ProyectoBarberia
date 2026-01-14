@@ -4,6 +4,24 @@ import API_URL from "./api";
 // BARBEROS
 // =======================================================
 
+
+export async function asignarDescansoBarbero(idBarbero, data) {
+  const res = await fetch(`${API_URL}/barberos/${idBarbero}/descanso`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Error al asignar descanso");
+  }
+  return await res.json();
+}
+
 export async function getBarberos() {
   const res = await fetch(`${API_URL}/barberos/`);
 

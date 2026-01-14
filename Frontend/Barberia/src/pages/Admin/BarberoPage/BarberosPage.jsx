@@ -9,6 +9,7 @@ import {
   subirFotoBarbero,
   eliminarBarbero,
   crearCuentaBarbero,
+  asignarDescansoBarbero, // Importado para el descanso
 } from "../../../services/barberos";
 
 import API_URL from "../../../services/api";
@@ -35,6 +36,12 @@ const BarberosPage = () => {
     password: "",
     rol: "barbero",
   });
+
+  /* =========================
+      DESCANSO
+  ========================= */
+  const [breakTarget, setBreakTarget] = useState(null);
+  const [breakForm, setBreakForm] = useState({ inicio: "", fin: "" });
 
   /* =========================
       LOAD BARBEROS
@@ -90,6 +97,7 @@ const BarberosPage = () => {
   };
 
   const handleDelete = async (barbero) => {
+    if (!window.confirm(`¿Eliminar a ${barbero.nombre}?`)) return;
     try {
       await eliminarBarbero(barbero.id_barbero);
       loadBarberos();
@@ -141,7 +149,6 @@ const BarberosPage = () => {
   ========================= */
   const handleCreateAccount = async (e) => {
     e.preventDefault();
-
     try {
       await crearCuentaBarbero(accountTarget.id_barbero, {
         email: accountForm.email,
@@ -154,6 +161,23 @@ const BarberosPage = () => {
       loadBarberos();
     } catch (err) {
       setAlertError(err.message || "Error al crear el acceso");
+    }
+  };
+
+  /* =========================
+      MANEJO DE DESCANSO
+  ========================= */
+  const handleSaveBreak = async (e) => {
+    e.preventDefault();
+    try {
+      await asignarDescansoBarbero(breakTarget.id_barbero, {
+        descanso_inicio: breakForm.inicio,
+        descanso_fin: breakForm.fin,
+      });
+      setBreakTarget(null);
+      loadBarberos();
+    } catch (err) {
+      setAlertError(err.message || "Error al asignar descanso");
     }
   };
 
@@ -186,13 +210,12 @@ const BarberosPage = () => {
 
             <div className="barberos-info">
               <strong>{b.nombre}</strong>
+              <div className="barberos-descanso-tag" style={{fontSize: '0.8rem', opacity: 0.8}}>
+                {b.descanso_inicio ? `Descanso: ${b.descanso_inicio} - ${b.descanso_fin}` : "Sin descanso"}
+              </div>
             </div>
 
-            <span
-              className={`barberos-status ${
-                b.activo ? "active" : "inactive"
-              }`}
-            >
+            <span className={`barberos-status ${b.activo ? "active" : "inactive"}`}>
               {b.activo ? "Activo" : "Inactivo"}
             </span>
 
@@ -202,6 +225,13 @@ const BarberosPage = () => {
               </button>
 
               <button onClick={() => handleSelectFoto(b)}>Cambiar foto</button>
+
+              <button onClick={() => {
+                setBreakTarget(b);
+                setBreakForm({ inicio: b.descanso_inicio || "13:00", fin: b.descanso_fin || "14:00" });
+              }}>
+                Descanso
+              </button>
 
               {!b.tiene_usuario && (
                 <button onClick={() => setAccountTarget(b)}>
@@ -228,71 +258,60 @@ const BarberosPage = () => {
         />
       )}
 
-      {/* =========================
-          MODAL CREAR ACCESO (AISLADO)
-      ========================= */}
+      {/* MODAL DESCANSO */}
+      {breakTarget && (
+        <div className="barberos-access-modal-overlay">
+          <div className="barberos-access-modal-card">
+            <h3 className="barberos-access-modal-title">Horario de Descanso</h3>
+            <p className="barberos-access-modal-text">Asignar pausa para <strong>{breakTarget.nombre}</strong></p>
+            <form onSubmit={handleSaveBreak} className="barberos-access-modal-form">
+              <label style={{color: '#e6c77b', fontSize: '0.8rem', marginBottom: '5px'}}>INICIO</label>
+              <input type="time" required value={breakForm.inicio} onChange={e => setBreakForm({...breakForm, inicio: e.target.value})} />
+              
+              <label style={{color: '#e6c77b', fontSize: '0.8rem', marginBottom: '5px', marginTop: '10px'}}>FIN</label>
+              <input type="time" required value={breakForm.fin} onChange={e => setBreakForm({...breakForm, fin: e.target.value})} />
+              
+              <div className="barberos-access-modal-actions">
+                <button type="submit">Guardar</button>
+                <button type="button" onClick={() => setBreakTarget(null)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CREAR ACCESO */}
       {accountTarget && (
         <div className="barberos-access-modal-overlay">
           <div className="barberos-access-modal-card">
-            <h3 className="barberos-access-modal-title">
-              Crear acceso
-            </h3>
-
+            <h3 className="barberos-access-modal-title">Crear acceso</h3>
             <p className="barberos-access-modal-text">
               Barbero: <strong>{accountTarget.nombre}</strong>
             </p>
-
-            <form
-              className="barberos-access-modal-form"
-              onSubmit={handleCreateAccount}
-            >
+            <form className="barberos-access-modal-form" onSubmit={handleCreateAccount}>
               <input
                 type="email"
                 placeholder="Email"
                 required
                 value={accountForm.email}
-                onChange={(e) =>
-                  setAccountForm({
-                    ...accountForm,
-                    email: e.target.value,
-                  })
-                }
+                onChange={(e) => setAccountForm({ ...accountForm, email: e.target.value })}
               />
-
               <input
                 type="password"
                 placeholder="Contraseña"
                 required
                 value={accountForm.password}
-                onChange={(e) =>
-                  setAccountForm({
-                    ...accountForm,
-                    password: e.target.value,
-                  })
-                }
+                onChange={(e) => setAccountForm({ ...accountForm, password: e.target.value })}
               />
-
               <select
                 value={accountForm.rol}
-                onChange={(e) =>
-                  setAccountForm({
-                    ...accountForm,
-                    rol: e.target.value,
-                  })
-                }
+                onChange={(e) => setAccountForm({ ...accountForm, rol: e.target.value })}
               >
                 <option value="barbero">Barbero</option>
                 <option value="admin">Admin</option>
               </select>
-
               <div className="barberos-access-modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setAccountTarget(null)}
-                >
-                  Cancelar
-                </button>
-
+                <button type="button" onClick={() => setAccountTarget(null)}>Cancelar</button>
                 <button type="submit">Crear</button>
               </div>
             </form>

@@ -14,7 +14,8 @@ from schemas import (
     BarberoUpdate,
     BarberoOut,
     AgendaBarberoOut,
-    CrearCuentaBarberoIn
+    CrearCuentaBarberoIn,
+    BarberoDescansoUpdate  # <-- IMPORTADO PARA EVITAR EL NameError
 )
 
 from core.dependencias import get_current_login_barbero
@@ -74,7 +75,7 @@ def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
 
 
 # ---------------------------------------------------------
-# ADMIN
+# ADMIN & DESCANSO
 # ---------------------------------------------------------
 
 @router.post("/", response_model=BarberoOut, status_code=status.HTTP_201_CREATED)
@@ -97,6 +98,24 @@ def actualizar_barbero(
         raise HTTPException(404, "Barbero no encontrado")
 
     barbero = crud_barbero.update_barbero(db, barbero, barbero_in)
+    return crud_barbero.serialize_barbero(barbero)
+
+
+@router.put("/{barbero_id}/descanso", response_model=BarberoOut)
+def asignar_descanso(
+    barbero_id: int,
+    data: BarberoDescansoUpdate,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_login_barbero),
+):
+    if admin.role != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
+    if not barbero:
+        raise HTTPException(404, "Barbero no encontrado")
+
+    barbero = crud_barbero.update_descanso(db, barbero, data.descanso_inicio, data.descanso_fin)
     return crud_barbero.serialize_barbero(barbero)
 
 
@@ -193,13 +212,11 @@ def subir_foto_barbero(
 
     MEDIA_DIR.mkdir(parents=True, exist_ok=True)
     
-    # 1. Borrar foto anterior (opcional para ahorrar espacio)
     if barbero.foto_url and barbero.foto_url != "default.jpg":
         old_path = MEDIA_DIR / barbero.foto_url
         if old_path.exists():
             old_path.unlink()
 
-    # 2. Guardar nueva foto
     timestamp = int(time.time())
     ext = Path(file.filename).suffix or ".jpg"
     filename = f"barbero_{barbero_id}_{timestamp}{ext}" 

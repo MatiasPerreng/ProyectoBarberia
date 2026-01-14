@@ -18,7 +18,7 @@ class Barbero(Base):
     id_barbero: Mapped[int] = mapped_column(
         INTEGER,
         primary_key=True,
-        autoincrement=True  # 🔥 CLAVE
+        autoincrement=True
     )
 
     nombre: Mapped[str] = mapped_column(
@@ -37,6 +37,25 @@ class Barbero(Base):
         nullable=True
     )
 
+    # -------------------------
+    # NUEVOS: CAMPOS DE DESCANSO
+    # -------------------------
+    # Guardamos como String (ej: "13:00") para facilitar 
+    # la comparación con el input type="time" de React
+    descanso_inicio: Mapped[Optional[str]] = mapped_column(
+        String(10),
+        nullable=True
+    )
+
+    descanso_fin: Mapped[Optional[str]] = mapped_column(
+        String(10),
+        nullable=True
+    )
+
+    # -------------------------
+    # AUDITORÍA
+    # -------------------------
+
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         TIMESTAMP,
         server_default=text("CURRENT_TIMESTAMP")
@@ -50,7 +69,7 @@ class Barbero(Base):
         "LoginBarbero",
         back_populates="barbero",
         uselist=False,
-        cascade="all, delete-orphan"  # ✅ necesario para borrar
+        cascade="all, delete-orphan"  # Necesario para borrar barbero y su acceso
     )
 
     # -------------------------
@@ -72,5 +91,5 @@ class Barbero(Base):
     visita: Mapped[List["Visita"]] = relationship(
         "Visita",
         back_populates="barbero"
-        # 👈 SIN cascade (historial no se borra)
+        # Sin cascade para mantener el historial de visitas aunque se borre el barbero
     )

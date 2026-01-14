@@ -465,3 +465,20 @@
     text-align: center;
   }
 }
+
+.barberos-descanso-tag {
+    font-size: 0.8rem;
+    color: #cfa85a; /* Color dorado suave */
+    background: rgba(230, 199, 123, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-top: 4px;
+    display: inline-block;
+    border: 1px solid rgba(230, 199, 123, 0.2);
+}
+
+.btn-action.danger {
+    background: linear-gradient(135deg, #440000, #880000) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(136, 0, 0, 0.3);
+}

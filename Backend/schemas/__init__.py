@@ -17,7 +17,8 @@ from .cliente import (
 from .barbero import (
     BarberoCreate,
     BarberoUpdate,
-    BarberoOut
+    BarberoOut,
+    BarberoDescansoUpdate  # <--- AGREGADO AQUÍ
 )
 
 # SERVICIOS
