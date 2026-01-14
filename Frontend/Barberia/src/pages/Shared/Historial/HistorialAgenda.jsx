@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import API_URL from "../../../services/api";
 import "./HistorialAgenda.css";
 
-const hoy = new Date().toISOString().split("T")[0];
+// ✅ CORRECCIÓN 1: Obtener "hoy" en formato YYYY-MM-DD usando la hora local de Uruguay
+const obtenerFechaLocal = () => {
+  const d = new Date();
+  // sv-SE usa el formato YYYY-MM-DD que el input date necesita
+  return d.toLocaleDateString("sv-SE"); 
+};
+
+const hoy = obtenerFechaLocal();
 
 const HistorialAgenda = () => {
   const [turnos, setTurnos] = useState([]);
@@ -46,7 +53,6 @@ const HistorialAgenda = () => {
     <div className="kb-historial">
       <h2 className="kb-title">Historial de agenda</h2>
 
-      {/* 📅 FILTRO */}
       <div className="kb-filtro-fecha">
         <input
           type="date"
@@ -64,7 +70,7 @@ const HistorialAgenda = () => {
             className="kb-btn-todos"
             onClick={() => {
               setModoTodos(true);
-              setFecha(hoy); // 🔥 nunca vacío
+              setFecha(hoy); 
             }}
           >
             Todos
@@ -78,14 +84,15 @@ const HistorialAgenda = () => {
 
       <div className="kb-list">
         {turnos.map((t) => {
-          const fechaTexto = new Date(t.fecha_hora).toLocaleDateString(
-            "es-UY",
-            {
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-            }
-          );
+          const stringFecha = t.fecha_hora.replace(" ", "T");
+          const d = new Date(stringFecha);
+          
+          const fechaTexto = d.toLocaleDateString("es-UY", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+            timeZone: "America/Montevideo" // Forzamos Uruguay
+          });
 
           return (
             <div key={t.id_visita} className="kb-card">

@@ -15,12 +15,11 @@ from schemas import (
     BarberoOut,
     AgendaBarberoOut,
     CrearCuentaBarberoIn,
-    BarberoDescansoUpdate  # <-- IMPORTADO PARA EVITAR EL NameError
+    BarberoDescansoUpdate
 )
 
 from core.dependencias import get_current_login_barbero
 from core.security import hash_password
-
 
 router = APIRouter(
     prefix="/barberos",
@@ -28,7 +27,6 @@ router = APIRouter(
 )
 
 MEDIA_DIR = Path("static/barberos")
-
 
 # ---------------------------------------------------------
 # AGENDA BARBERO
@@ -50,7 +48,6 @@ def mi_agenda(
         barbero_id=login.barbero_id
     )
 
-
 # ---------------------------------------------------------
 # PÚBLICO
 # ---------------------------------------------------------
@@ -59,20 +56,16 @@ def mi_agenda(
 def listar_barberos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db)
 
-
 @router.get("/activos", response_model=List[BarberoOut])
 def listar_barberos_activos(db: Session = Depends(get_db)):
     return crud_barbero.get_barberos(db, solo_activos=True)
-
 
 @router.get("/{barbero_id}", response_model=BarberoOut)
 def obtener_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
-
     return crud_barbero.serialize_barbero(barbero)
-
 
 # ---------------------------------------------------------
 # ADMIN & DESCANSO
@@ -86,7 +79,6 @@ def crear_barbero(
     barbero = crud_barbero.create_barbero(db, barbero_in)
     return crud_barbero.serialize_barbero(barbero)
 
-
 @router.put("/{barbero_id}", response_model=BarberoOut)
 def actualizar_barbero(
     barbero_id: int,
@@ -99,7 +91,6 @@ def actualizar_barbero(
 
     barbero = crud_barbero.update_barbero(db, barbero, barbero_in)
     return crud_barbero.serialize_barbero(barbero)
-
 
 @router.put("/{barbero_id}/descanso", response_model=BarberoOut)
 def asignar_descanso(
@@ -118,7 +109,6 @@ def asignar_descanso(
     barbero = crud_barbero.update_descanso(db, barbero, data.descanso_inicio, data.descanso_fin)
     return crud_barbero.serialize_barbero(barbero)
 
-
 @router.patch("/{barbero_id}/toggle", response_model=BarberoOut)
 def toggle_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
@@ -128,9 +118,26 @@ def toggle_barbero(barbero_id: int, db: Session = Depends(get_db)):
     barbero = crud_barbero.toggle_barbero_estado(db, barbero)
     return crud_barbero.serialize_barbero(barbero)
 
-
+# ==============================================================================
+# ELIMINACIÓN CON PROTECCIÓN DE IDENTIDAD 🔥
+# ==============================================================================
 @router.delete("/{barbero_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
+def eliminar_barbero(
+    barbero_id: int, 
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_login_barbero) # Identificamos quién hace la petición
+):
+    # SEGURIDAD: No permitir que el admin logueado se elimine a sí mismo
+    if admin.barbero_id == barbero_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="PROTECCIÓN DE CUENTA: No puedes eliminar tu propia cuenta de barbero administrador."
+        )
+
+    # SEGURIDAD: Solo el admin puede eliminar
+    if admin.role != "admin":
+        raise HTTPException(status_code=403, detail="No tienes permisos para eliminar barberos")
+
     barbero = crud_barbero.get_barbero_by_id(db, barbero_id)
     if not barbero:
         raise HTTPException(404, "Barbero no encontrado")
@@ -146,7 +153,6 @@ def eliminar_barbero(barbero_id: int, db: Session = Depends(get_db)):
         raise
 
     return None
-
 
 # ---------------------------------------------------------
 # CREAR ACCESO PARA BARBERO
@@ -194,7 +200,6 @@ def crear_acceso_barbero(
     db.refresh(login)
 
     return {"ok": True}
-
 
 # ---------------------------------------------------------
 # SUBIR FOTO BARBERO
