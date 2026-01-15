@@ -23,7 +23,6 @@ class BarberoOut(BarberoBase):
     foto_url: Optional[str] = None
     created_at: Optional[datetime.datetime]
     tiene_usuario: bool
-    # NUEVOS CAMPOS
     descanso_inicio: Optional[str] = None
     descanso_fin: Optional[str] = None
 

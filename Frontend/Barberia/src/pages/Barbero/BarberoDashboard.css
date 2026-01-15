@@ -107,3 +107,36 @@
     padding: 22px 22px;
   }
 }
+
+
+.extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wsp-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.wsp-icon-agenda {
+  width: 20px;
+  height: 20px;
+  display: block;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  
+  /* Tus filtros de WhatsApp verde oficial */
+  filter: brightness(0) saturate(100%) invert(48%) sepia(96%) 
+          saturate(428%) hue-rotate(87deg) brightness(93%) contrast(92%);
+}
+
+/* Hover premium igual al de ContactBar */
+.wsp-link:hover .wsp-icon-agenda {
+  transform: translateY(-2px) scale(1.1);
+  /* Un toque más de brillo en el hover si querés */
+  filter: brightness(0) saturate(100%) invert(53%) sepia(80%) 
+          saturate(500%) hue-rotate(85deg) brightness(100%) contrast(100%);
+}

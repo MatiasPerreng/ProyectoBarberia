@@ -16,6 +16,9 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDuplicate, setShowDuplicate] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // Nuevo estado para personalizar el mensaje del modal de error
+  const [duplicateMessage, setDuplicateMessage] = useState("");
 
   const validarEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -63,10 +66,16 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         err?.message ||
         "";
 
-      if (message.includes("Ya tenés un turno reservado")) {
+      if (message.includes("Ya tenés 2 turnos reservados")) {
+        setDuplicateMessage("Ya te agendaste dos veces, por hoy ya no podés más.");
         setShowDuplicate(true);
-      } else {
-        alert("Ocurrió un error al agendar el turno");
+      } 
+      else if (message.includes("Ya tenés un turno reservado")) {
+        setDuplicateMessage("Ya tienes una cita agendada para este día.");
+        setShowDuplicate(true);
+      } 
+      else {
+        alert("Ocurrió un error al agendar el turno: " + message);
       }
     } finally {
       setLoading(false);
@@ -185,7 +194,6 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         </div>
       </div>
 
-      {/* ✅ MODAL ÉXITO */}
       <SuccessModal
         show={showSuccess}
         onClose={() => {
@@ -194,9 +202,9 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         }}
       />
 
-      {/* ⚠️ MODAL TURNO DUPLICADO */}
       <DuplicateBookingModal
         show={showDuplicate}
+        message={duplicateMessage} 
         onClose={() => setShowDuplicate(false)}
       />
 

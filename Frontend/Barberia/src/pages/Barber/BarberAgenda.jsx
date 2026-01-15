@@ -13,7 +13,6 @@ const BarberAgenda = () => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 Fetch agenda cuando cambia el día
   useEffect(() => {
     let isMounted = true;
     setLoading(true);

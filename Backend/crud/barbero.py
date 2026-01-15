@@ -24,12 +24,12 @@ def serialize_barbero(barbero: Barbero) -> dict:
         "descanso_fin": barbero.descanso_fin
     }
 
-# --- LÓGICA DE FILTRADO DE DESCANSO ---
+
 def es_hora_descanso(hora_evaluar: str, inicio: Optional[str], fin: Optional[str]) -> bool:
     """ Comprueba si una hora (HH:MM) está dentro del rango de descanso """
     if not inicio or not fin:
         return False
-    # Al ser strings en formato 24h (13:00), la comparación directa funciona
+
     return inicio <= hora_evaluar < fin
 
 def get_barberos(db: Session, solo_activos: bool = False) -> List[dict]:

@@ -1,6 +1,4 @@
-
-
-export default function DuplicateBookingModal({ show, onClose }) {
+export default function DuplicateBookingModal({ show, onClose, message }) {
   if (!show) return null;
 
   return (
@@ -11,9 +9,10 @@ export default function DuplicateBookingModal({ show, onClose }) {
         </h2>
 
         <p className="success-modal-text">
-          Ya tenés un turno registrado para este día.
+          {message ? message : "Ya tenés un turno registrado para este día."}
           <br />
-          Si necesitás cambiarlo, primero cancelá el anterior.
+          <br />
+          Si necesitás cambiar tus turnos, primero solicitá la cancelación de uno de ellos.
         </p>
 
         <div className="success-modal-actions">

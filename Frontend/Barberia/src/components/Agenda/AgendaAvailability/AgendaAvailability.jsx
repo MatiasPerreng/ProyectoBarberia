@@ -15,7 +15,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
   const hoy = useMemo(() => new Date(), []);
   const hoyISO = hoy.toISOString().split("T")[0];
 
-  // 🔥 límite máximo: hoy + 10 días
+
   const fechaMax = useMemo(() => {
     const d = new Date(hoy);
     d.setHours(0, 0, 0, 0);
@@ -23,7 +23,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
     return d;
   }, [hoy]);
 
-  // Referencia para el scroll automático
+ 
   const horariosRef = useRef(null);
 
   const [mesActual, setMesActual] = useState(hoy.getMonth());

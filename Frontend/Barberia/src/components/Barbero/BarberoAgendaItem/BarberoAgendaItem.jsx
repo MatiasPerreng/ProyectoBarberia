@@ -1,14 +1,18 @@
 import getDiaTexto from '../../../../utils/date';
+import whatsappIcon from '../../../assets/icons/whatsapp.svg';
+
 
 const BarberoAgendaItem = ({ turno }) => {
   const diaTexto = getDiaTexto(turno.fechaHora);
 
+  const telefonoWsp = turno.telefono
+    ? turno.telefono.replace(/\D/g, '')
+    : null;
+
   return (
     <div className={`barbero-agenda-item estado-${turno.estado}`}>
-      {/* HORA */}
       <div className="hora">{turno.hora}</div>
 
-      {/* INFO */}
       <div className="info">
         <p className="frase">
           <strong>{diaTexto}</strong> tenés{" "}
@@ -19,13 +23,24 @@ const BarberoAgendaItem = ({ turno }) => {
           </strong>
         </p>
 
-        <span>
+        <span className="extra">
           ⏱ {turno.duracion} min
-          {turno.telefono && ` · 📞 ${turno.telefono}`}
+
+          {telefonoWsp && (
+            <a
+              href={`https://wa.me/598${telefonoWsp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="wsp-link"
+              title="Enviar WhatsApp"
+            >
+            <img src={whatsappIcon} alt="WhatsApp" className='wsp-icon-agenda' />
+       
+            </a>
+          )}
         </span>
       </div>
 
-      {/* ESTADO */}
       <span className="estado">{turno.estado}</span>
     </div>
   );

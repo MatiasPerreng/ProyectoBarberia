@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from calendar import monthrange
 
 from database import get_db
@@ -27,6 +27,14 @@ router = APIRouter(
 )
 
 # ======================================================================================
+# CONFIGURACIÓN DE HORA LOCAL (URUGUAY UTC-3)
+# ======================================================================================
+
+def obtener_hoy_local() -> date:
+    """Retorna la fecha actual de Uruguay (UTC-3) para evitar desfases del servidor."""
+    return (datetime.utcnow() - timedelta(hours=3)).date()
+
+# ======================================================================================
 # SERIALIZADOR
 # ======================================================================================
 
@@ -42,7 +50,7 @@ def visita_to_out(visita):
 
         "cliente_nombre": visita.cliente.nombre if visita.cliente else "",
         "cliente_apellido": visita.cliente.apellido if visita.cliente else "",
-
+        "cliente_telefono": visita.cliente.telefono if visita.cliente else "",
         "servicio_nombre": visita.servicio.nombre if visita.servicio else "",
         "servicio_duracion": visita.servicio.duracion_min if visita.servicio else 0,
 
@@ -60,6 +68,7 @@ def mi_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
+    # Actualiza estados antes de listar
     crud_visita.marcar_visitas_completadas(db)
 
     visitas = crud_visita.get_visitas_by_barbero(
@@ -76,7 +85,7 @@ def mi_agenda(
 
 @router.get("/historial", response_model=List[VisitaOut])
 def historial_agenda(
-    fecha: Optional[date] = None,  # 🔥 FIX CLAVE
+    fecha: Optional[date] = None,
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
@@ -85,13 +94,13 @@ def historial_agenda(
     if login.role == "admin":
         visitas = crud_visita.get_visitas_completadas(
             db=db,
-            fecha=fecha   # 🔥
+            fecha=fecha
         )
     else:
         visitas = crud_visita.get_visitas_completadas_por_barbero(
             db=db,
             barbero_id=login.barbero_id,
-            fecha=fecha   # 🔥
+            fecha=fecha
         )
 
     return [visita_to_out(v) for v in visitas]
@@ -143,7 +152,7 @@ def obtener_disponibilidad(
         )
 
 # ======================================================================================
-# DISPONIBILIDAD MENSUAL
+# DISPONIBILIDAD MENSUAL (CORREGIDO 🔥)
 # ======================================================================================
 
 @router.get("/disponibilidad-mes")
@@ -154,7 +163,8 @@ def disponibilidad_mes(
     id_barbero: int,
     db: Session = Depends(get_db)
 ):
-    hoy = date.today()
+    # FIX: Usar la fecha local de Uruguay para no bloquear el día actual antes de tiempo
+    hoy = obtener_hoy_local()
     _, last_day = monthrange(anio, mes)
 
     resultado = []
@@ -278,7 +288,8 @@ def cancelar_visita(
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
     crud_visita.marcar_visitas_completadas(db)
-    visitas = crud_visita.get_visitas(db)
+    # Asumiendo que existe get_visitas en crud_visita
+    visitas = db.query(Visita).all() if not hasattr(crud_visita, 'get_visitas') else crud_visita.get_visitas(db)
     return [visita_to_out(v) for v in visitas]
 
 # ======================================================================================
