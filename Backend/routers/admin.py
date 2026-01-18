@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, date, time
-from zoneinfo import ZoneInfo # Nativo en Python 3.9+
+from zoneinfo import ZoneInfo
+import logging
 
 from database import get_db
 from models import Visita, Barbero, Cliente, Servicio
+# Importamos el servicio para disparar el mensaje a Meta
+from services.whatsapp import enviar_cancelacion_whatsapp
+
+# Configuración de logs
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/admin",
@@ -12,7 +18,6 @@ router = APIRouter(
 )
 
 # --- CONFIGURACIÓN DE HORA URUGUAY ---
-# Usamos ZoneInfo para no depender de librerías externas como pytz
 def get_now_uy():
     """Retorna el datetime actual de Uruguay (naive) para comparar en DB."""
     return datetime.now(ZoneInfo("America/Montevideo")).replace(tzinfo=None)
@@ -29,23 +34,19 @@ def admin_dashboard(db: Session = Depends(get_db)):
     inicio_hoy = datetime.combine(hoy, time.min)
     fin_hoy = datetime.combine(hoy, time.max)
 
-    # Barberos Activos
     barberos_activos = db.query(Barbero).filter(Barbero.activo == True).count()
 
-    # Turnos de hoy (Confirmados en el rango horario de UY)
     turnos_hoy = db.query(Visita).filter(
         Visita.estado.ilike("confirmado"),
         Visita.fecha_hora >= inicio_hoy,
         Visita.fecha_hora <= fin_hoy
     ).count()
 
-    # Turnos Pendientes (A partir de este minuto exacto en UY)
     turnos_pendientes = db.query(Visita).filter(
         Visita.estado.ilike("confirmado"),
         Visita.fecha_hora > ahora
     ).count()
 
-    # Turnos Cancelados (Total)
     turnos_cancelados = db.query(Visita).filter(
         Visita.estado.ilike("cancelado")
     ).count()
@@ -58,7 +59,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
     }
 
 # =====================================================================================
-# DASHBOARD - LISTADO DE TURNOS (DRAWER Y FILTROS)
+# DASHBOARD - LISTADO DE TURNOS (CON FILTROS)
 # =====================================================================================
 
 @router.get("/turnos")
@@ -70,7 +71,6 @@ def admin_turnos(
     ahora = get_now_uy()
     hoy = ahora.date()
 
-    # Query base con Joins para cargar los datos de las otras tablas
     query = (
         db.query(Visita)
         .join(Cliente)
@@ -78,31 +78,20 @@ def admin_turnos(
         .join(Barbero)
     )
 
-    # 1. Filtro por Calendario
     if fecha:
         inicio = datetime.combine(fecha, time.min)
         fin = datetime.combine(fecha, time.max)
         query = query.filter(Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
-    
-    # 2. Filtros Rápidos
     else:
         if filtro == "pendientes":
-            query = query.filter(
-                Visita.estado.ilike("confirmado"), 
-                Visita.fecha_hora > ahora
-            )
+            query = query.filter(Visita.estado.ilike("confirmado"), Visita.fecha_hora > ahora)
         elif filtro == "hoy":
             inicio = datetime.combine(hoy, time.min)
             fin = datetime.combine(hoy, time.max)
-            query = query.filter(
-                Visita.estado.ilike("confirmado"),
-                Visita.fecha_hora >= inicio,
-                Visita.fecha_hora <= fin
-            )
+            query = query.filter(Visita.estado.ilike("confirmado"), Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
         elif filtro == "cancelados":
             query = query.filter(Visita.estado.ilike("cancelado"))
 
-    # Orden lógico según el filtro
     if filtro == "pendientes":
         turnos = query.order_by(Visita.fecha_hora.asc()).all()
     else:
@@ -114,7 +103,7 @@ def admin_turnos(
             "fecha_hora": t.fecha_hora.strftime("%Y-%m-%d %H:%M"),
             "cliente_nombre": t.cliente.nombre,
             "cliente_apellido": t.cliente.apellido,
-            "cliente_telefono": t.cliente.telefono, # Para el WhatsApp que arreglamos
+            "cliente_telefono": t.cliente.telefono,
             "servicio": t.servicio.nombre,
             "servicio_duracion": t.servicio.duracion_min,
             "barbero": t.barbero.nombre,
@@ -129,13 +118,35 @@ def admin_turnos(
 
 @router.patch("/turnos/{id_visita}/cancelar")
 def cancelar_turno_admin(id_visita: int, db: Session = Depends(get_db)):
+    # 1. Buscamos el turno con los joins necesarios
     turno = db.query(Visita).filter(Visita.id_visita == id_visita).first()
     if not turno:
         raise HTTPException(status_code=404, detail="Turno no encontrado")
     
+    # 2. Extraer datos ANTES del commit para asegurar disponibilidad
+    nombre_cliente = turno.cliente.nombre
+    telefono_cliente = turno.cliente.telefono
+    nombre_servicio = turno.servicio.nombre
+    # Formato ajustado a tu plantilla: "18/01 a las 15:00"
+    fecha_msg = turno.fecha_hora.strftime("%d/%m a las %H:%M")
+    
+    # 3. Actualizamos la Base de Datos
     turno.estado = "cancelado"
     db.commit()
-    return {"status": "success", "message": "Turno cancelado"}
+    
+    # 4. Enviamos el WhatsApp (Corregido: coincidencia de nombres de argumentos)
+    try:
+        print(f"DEBUG: Intentando disparar WhatsApp de cancelación para {nombre_cliente}")
+        enviar_cancelacion_whatsapp(
+            telefono_cliente=telefono_cliente, # Coincide con whatsapp.py
+            nombre_cliente=nombre_cliente,     # Coincide con whatsapp.py
+            servicio=nombre_servicio,          # Coincide con whatsapp.py
+            fecha_hora_str=fecha_msg           # Coincide con whatsapp.py
+        )
+    except Exception as e:
+        logger.error(f"WhatsApp no enviado: {e}")
+    
+    return {"status": "success", "message": "Turno cancelado y cliente notificado"}
 
 @router.patch("/turnos/{id_visita}/confirmar")
 def confirmar_turno_admin(id_visita: int, db: Session = Depends(get_db)):

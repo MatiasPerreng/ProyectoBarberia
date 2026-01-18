@@ -1,14 +1,15 @@
 import os
 import requests
 from dotenv import load_dotenv
-
 from core.telefonos import normalizar_telefono_uy
 
 load_dotenv()
 
+# Configuración de credenciales
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
-PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID") 
 
+# Versión de la API configurada
 BASE_URL = f"https://graph.facebook.com/v22.0/{PHONE_NUMBER_ID}/messages"
 
 HEADERS = {
@@ -16,153 +17,92 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-print("🔧 WHATSAPP CONFIG")
-print("TOKEN CARGADO:", "SI" if WHATSAPP_TOKEN else "NO")
-print("PHONE_NUMBER_ID:", PHONE_NUMBER_ID)
-print("BASE_URL:", BASE_URL)
-
-
 # ==========================================================
-# TEMPLATE HELLO WORLD (PRUEBA INICIAL)
+# TEMPLATE 1: RECORDATORIO (4 PARÁMETROS)
 # ==========================================================
+def enviar_recordatorio_whatsapp(visita):
+    """
+    Plantilla: recordatorio_cita_barberia
+    Estructura: Hola {{1}}, te recordamos que a las {{2}} tenés {{3}} con {{4}}.
+    """
+    print(f"📲 ENVIANDO RECORDATORIO PROGRAMADO A: {visita.cliente.telefono}")
 
-def enviar_template_hello_world(telefono: str):
-    print("📲 ENVIAR HELLO WORLD")
-    print("📞 TELEFONO:", telefono)
+    if not visita.cliente or not visita.cliente.telefono:
+        return None
+
+    telefono = normalizar_telefono_uy(visita.cliente.telefono)
+    hora_agenda = visita.fecha_hora.strftime("%H:%M")
+    nombre_servicio = visita.servicio.nombre if visita.servicio else "Servicio"
+    nombre_barbero = visita.barbero.nombre if visita.barbero else "Barbero"
 
     payload = {
         "messaging_product": "whatsapp",
         "to": telefono,
         "type": "template",
         "template": {
-            "name": "hello_world",
-            "language": {"code": "en_US"}
-        }
-    }
-
-    response = requests.post(
-        BASE_URL,
-        json=payload,
-        headers=HEADERS,
-        timeout=10
-    )
-
-    print("📩 STATUS CODE:", response.status_code)
-    print("📩 RESPUESTA META:", response.text)
-
-    return response.json()
-
-
-# ==========================================================
-# TEMPLATE TURNO CONFIRMADO
-# ==========================================================
-
-def enviar_turno_confirmado(
-    telefono: str,
-    nombre: str,
-    fecha: str,
-    hora: str
-):
-    print("📲 ENVIAR TURNO CONFIRMADO")
-    print("📞 TELEFONO:", telefono)
-
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": telefono,
-        "type": "template",
-        "template": {
-            "name": "turno_confirmado_king_barber",
+            "name": "recordatorio_turno_cliente", 
             "language": {"code": "es"},
             "components": [
                 {
                     "type": "body",
                     "parameters": [
-                        {"type": "text", "text": nombre},
-                        {"type": "text", "text": fecha},
-                        {"type": "text", "text": hora}
+                        {"type": "text", "text": visita.cliente.nombre}, # {{1}}
+                        {"type": "text", "text": hora_agenda},           # {{2}}
+                        {"type": "text", "text": nombre_servicio},       # {{3}}
+                        {"type": "text", "text": f"el barbero {nombre_barbero}"} # {{4}}
                     ]
                 }
             ]
         }
     }
 
-    response = requests.post(
-        BASE_URL,
-        json=payload,
-        headers=HEADERS,
-        timeout=10
-    )
-
-    print("📩 STATUS CODE:", response.status_code)
-    print("📩 RESPUESTA META:", response.text)
-
-    return response.json()
-
-
-def enviar_turno_confirmado_whatsapp(visita):
-    print("📲 INTENTANDO ENVIAR WHATSAPP (CONFIRMACIÓN)")
-
-    if not visita.cliente or not visita.cliente.telefono:
-        print("❌ CLIENTE SIN TELÉFONO")
-        return
-
-    telefono = normalizar_telefono_uy(visita.cliente.telefono)
-
-    return enviar_turno_confirmado(
-        telefono=telefono,
-        nombre=visita.cliente.nombre,
-        fecha=visita.fecha_hora.strftime("%d/%m/%Y"),
-        hora=visita.fecha_hora.strftime("%H:%M"),
-    )
-
+    try:
+        response = requests.post(BASE_URL, json=payload, headers=HEADERS, timeout=10)
+        print("📩 RESPUESTA META RECORDATORIO:", response.text)
+        return response.json()
+    except Exception as e:
+        print(f"❌ ERROR DE CONEXIÓN RECORDATORIO: {e}")
+        return None
 
 # ==========================================================
-# TEMPLATE TURNO CANCELADO 🔥 (ESTO FALTABA)
+# TEMPLATE 2: CANCELACIÓN (3 PARÁMETROS)
 # ==========================================================
+def enviar_cancelacion_whatsapp(telefono_cliente, nombre_cliente, servicio, fecha_hora_str):
+    """
+    Plantilla: cancelacion_turno_barberia
+    Estructura: Hola {{1}}, te informamos que tu turno para {{2}} el día {{3}} ha sido cancelado.
+    """
+    print(f"📲 ENVIANDO AVISO DE CANCELACIÓN A: {telefono_cliente}")
 
-def enviar_turno_cancelado_whatsapp(visita):
-    print("📲 INTENTANDO ENVIAR WHATSAPP (CANCELACIÓN)")
+    if not telefono_cliente:
+        return None
 
-    if not visita.cliente or not visita.cliente.telefono:
-        print("❌ CLIENTE SIN TELÉFONO")
-        return
-
-    telefono = normalizar_telefono_uy(visita.cliente.telefono)
+    telefono = normalizar_telefono_uy(telefono_cliente)
 
     payload = {
         "messaging_product": "whatsapp",
         "to": telefono,
         "type": "template",
         "template": {
-            "name": "turno_cancelado_king_barber",
+            "name": "cancelacion_turno_barberia", 
             "language": {"code": "es"},
             "components": [
                 {
                     "type": "body",
                     "parameters": [
-                        {"type": "text", "text": visita.cliente.nombre},
-                        {
-                            "type": "text",
-                            "text": visita.fecha_hora.strftime("%d/%m/%Y")
-                        },
-                        {
-                            "type": "text",
-                            "text": visita.fecha_hora.strftime("%H:%M")
-                        }
+                        {"type": "text", "text": nombre_cliente}, # {{1}}
+                        {"type": "text", "text": servicio},       # {{2}}
+                        {"type": "text", "text": fecha_hora_str}  # {{3}}
                     ]
                 }
             ]
         }
     }
 
-    response = requests.post(
-        BASE_URL,
-        json=payload,
-        headers=HEADERS,
-        timeout=10
-    )
-
-    print("📩 STATUS CODE:", response.status_code)
-    print("📩 RESPUESTA META:", response.text)
-
-    return response.json()
+    try:
+        response = requests.post(BASE_URL, json=payload, headers=HEADERS, timeout=10)
+        print("📩 RESPUESTA META CANCELACIÓN:", response.text)
+        return response.json()
+    except Exception as e:
+        print(f"❌ ERROR DE CONEXIÓN CANCELACIÓN: {e}")
+        return None

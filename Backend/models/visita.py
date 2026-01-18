@@ -1,7 +1,7 @@
 from typing import Optional
 import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKeyConstraint, Index, TIMESTAMP, text
+from sqlalchemy import DateTime, Enum, ForeignKeyConstraint, Index, TIMESTAMP, text, Boolean
 from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,6 +24,14 @@ class Visita(Base):
     id_cliente: Mapped[int] = mapped_column(INTEGER, nullable=False)
     id_barbero: Mapped[int] = mapped_column(INTEGER, nullable=False)
     id_servicio: Mapped[int] = mapped_column(INTEGER, nullable=False)
+    
+    # Campo para controlar el envío de WhatsApp
+    notificado_wsp: Mapped[bool] = mapped_column(
+        Boolean, 
+        nullable=False, 
+        server_default=text("0")  # En MySQL/MariaDB 0 es False
+    )
+
     estado: Mapped[Optional[str]] = mapped_column(
         Enum('CONFIRMADO', 'CANCELADO', 'COMPLETADO'),
         server_default=text("'CONFIRMADO'")
@@ -33,6 +41,7 @@ class Visita(Base):
         server_default=text('CURRENT_TIMESTAMP')
     )
 
+    # Relaciones
     barbero: Mapped["Barbero"] = relationship("Barbero", back_populates="visita")
     cliente: Mapped["Cliente"] = relationship("Cliente", back_populates="visita")
     servicio: Mapped["Servicio"] = relationship("Servicio", back_populates="visita")

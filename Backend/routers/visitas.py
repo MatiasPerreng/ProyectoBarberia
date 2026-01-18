@@ -16,10 +16,8 @@ from core.email_templates import (
     generar_email_cancelacion,
 )
 
-from services.whatsapp import (
-    enviar_turno_confirmado_whatsapp,
-    enviar_turno_cancelado_whatsapp,
-)
+# IMPORTACIÓN UNIFICADA: Importamos ambos servicios de WhatsApp
+from services.whatsapp import enviar_recordatorio_whatsapp, enviar_cancelacion_whatsapp
 
 router = APIRouter(
     prefix="/visitas",
@@ -68,7 +66,6 @@ def mi_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
-    # Actualiza estados antes de listar
     crud_visita.marcar_visitas_completadas(db)
 
     visitas = crud_visita.get_visitas_by_barbero(
@@ -152,7 +149,7 @@ def obtener_disponibilidad(
         )
 
 # ======================================================================================
-# DISPONIBILIDAD MENSUAL (CORREGIDO 🔥)
+# DISPONIBILIDAD MENSUAL
 # ======================================================================================
 
 @router.get("/disponibilidad-mes")
@@ -163,7 +160,6 @@ def disponibilidad_mes(
     id_barbero: int,
     db: Session = Depends(get_db)
 ):
-    # FIX: Usar la fecha local de Uruguay para no bloquear el día actual antes de tiempo
     hoy = obtener_hoy_local()
     _, last_day = monthrange(anio, mes)
 
@@ -223,6 +219,7 @@ def crear_visita(
     try:
         visita = crud_visita.create_visita(db, visita_in)
 
+        # Envío de Email
         if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
@@ -230,11 +227,6 @@ def crear_visita(
                 "✅ Turno confirmado - King Barber",
                 generar_email_confirmacion(visita)
             )
-
-        background_tasks.add_task(
-            enviar_turno_confirmado_whatsapp,
-            visita
-        )
 
         return visita_to_out(visita)
 
@@ -245,7 +237,7 @@ def crear_visita(
         )
 
 # ======================================================================================
-# CANCELAR VISITA
+# CANCELAR VISITA (UNIFICADO CORREO + WHATSAPP)
 # ======================================================================================
 
 @router.post("/{visita_id}/cancelar", status_code=status.HTTP_200_OK)
@@ -254,30 +246,52 @@ def cancelar_visita(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
+    # Logs para depuración en Uvicorn
+    print(f"\n🚀 EJECUTANDO ACCIÓN DE CANCELACIÓN - ID VISITA: {visita_id}")
+    
     visita = crud_visita.get_visita_by_id(db, visita_id)
 
     if not visita:
+        print(f"❌ Error: No se encontró la visita {visita_id}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Visita no encontrada"
         )
 
+    # 1. Captura de datos para notificaciones
+    nombre_cliente = visita.cliente.nombre
+    email_cliente = visita.cliente.email
+    telefono_cliente = visita.cliente.telefono
+    nombre_servicio = visita.servicio.nombre
+    # Formato para la plantilla de WhatsApp {{3}}
+    fecha_msg = visita.fecha_hora.strftime("%d/%m a las %H:%M")
+
+    # 2. Actualizamos estado en DB
     visita.estado = "CANCELADO"
     db.commit()
     db.refresh(visita)
+    print(f"💾 DB: Visita {visita_id} marcada como CANCELADA")
 
-    if visita.cliente and visita.cliente.email:
+    # 3. Envío de Email (Background Task)
+    if email_cliente:
         background_tasks.add_task(
             enviar_email_confirmacion,
-            visita.cliente.email,
+            email_cliente,
             "❌ Turno cancelado - King Barber",
             generar_email_cancelacion(visita)
         )
+        print(f"📧 Tarea de Email encolada para: {email_cliente}")
 
-    background_tasks.add_task(
-        enviar_turno_cancelado_whatsapp,
-        visita
-    )
+    # 4. Envío de WhatsApp (Background Task)
+    if telefono_cliente:
+        print(f"📲 Encolando WhatsApp de cancelación para {nombre_cliente} al {telefono_cliente}")
+        background_tasks.add_task(
+            enviar_cancelacion_whatsapp,
+            telefono_cliente=telefono_cliente,
+            nombre_cliente=nombre_cliente,
+            servicio=nombre_servicio,
+            fecha_hora_str=fecha_msg
+        )
 
     return {"ok": True}
 
@@ -288,8 +302,7 @@ def cancelar_visita(
 @router.get("/", response_model=List[VisitaOut])
 def listar_visitas(db: Session = Depends(get_db)):
     crud_visita.marcar_visitas_completadas(db)
-    # Asumiendo que existe get_visitas en crud_visita
-    visitas = db.query(Visita).all() if not hasattr(crud_visita, 'get_visitas') else crud_visita.get_visitas(db)
+    visitas = crud_visita.get_visitas(db) if hasattr(crud_visita, 'get_visitas') else []
     return [visita_to_out(v) for v in visitas]
 
 # ======================================================================================

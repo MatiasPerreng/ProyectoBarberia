@@ -12,7 +12,6 @@ from routers import (
     servicios,
     auth,
     admin,
-    test,
     perfil,
     tv,
 )
@@ -82,7 +81,6 @@ app.include_router(servicios.router)
 app.include_router(horarios.router)
 app.include_router(visitas.router)
 app.include_router(admin.router)
-app.include_router(test.router)
 app.include_router(perfil.router)
 app.include_router(tv.router)
 

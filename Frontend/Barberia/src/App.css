@@ -1,15 +1,14 @@
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  overscroll-behavior-y: none;
+html, body {
+    height: auto !important;
+    overflow-y: visible !important;
+    overflow-x: hidden; /* Mantiene la limpieza lateral */
 }
 
-* {
-  box-sizing: border-box;
+/* Identifica tu contenedor principal (donde está el logo y botones) */
+.main-container, .wrapper, #root { 
+    height: auto !important;
+    overflow: visible !important;
 }
-
 /* =======================================================
    DESKTOP BAJO (1366x768 / notebooks)
 ======================================================= */

@@ -7,6 +7,15 @@ from models import Visita
 
 router = APIRouter(prefix="/tv", tags=["TV"])
 
+# ======================================================================================
+# CONFIGURACIÓN DE HORA LOCAL (URUGUAY UTC-3)
+# ======================================================================================
+
+def obtener_ahora_local() -> datetime:
+    """Calcula la hora de Uruguay basándose en UTC (Servidor - 3 horas)."""
+    return datetime.utcnow() - timedelta(hours=3)
+
+# ======================================================================================
 
 DIAS_ES = {
     0: "Lun",
@@ -18,12 +27,13 @@ DIAS_ES = {
     6: "Dom",
 }
 
-
 @router.get("/agenda-estado")
 def agenda_estado_tv(db: Session = Depends(get_db)):
-    ahora = datetime.now()
+    # Corregimos la hora actual para Uruguay
+    ahora = obtener_ahora_local()
     hoy = ahora.date()
 
+    # Inicio del día basado en la hora local
     inicio_dia = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
 
     visitas = (
@@ -46,19 +56,22 @@ def agenda_estado_tv(db: Session = Depends(get_db)):
 
     for visita in visitas:
         inicio = visita.fecha_hora
-        fin = inicio + timedelta(minutes=visita.servicio.duracion_min)
+        # Si no hay servicio asociado por error, evitamos el crash
+        duracion = visita.servicio.duracion_min if visita.servicio else 30
+        fin = inicio + timedelta(minutes=duracion)
 
         nombre_cliente = (
             f"{visita.cliente.nombre} {visita.cliente.apellido}"
-            if visita.cliente.apellido
-            else visita.cliente.nombre
+            if (visita.cliente and visita.cliente.apellido)
+            else (visita.cliente.nombre if visita.cliente else "Cliente")
         )
 
+        # La comparación ahora es correcta porque 'ahora' es hora de Uruguay
         if inicio <= ahora < fin:
             en_curso.append({
-                "barbero": visita.barbero.nombre,
+                "barbero": visita.barbero.nombre if visita.barbero else "Barbero",
                 "cliente": nombre_cliente,
-                "servicio": visita.servicio.nombre,
+                "servicio": visita.servicio.nombre if visita.servicio else "Servicio",
             })
 
         elif inicio > ahora:
@@ -75,8 +88,8 @@ def agenda_estado_tv(db: Session = Depends(get_db)):
                 "fecha_texto": fecha_texto,
                 "es_hoy": es_hoy,
                 "cliente": nombre_cliente,
-                "barbero": visita.barbero.nombre,
-                "servicio": visita.servicio.nombre,
+                "barbero": visita.barbero.nombre if visita.barbero else "Barbero",
+                "servicio": visita.servicio.nombre if visita.servicio else "Servicio",
             })
 
     return {
