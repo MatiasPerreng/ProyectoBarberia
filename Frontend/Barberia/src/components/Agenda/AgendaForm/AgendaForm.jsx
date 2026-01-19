@@ -17,7 +17,6 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   const [showDuplicate, setShowDuplicate] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Nuevo estado para personalizar el mensaje del modal de error
   const [duplicateMessage, setDuplicateMessage] = useState("");
 
   const validarEmail = (email) =>
@@ -28,15 +27,10 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
 
   const validate = () => {
     const newErrors = {};
-
     if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
-    if (!form.apellido.trim())
-      newErrors.apellido = "El apellido es obligatorio";
-    if (form.email.trim() && !validarEmail(form.email))
-      newErrors.email = "Email inválido";
-    if (form.telefono.trim() && !validarTelefono(form.telefono))
-      newErrors.telefono = "Teléfono inválido";
-
+    if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
+    if (form.email.trim() && !validarEmail(form.email)) newErrors.email = "Email inválido";
+    if (form.telefono.trim() && !validarTelefono(form.telefono)) newErrors.telefono = "Teléfono inválido";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -58,24 +52,33 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         email: form.email.trim() || null,
         telefono: form.telefono.trim() || null,
       });
-
       setShowSuccess(true);
     } catch (err) {
-      const message =
-        err?.response?.data?.detail ||
-        err?.message ||
-        "";
+      // Extraemos el detalle del error
+      const rawMessage = err?.response?.data?.detail || err?.message || "";
+      
+      // Normalizamos el mensaje: quitamos tildes, pasamos a minúsculas y limpiamos espacios
+      const normalizedMessage = rawMessage
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // Esto quita la tilde de "número" -> "numero"
 
-      if (message.includes("Ya tenés 2 turnos reservados")) {
+      if (normalizedMessage.includes("numero") || normalizedMessage.includes("posible realizar la reserva")) {
+        setDuplicateMessage("Lo sentimos, no es posible realizar la reserva con este número.");
+        setShowDuplicate(true);
+      } 
+      else if (normalizedMessage.includes("2 turnos reservados")) {
         setDuplicateMessage("Ya te agendaste dos veces, por hoy ya no podés más.");
         setShowDuplicate(true);
       } 
-      else if (message.includes("Ya tenés un turno reservado")) {
+      else if (normalizedMessage.includes("un turno reservado") || normalizedMessage.includes("ya tenes un turno")) {
         setDuplicateMessage("Ya tienes una cita agendada para este día.");
         setShowDuplicate(true);
       } 
       else {
-        alert("Ocurrió un error al agendar el turno: " + message);
+        // Si no entra en los anteriores, mostramos el alert original
+        alert("Ocurrió un error: " + rawMessage);
       }
     } finally {
       setLoading(false);
@@ -133,9 +136,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                   onChange={handleChange}
                   className={errors.email ? "af-input-error" : ""}
                 />
-                {errors.email && (
-                  <small className="af-error">{errors.email}</small>
-                )}
+                {errors.email && <small className="af-error">{errors.email}</small>}
               </div>
 
               <div className="af-form-group">
@@ -147,9 +148,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                   onChange={handleChange}
                   className={errors.telefono ? "af-input-error" : ""}
                 />
-                {errors.telefono && (
-                  <small className="af-error">{errors.telefono}</small>
-                )}
+                {errors.telefono && <small className="af-error">{errors.telefono}</small>}
               </div>
 
               <div className="af-form-group">
@@ -161,9 +160,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                   onChange={handleChange}
                   className={errors.nombre ? "af-input-error" : ""}
                 />
-                {errors.nombre && (
-                  <small className="af-error">{errors.nombre}</small>
-                )}
+                {errors.nombre && <small className="af-error">{errors.nombre}</small>}
               </div>
 
               <div className="af-form-group">
@@ -175,17 +172,11 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                   onChange={handleChange}
                   className={errors.apellido ? "af-input-error" : ""}
                 />
-                {errors.apellido && (
-                  <small className="af-error">{errors.apellido}</small>
-                )}
+                {errors.apellido && <small className="af-error">{errors.apellido}</small>}
               </div>
 
               <div className="af-form-actions">
-                <button
-                  type="submit"
-                  className="af-btn-confirmar"
-                  disabled={loading}
-                >
+                <button type="submit" className="af-btn-confirmar" disabled={loading}>
                   {loading ? "Agendando..." : "Confirmar turno"}
                 </button>
               </div>

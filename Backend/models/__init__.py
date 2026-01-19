@@ -6,6 +6,7 @@ from .servicio import Servicio
 from .horario_barbero import HorarioBarbero
 from .horario_excepcion import HorarioExcepcion
 from .visita import Visita
+from .blacklist import Blacklist
 
 __all__ = [
     "Base",
@@ -16,4 +17,5 @@ __all__ = [
     "HorarioBarbero",
     "HorarioExcepcion",
     "Visita",
+    "Blacklist",
 ]

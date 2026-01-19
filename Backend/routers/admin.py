@@ -1,11 +1,17 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime, date, time
+from typing import List
+from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
 import logging
 
 from database import get_db
 from models import Visita, Barbero, Cliente, Servicio
+
+from models.blacklist import Blacklist
+
+from schemas.blacklist import BlacklistCreate, BlacklistOut
+
 # Importamos el servicio para disparar el mensaje a Meta
 from services.whatsapp import enviar_cancelacion_whatsapp
 
@@ -169,3 +175,44 @@ def admin_listar_barberos(db: Session = Depends(get_db)):
 @router.get("/servicios/listado")
 def admin_listar_servicios(db: Session = Depends(get_db)):
     return db.query(Servicio).all()
+
+# =====================================================================================
+# GESTIÓN DE LISTA NEGRA (BLACKLIST)
+# =====================================================================================
+
+@router.get("/blacklist", response_model=List[BlacklistOut])
+def listar_lista_negra(db: Session = Depends(get_db)):
+    """Obtiene todos los números bloqueados."""
+    return db.query(Blacklist).order_by(Blacklist.created_at.desc()).all()
+
+@router.post("/blacklist", response_model=BlacklistOut)
+def agregar_a_lista_negra(data: BlacklistCreate, db: Session = Depends(get_db)):
+    """Bloquea un número de teléfono."""
+    # Limpieza básica del número (solo dígitos)
+    tel_limpio = "".join(filter(str.isdigit, data.telefono))
+    
+    # Verificamos si ya existe para no duplicar
+    existe = db.query(Blacklist).filter(Blacklist.telefono == tel_limpio).first()
+    if existe:
+        raise HTTPException(status_code=400, detail="Este número ya se encuentra en la lista negra")
+        
+    nuevo_bloqueo = Blacklist(
+        telefono=tel_limpio,
+        motivo=data.motivo
+    )
+    
+    db.add(nuevo_bloqueo)
+    db.commit()
+    db.refresh(nuevo_bloqueo)
+    return nuevo_bloqueo
+
+@router.delete("/blacklist/{id_blacklist}")
+def eliminar_de_lista_negra(id_blacklist: int, db: Session = Depends(get_db)):
+    """Desbloquea un número de la lista negra."""
+    item = db.query(Blacklist).filter(Blacklist.id == id_blacklist).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="El registro no existe")
+    
+    db.delete(item)
+    db.commit()
+    return {"status": "success", "message": "Número desbloqueado correctamente"}

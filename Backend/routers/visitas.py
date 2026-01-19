@@ -5,10 +5,12 @@ from datetime import date, datetime, time, timedelta
 from calendar import monthrange
 
 from database import get_db
-import crud.visita as crud_visita
-import crud.horario as crud_horario
+# Importaciones de modelos para la lógica de validación
+from models.blacklist import Blacklist
+from models import Cliente, Visita # Importamos Cliente para buscar el teléfono
 
-from schemas import VisitaCreate, VisitaOut, VisitaUpdate
+# Importaciones directas de archivos para evitar círculos viciosos de inicialización
+from schemas.visita import VisitaCreate, VisitaOut, VisitaUpdate
 from core.dependencias import get_current_login_barbero
 from core.email import enviar_email_confirmacion
 from core.email_templates import (
@@ -16,7 +18,7 @@ from core.email_templates import (
     generar_email_cancelacion,
 )
 
-# IMPORTACIÓN UNIFICADA: Importamos ambos servicios de WhatsApp
+# Servicios de WhatsApp
 from services.whatsapp import enviar_recordatorio_whatsapp, enviar_cancelacion_whatsapp
 
 router = APIRouter(
@@ -57,7 +59,7 @@ def visita_to_out(visita):
     }
 
 # ======================================================================================
-# MI AGENDA (CONFIRMADOS FUTUROS)
+# MI AGENDA Y HISTORIAL
 # ======================================================================================
 
 @router.get("/mi-agenda", response_model=List[VisitaOut])
@@ -66,19 +68,10 @@ def mi_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
-    crud_visita.marcar_visitas_completadas(db)
-
-    visitas = crud_visita.get_visitas_by_barbero(
-        db=db,
-        barbero_id=login.barbero_id,
-        fecha=fecha
-    )
-
+    from crud import visita as crud_v
+    crud_v.marcar_visitas_completadas(db)
+    visitas = crud_v.get_visitas_by_barbero(db=db, barbero_id=login.barbero_id, fecha=fecha)
     return [visita_to_out(v) for v in visitas]
-
-# ======================================================================================
-# HISTORIAL (SOLO COMPLETADOS)
-# ======================================================================================
 
 @router.get("/historial", response_model=List[VisitaOut])
 def historial_agenda(
@@ -86,128 +79,49 @@ def historial_agenda(
     login=Depends(get_current_login_barbero),
     db: Session = Depends(get_db)
 ):
-    crud_visita.marcar_visitas_completadas(db)
-
+    from crud import visita as crud_v
+    crud_v.marcar_visitas_completadas(db)
     if login.role == "admin":
-        visitas = crud_visita.get_visitas_completadas(
-            db=db,
-            fecha=fecha
-        )
+        visitas = crud_v.get_visitas_completadas(db=db, fecha=fecha)
     else:
-        visitas = crud_visita.get_visitas_completadas_por_barbero(
-            db=db,
-            barbero_id=login.barbero_id,
-            fecha=fecha
-        )
-
+        visitas = crud_v.get_visitas_completadas_por_barbero(db=db, barbero_id=login.barbero_id, fecha=fecha)
     return [visita_to_out(v) for v in visitas]
 
 # ======================================================================================
-# ACTUALIZAR ESTADO (MANUAL)
-# ======================================================================================
-
-@router.patch("/{visita_id}/estado", response_model=VisitaOut)
-def actualizar_estado_visita(
-    visita_id: int,
-    data: VisitaUpdate,
-    db: Session = Depends(get_db)
-):
-    try:
-        visita = crud_visita.update_estado_visita(
-            db, visita_id, data.estado
-        )
-        return visita_to_out(visita)
-
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
-
-# ======================================================================================
-# DISPONIBILIDAD POR FECHA
+# DISPONIBILIDAD
 # ======================================================================================
 
 @router.get("/disponibilidad")
-def obtener_disponibilidad(
-    fecha: date,
-    id_servicio: int,
-    id_barbero: Optional[int] = None,
-    db: Session = Depends(get_db)
-):
+def obtener_disponibilidad(fecha: date, id_servicio: int, id_barbero: Optional[int] = None, db: Session = Depends(get_db)):
+    from crud import visita as crud_v
     try:
-        return crud_visita.get_disponibilidad(
-            db=db,
-            fecha=fecha,
-            id_servicio=id_servicio,
-            id_barbero=id_barbero
-        )
+        return crud_v.get_disponibilidad(db=db, fecha=fecha, id_servicio=id_servicio, id_barbero=id_barbero)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-
-# ======================================================================================
-# DISPONIBILIDAD MENSUAL
-# ======================================================================================
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/disponibilidad-mes")
-def disponibilidad_mes(
-    mes: int,
-    anio: int,
-    id_servicio: int,
-    id_barbero: int,
-    db: Session = Depends(get_db)
-):
+def disponibilidad_mes(mes: int, anio: int, id_servicio: int, id_barbero: int, db: Session = Depends(get_db)):
+    from crud import horario as crud_h
+    from crud import visita as crud_v
     hoy = obtener_hoy_local()
     _, last_day = monthrange(anio, mes)
-
     resultado = []
-
     for dia in range(1, last_day + 1):
         fecha_dia = date(anio, mes, dia)
-        dia_semana = fecha_dia.isoweekday()
-
         if fecha_dia < hoy:
-            resultado.append({
-                "fecha": fecha_dia.isoformat(),
-                "estado": "pasado"
-            })
+            resultado.append({"fecha": fecha_dia.isoformat(), "estado": "pasado"})
             continue
-
-        horarios = crud_horario.get_horarios_barbero_para_fecha(
-            db=db,
-            id_barbero=id_barbero,
-            dia_semana=dia_semana,
-            fecha=fecha_dia
-        )
-
+        horarios = crud_h.get_horarios_barbero_para_fecha(db=db, id_barbero=id_barbero, dia_semana=fecha_dia.isoweekday(), fecha=fecha_dia)
         if not horarios:
-            resultado.append({
-                "fecha": fecha_dia.isoformat(),
-                "estado": "sin_horario"
-            })
+            resultado.append({"fecha": fecha_dia.isoformat(), "estado": "sin_horario"})
             continue
-
-        turnos = crud_visita.get_disponibilidad(
-            db=db,
-            fecha=fecha_dia,
-            id_servicio=id_servicio,
-            id_barbero=id_barbero
-        )
-
+        turnos = crud_v.get_disponibilidad(db=db, fecha=fecha_dia, id_servicio=id_servicio, id_barbero=id_barbero)
         estado = "disponible" if len(turnos["turnos"]) > 0 else "completo"
-
-        resultado.append({
-            "fecha": fecha_dia.isoformat(),
-            "estado": estado
-        })
-
+        resultado.append({"fecha": fecha_dia.isoformat(), "estado": estado})
     return resultado
 
 # ======================================================================================
-# CREAR VISITA
+# CREAR VISITA (CORREGIDO PARA EVITAR EL ATTRIBUTE ERROR)
 # ======================================================================================
 
 @router.post("/", response_model=VisitaOut, status_code=status.HTTP_201_CREATED)
@@ -216,10 +130,29 @@ def crear_visita(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
+    from crud import visita as crud_v
     try:
-        visita = crud_visita.create_visita(db, visita_in)
+        # 1. BUSCAR AL CLIENTE PARA OBTENER SU TELÉFONO (Esto evita el AttributeError)
+        cliente = db.query(Cliente).filter(Cliente.id_cliente == visita_in.id_cliente).first()
+        if not cliente:
+            raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
-        # Envío de Email
+        # 2. VALIDACIÓN DE LISTA NEGRA
+        if cliente.telefono:
+            tel_limpio = "".join(filter(str.isdigit, cliente.telefono))
+            bloqueado = db.query(Blacklist).filter(Blacklist.telefono == tel_limpio).first()
+            
+            if bloqueado:
+                print(f"🚫 BLOQUEO: Intento de reserva de número bloqueado: {tel_limpio}")
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Lo sentimos, no es posible realizar la reserva con este número."
+                )
+
+        # 3. CREAR VISITA
+        visita = crud_v.create_visita(db, visita_in)
+
+        # 4. EMAIL DE CONFIRMACIÓN
         if visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
@@ -230,93 +163,66 @@ def crear_visita(
 
         return visita_to_out(visita)
 
+    except HTTPException as he:
+        raise he
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
 
 # ======================================================================================
-# CANCELAR VISITA (UNIFICADO CORREO + WHATSAPP)
+# CANCELAR VISITA
 # ======================================================================================
 
 @router.post("/{visita_id}/cancelar", status_code=status.HTTP_200_OK)
-def cancelar_visita(
-    visita_id: int,
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
-):
-    # Logs para depuración en Uvicorn
-    print(f"\n🚀 EJECUTANDO ACCIÓN DE CANCELACIÓN - ID VISITA: {visita_id}")
-    
-    visita = crud_visita.get_visita_by_id(db, visita_id)
-
+def cancelar_visita(visita_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    from crud import visita as crud_v
+    visita = crud_v.get_visita_by_id(db, visita_id)
     if not visita:
-        print(f"❌ Error: No se encontró la visita {visita_id}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Visita no encontrada"
-        )
+        raise HTTPException(status_code=404, detail="Visita no encontrada")
 
-    # 1. Captura de datos para notificaciones
-    nombre_cliente = visita.cliente.nombre
-    email_cliente = visita.cliente.email
-    telefono_cliente = visita.cliente.telefono
-    nombre_servicio = visita.servicio.nombre
-    # Formato para la plantilla de WhatsApp {{3}}
-    fecha_msg = visita.fecha_hora.strftime("%d/%m a las %H:%M")
-
-    # 2. Actualizamos estado en DB
     visita.estado = "CANCELADO"
     db.commit()
     db.refresh(visita)
-    print(f"💾 DB: Visita {visita_id} marcada como CANCELADA")
 
-    # 3. Envío de Email (Background Task)
-    if email_cliente:
-        background_tasks.add_task(
-            enviar_email_confirmacion,
-            email_cliente,
-            "❌ Turno cancelado - King Barber",
-            generar_email_cancelacion(visita)
-        )
-        print(f"📧 Tarea de Email encolada para: {email_cliente}")
-
-    # 4. Envío de WhatsApp (Background Task)
-    if telefono_cliente:
-        print(f"📲 Encolando WhatsApp de cancelación para {nombre_cliente} al {telefono_cliente}")
+    # Notificaciones
+    if visita.cliente and visita.cliente.email:
+        background_tasks.add_task(enviar_email_confirmacion, visita.cliente.email, "❌ Turno cancelado", generar_email_cancelacion(visita))
+    
+    if visita.cliente and visita.cliente.telefono:
         background_tasks.add_task(
             enviar_cancelacion_whatsapp,
-            telefono_cliente=telefono_cliente,
-            nombre_cliente=nombre_cliente,
-            servicio=nombre_servicio,
-            fecha_hora_str=fecha_msg
+            telefono_cliente=visita.cliente.telefono,
+            nombre_cliente=visita.cliente.nombre,
+            servicio=visita.servicio.nombre if visita.servicio else "Servicio",
+            fecha_hora_str=visita.fecha_hora.strftime("%d/%m a las %H:%M")
         )
 
     return {"ok": True}
 
 # ======================================================================================
-# LISTAR TODAS (ADMIN)
+# OTROS (PATCH, GET BY ID, LISTAR)
 # ======================================================================================
 
-@router.get("/", response_model=List[VisitaOut])
-def listar_visitas(db: Session = Depends(get_db)):
-    crud_visita.marcar_visitas_completadas(db)
-    visitas = crud_visita.get_visitas(db) if hasattr(crud_visita, 'get_visitas') else []
-    return [visita_to_out(v) for v in visitas]
-
-# ======================================================================================
-# OBTENER POR ID
-# ======================================================================================
+@router.patch("/{visita_id}/estado", response_model=VisitaOut)
+def actualizar_estado_visita(visita_id: int, data: VisitaUpdate, db: Session = Depends(get_db)):
+    from crud import visita as crud_v
+    try:
+        visita = crud_v.update_estado_visita(db, visita_id, data.estado)
+        return visita_to_out(visita)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/{visita_id}", response_model=VisitaOut)
 def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
-    visita = crud_visita.get_visita_by_id(db, visita_id)
-
+    from crud import visita as crud_v
+    visita = crud_v.get_visita_by_id(db, visita_id)
     if not visita:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Visita no encontrada"
-        )
-
+        raise HTTPException(status_code=404, detail="Visita no encontrada")
     return visita_to_out(visita)
+
+@router.get("/", response_model=List[VisitaOut])
+def listar_visitas(db: Session = Depends(get_db)):
+    from crud import visita as crud_v
+    crud_v.marcar_visitas_completadas(db)
+    # Suponiendo que tienes un método get_visitas general en crud
+    visitas = db.query(Visita).all()
+    return [visita_to_out(v) for v in visitas]

@@ -8,36 +8,37 @@ import { Routes, Route } from "react-router-dom";
 import TvTurnoPage from "../pages/tv/TvTurnoPage";
 
 /* =====================
-   PUBLIC
+    PUBLIC
 ===================== */
 import HomePage from "../pages/Public/Homepage/Homepage";
 import AgendaPage from "../pages/Public/AgendaPage";
 import LoginBarbero from "../pages/Public/Homepage/LoginBarbero/LoginBarbero";
 
 /* =====================
-   SHARED (ADMIN + BARBERO)
+    SHARED (ADMIN + BARBERO)
 ===================== */
 import BarberoPerfil from "../pages/Shared/Perfil/PerfilPage";
 import HistorialAgenda from "../pages/Shared/Historial/HistorialAgenda";
 
 /* =====================
-   BARBERO
+    BARBERO
 ===================== */
 import BarberAgenda from "../pages/Barber/BarberAgenda";
 import BarberoDashboard from "../pages/Barbero/BarberoDashboard";
 import BarberoLayout from "../components/Barbero/BarberoLayout/BarberoLayout";
 
 /* =====================
-   ADMIN
+    ADMIN
 ===================== */
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberoPage/BarberosPage";
 import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
 import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage";
+import BlacklistPage from "../pages/Admin/BlacklistPage/BlacklistPage"; // IMPORTACIÓN NUEVA
 import AdminLayout from "../components/Admin/AdminLayout/AdminLayout";
 
 /* =====================
-   AUTH
+    AUTH
 ===================== */
 import ProtectedRoute from "../router/ProtectedRoute";
 
@@ -134,17 +135,7 @@ export default function AppRouter() {
         }
       />
 
-      <Route
-        path="/barbero/historial"
-        element={
-          <ProtectedRoute role="barbero">
-            <BarberoLayout>
-              <HistorialAgenda />
-            </BarberoLayout>
-          </ProtectedRoute>
-        }
-      />
-
+      {/* Nota: Corregido el path duplicado de barbero que estaba aquí, se mantiene coherencia con el layout de admin */}
       <Route
         path="/admin/historial"
         element={
@@ -188,6 +179,19 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
+
+      {/* NUEVA RUTA LISTA NEGRA */}
+      <Route
+        path="/admin/blacklist"
+        element={
+          <ProtectedRoute role="admin">
+            <AdminLayout>
+              <BlacklistPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="/tv" element={<TvTurnoPage />} />
     </Routes>
   );

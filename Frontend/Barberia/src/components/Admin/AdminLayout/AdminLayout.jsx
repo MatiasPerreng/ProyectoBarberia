@@ -12,7 +12,7 @@ const AdminLayout = ({ children }) => {
   const location = useLocation();
 
   /* =========================
-     CERRAR SIDEBAR AL CAMBIAR RUTA (MOBILE)
+      CERRAR SIDEBAR AL CAMBIAR RUTA (MOBILE)
   ========================= */
   useEffect(() => {
     if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -21,7 +21,7 @@ const AdminLayout = ({ children }) => {
   }, [location.pathname]);
 
   /* =========================
-     HANDLER MENU ITEM
+      HANDLER MENU ITEM
   ========================= */
   const handleNavClick = () => {
     if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -32,7 +32,7 @@ const AdminLayout = ({ children }) => {
   return (
     <>
       {/* =========================
-         HEADER MOBILE
+          HEADER MOBILE
       ========================= */}
       <header className="admin-mobile-header">
         <button
@@ -47,7 +47,7 @@ const AdminLayout = ({ children }) => {
       </header>
 
       {/* =========================
-         OVERLAY (MOBILE)
+          OVERLAY (MOBILE)
       ========================= */}
       {sidebarOpen && (
         <div
@@ -57,7 +57,7 @@ const AdminLayout = ({ children }) => {
       )}
 
       {/* =========================
-         LAYOUT
+          LAYOUT
       ========================= */}
       <div className="admin-layout">
         {/* SIDEBAR */}
@@ -96,6 +96,11 @@ const AdminLayout = ({ children }) => {
             <NavLink to="/admin/servicios" onClick={handleNavClick}>
               Servicios
             </NavLink>
+
+            {/* NUEVA RUTA BLACKLIST */}
+            <NavLink to="/admin/blacklist" onClick={handleNavClick}>
+              Lista Negra
+            </NavLink>
           </nav>
 
           {/* USER */}
@@ -119,7 +124,7 @@ const AdminLayout = ({ children }) => {
         </aside>
 
         {/* =========================
-           CONTENT + FOOTER
+            CONTENT + FOOTER
         ========================= */}
         <main className="admin-content">
           <div className="admin-content-inner">

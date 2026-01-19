@@ -14,6 +14,10 @@ export default function SuccessModal({ show, onClose }) {
           Tu turno fue registrado correctamente.
         </p>
 
+        <p className="success-modal-whatsapp-note">
+          Te avisaremos por WhatsApp una hora antes de tu cita.
+        </p>
+
         <div className="success-modal-actions">
           <button
             className="success-modal-btn-confirm"
