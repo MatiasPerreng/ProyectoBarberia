@@ -114,6 +114,18 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     if cliente_tiene_limite_turnos(db, visita_in.id_cliente, visita_in.fecha_hora.date()):
         raise ValueError("Ya tenés 2 turnos reservados para hoy.")
 
+    # 🔥 VALIDACIÓN DE ÚLTIMO SEGUNDO: Verificar disponibilidad real antes de insertar
+    disponibilidad_actual = get_disponibilidad(
+        db, 
+        visita_in.fecha_hora.date(), 
+        visita_in.id_servicio, 
+        visita_in.id_barbero
+    )
+    hora_solicitada = visita_in.fecha_hora.strftime("%H:%M")
+    
+    if hora_solicitada not in disponibilidad_actual["turnos"]:
+        raise ValueError("Lo sentimos, alguien se agendó ese turno segundos antes que vos.")
+
     if visita_in.id_barbero is None:
         visita_in.id_barbero = asignar_barbero_automatico(db, visita_in.fecha_hora, servicio.duracion_min)
         if not visita_in.id_barbero: raise ValueError("No hay barberos disponibles")

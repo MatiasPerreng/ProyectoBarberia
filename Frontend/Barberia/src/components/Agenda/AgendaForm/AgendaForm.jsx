@@ -27,10 +27,23 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
 
   const validate = () => {
     const newErrors = {};
+    
+    // Validación Nombre
     if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
+    
+    // Validación Apellido
     if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
+    
+    // Validación Email (Opcional pero debe ser válido si se escribe)
     if (form.email.trim() && !validarEmail(form.email)) newErrors.email = "Email inválido";
-    if (form.telefono.trim() && !validarTelefono(form.telefono)) newErrors.telefono = "Teléfono inválido";
+    
+    // 🔥 CAMBIO AQUÍ: Validación Teléfono OBLIGATORIO
+    if (!form.telefono.trim()) {
+      newErrors.telefono = "El teléfono es obligatorio";
+    } else if (!validarTelefono(form.telefono)) {
+      newErrors.telefono = "Formato de teléfono inválido (8-15 dígitos)";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -50,21 +63,23 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
       await onSubmit({
         ...form,
         email: form.email.trim() || null,
-        telefono: form.telefono.trim() || null,
+        telefono: form.telefono.trim(), // Ya no enviamos null porque es obligatorio
       });
       setShowSuccess(true);
     } catch (err) {
-      // Extraemos el detalle del error
       const rawMessage = err?.response?.data?.detail || err?.message || "";
       
-      // Normalizamos el mensaje: quitamos tildes, pasamos a minúsculas y limpiamos espacios
       const normalizedMessage = rawMessage
         .toString()
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, ""); // Esto quita la tilde de "número" -> "numero"
+        .replace(/[\u0300-\u036f]/g, "");
 
-      if (normalizedMessage.includes("numero") || normalizedMessage.includes("posible realizar la reserva")) {
+      if (normalizedMessage.includes("segundos antes") || normalizedMessage.includes("alguien se agendo")) {
+        setDuplicateMessage("¡Uy! Justo alguien se agendó ese turno segundos antes que vos. Por favor, selecciona otro horario.");
+        setShowDuplicate(true);
+      } 
+      else if (normalizedMessage.includes("numero") || normalizedMessage.includes("posible realizar la reserva")) {
         setDuplicateMessage("Lo sentimos, no es posible realizar la reserva con este número.");
         setShowDuplicate(true);
       } 
@@ -77,7 +92,6 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         setShowDuplicate(true);
       } 
       else {
-        // Si no entra en los anteriores, mostramos el alert original
         alert("Ocurrió un error: " + rawMessage);
       }
     } finally {
@@ -132,6 +146,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                 <input
                   type="email"
                   name="email"
+                  placeholder="ejemplo@correo.com"
                   value={form.email}
                   onChange={handleChange}
                   className={errors.email ? "af-input-error" : ""}
@@ -139,11 +154,13 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                 {errors.email && <small className="af-error">{errors.email}</small>}
               </div>
 
+              {/* 🔥 CAMBIO: Label con asterisco y validación activa */}
               <div className="af-form-group">
-                <label>Teléfono</label>
+                <label>Teléfono *</label>
                 <input
                   type="text"
                   name="telefono"
+                  placeholder="Ej: 099123456"
                   value={form.telefono}
                   onChange={handleChange}
                   className={errors.telefono ? "af-input-error" : ""}

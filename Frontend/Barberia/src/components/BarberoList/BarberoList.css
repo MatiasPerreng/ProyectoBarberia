@@ -322,3 +322,61 @@
   font-size: 11px;
   opacity: 0.5;
 }
+
+/* --- ESTILOS DEL CARTEL DE AVISO (NUEVO) --- */
+
+.bl-message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  margin: 20px auto;
+  background-color: #fcfcfc; /* Fondo suave */
+  border: 2px dashed #ddd;    /* Borde punteado para que parezca un placeholder */
+  border-radius: 12px;
+  color: #555;
+  max-width: 500px; /* Para que no se estire de más en PC */
+}
+
+.bl-icon-warning {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  filter: grayscale(1); /* Un toque estético más sobrio */
+  opacity: 0.7;
+}
+
+.bl-message-container p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.bl-message-container small {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* --- RESPONSIVE MOBILE (Solo para el cartel) --- */
+
+@media (max-width: 480px) {
+  .bl-message-container {
+    padding: 30px 15px;
+    margin: 10px; /* Un poco más de aire en los bordes de la pantalla */
+    border-width: 1px; /* Borde más fino en móvil */
+  }
+
+  .bl-icon-warning {
+    font-size: 2.5rem; /* Ícono un pelín más chico en móvil */
+  }
+
+  .bl-message-container p {
+    font-size: 1rem; /* Texto ajustado para pantallas chicas */
+  }
+
+  .bl-message-container small {
+    font-size: 0.85rem;
+  }
+}
