@@ -1,9 +1,9 @@
 /* =======================================================
-   REVEAL SYSTEM (MOVIMIENTO MÁS FLUIDO)
+   REVEAL SYSTEM
 ======================================================= */
 .reveal {
   position: relative;
-  transform: translateY(40px); /* Menos salto para mayor elegancia */
+  transform: translateY(40px);
   opacity: 0;
   transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
   visibility: hidden;
@@ -16,65 +16,83 @@
 }
 
 /* =======================================================
-   HERO – ESTRUCTURA PREMIUM (MANTENIENDO DORADO)
+   HERO – ESTRUCTURA PREMIUM
 ======================================================= */
 .hero-section {
   position: relative;
   min-height: calc(100vh - 68px);
-  padding-top: calc(68px + 60px);
-  padding-bottom: 90px;
-  
-  /* Mantenemos tu base oscura pero con profundidad */
-  background: 
+  padding: calc(68px + 20px) 20px 60px;
+
+  background:
     radial-gradient(circle at 50% -20%, rgba(230, 199, 123, 0.1), transparent 50%),
     linear-gradient(180deg, rgba(20, 18, 12, 0.95) 0%, #000 100%);
-  
-  display: grid;
-  place-items: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   color: white;
   overflow: hidden;
 }
 
-/* Efecto Grid de fondo sutil (Estilo Infocore pero en Dorado) */
+/* GRID DORADO BASE */
 .hero-section::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(230, 199, 123, 0.03) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(230, 199, 123, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse at center, black, transparent 80%);
+
+  background-image:
+    linear-gradient(rgba(230, 199, 123, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230, 199, 123, 0.03) 1px, transparent 1px);
+
+  background-size: 60px 60px; /* Desktop */
+
+  mask-image: radial-gradient(ellipse at center, black 50%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 85%);
+
   pointer-events: none;
 }
 
-.hero-logo {
-  max-width: 270px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(8px); /* Efecto cristal */
-  border: 1px solid rgba(230, 199, 123, 0.15); /* Tu color */
-  border-radius: 40px;
-  margin-bottom: 25px;
-  animation: fadeInDown 1.2s ease forwards;
+/* Contenido encima del grid */
+.hero-logo,
+.hero-title,
+.hero-section .btn {
+  position: relative;
   z-index: 2;
 }
 
+/* LOGO */
+.hero-logo {
+  max-width: 270px;
+  width: 100%;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(230, 199, 123, 0.15);
+  border-radius: 40px;
+  margin-bottom: 25px;
+  animation: fadeInDown 1.2s ease forwards;
+  box-sizing: border-box;
+}
+
+/* TÍTULO */
 .hero-title {
   font-family: "Cinzel", serif;
   color: #fff;
   letter-spacing: 5px;
-  text-shadow: 0 0 15px rgba(230, 199, 123, 0.3); /* Resplandor dorado suave */
-  margin-bottom: 12px;
+  text-shadow: 0 0 15px rgba(230, 199, 123, 0.3);
+  margin-bottom: 20px;
   animation: fadeInUp 1s ease forwards;
-  z-index: 2;
+  font-size: 3.5rem;
+  line-height: 1.2;
 }
 
-/* =======================================================
-   BOTÓN HERO (EFECTO SCANNER / SHIMMER EN DORADO)
-======================================================= */
+/* BOTÓN */
 .hero-section .btn {
   position: relative;
-  overflow: hidden; /* Necesario para el efecto de brillo */
+  overflow: hidden;
   border-radius: 999px !important;
   border: 1px solid rgba(230, 199, 123, 0.6) !important;
   color: #e6c77b !important;
@@ -84,28 +102,8 @@
   letter-spacing: 1px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
   animation: fadeInUp 1.6s ease forwards;
-  z-index: 2;
-}
-
-/* Efecto de barrido de luz (Shimmer) */
-.hero-section .btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(230, 199, 123, 0.2),
-    transparent
-  );
-  transition: all 0.6s;
-}
-
-.hero-section .btn:hover::before {
-  left: 100%;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .hero-section .btn:hover {
@@ -116,7 +114,7 @@
 }
 
 /* =======================================================
-   TÍTULO SERVICIOS (LÍNEA DE LUZ)
+   SERVICES
 ======================================================= */
 .services-title {
   position: relative;
@@ -160,14 +158,86 @@
   );
   z-index: -1;
 }
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.service-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 30px;
+  border: 1px solid rgba(230, 199, 123, 0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
 /* =======================================================
-   MOBILE
+   RESPONSIVE
 ======================================================= */
-@media (max-width: 600px) {
-  .hero-section {
-    padding-top: calc(68px + 40px);
-    background-size: 40px 40px; /* Grid más pequeño en móvil */
+
+@media (max-width: 768px) {
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 18px;
   }
-  .hero-title { font-size: 1.7rem; }
-  .services-title { font-size: 1.8rem; }
+
+  .service-card {
+    padding: 30px 22px;
+    border-radius: 20px;
+  }
+
+  /* Tablet grid menos denso */
+  .hero-section::after {
+    background-size: 80px 80px;
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .hero-section {
+    padding-top: calc(68px + 20px);
+  }
+
+  /* 🔥 4x4 aprox mosaicos */
+  .hero-section::after {
+    background-size: 105px 105px;
+    opacity: 0.5;
+  }
+
+  /* Ajuste tipografías mobile */
+  .hero-logo {
+    max-width: 190px;
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+
+  .hero-title {
+    font-size: 1.9rem;
+    letter-spacing: 2px;
+    line-height: 1.25;
+    margin-bottom: 18px;
+  }
+
+  .lead{
+    font-size: 0.9rem!important;
+  }
+
+  .hero-section .btn {
+    padding: 11px 28px !important;
+    font-size: 0.9rem;
+  }
+
+  .services-title {
+    font-size: 1.4rem;
+    letter-spacing: 1.5px;
+  }
 }

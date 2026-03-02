@@ -134,10 +134,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
           </aside>
 
           <section className="af-booking-content">
-            {/* --- FIRMA DIAGONAL AGREGADA --- */}
-            <div className="designer-signature">
-              <span>Designed by MATIAS PERRENG</span>
-            </div>
+      
 
             <button className="af-btn-volver" onClick={onVolver}>
               ← Volver

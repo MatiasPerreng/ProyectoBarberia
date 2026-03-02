@@ -195,10 +195,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
           </aside>
 
           <section className="aa-booking-content">
-            {/* --- FIRMA DIAGONAL AGREGADA --- */}
-            <div className="designer-signature">
-              <span>Designed by MATIAS PERRENG</span>
-            </div>
+         
             
             <button className="aa-btn-volver" onClick={onVolver}>
               ← Volver

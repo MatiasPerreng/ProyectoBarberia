@@ -108,7 +108,6 @@
 .aa-booking-content {
   padding: 50px;
   background: #fff;
-  position: relative; /* Necesario para la firma absoluta */
   overflow-y: visible;
   /* Crucial para que el scroll automático sea fluido */
   scroll-behavior: smooth;
@@ -134,8 +133,6 @@
   text-transform: uppercase;
   margin-bottom: 30px;
   color: #111;
-  position: relative;
-  z-index: 1;
 }
 
 /* BOTÓN VOLVER */
@@ -155,9 +152,8 @@
   align-items: center;
   gap: 8px;
   transition: all 0.25s ease;
-  position: relative;
-  z-index: 1;
 }
+
 
 .aa-btn-volver::after {
   content: "";
@@ -187,39 +183,6 @@
   outline: none;
   box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.35);
 }
-
-/* =======================================================
-   FIRMA DIAGONAL PRO - SUPERIOR DERECHA
-======================================================= */
-.designer-signature {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 240px;
-  height: 230px;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.designer-signature span {
-  position: absolute;
-   top: 53px!important;
-  right: -70px;
-  width: 270px;
-  padding: 7px 0;
-  background: linear-gradient(90deg, #e6c77b, #caa851);
-  color: #000;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: center;
-  white-space: nowrap;
-  transform: rotate(43deg);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-}
-
 /* =======================================================
    CALENDARIO
 ======================================================= */
@@ -230,8 +193,6 @@
   justify-content: center;
   gap: 20px;
   margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
 }
 
 .aa-month-label {
@@ -269,8 +230,6 @@
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   margin-bottom: 10px;
-  position: relative;
-  z-index: 1;
 }
 
 .aa-calendar-weekdays span {
@@ -286,8 +245,6 @@
   gap: 8px;
   margin-bottom: 30px;
   transition: opacity 0.3s ease;
-  position: relative;
-  z-index: 1;
 }
 
 .aa-calendar-grid.is-loading {
@@ -354,8 +311,6 @@
   padding-bottom: 30px;
   /* Espacio extra para el scroll */
   animation: fadeIn 0.4s ease;
-  position: relative;
-  z-index: 1;
 }
 
 .aa-horarios-container h4 {

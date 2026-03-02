@@ -24,7 +24,6 @@
   grid-template-columns: 280px 1fr;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
   overflow: hidden;
-  position: relative; /* Asegura posicionamiento de elementos hijos */
 }
 
 /* =======================================================
@@ -119,7 +118,6 @@
   padding: 50px;
   background: #fff;
   overflow-y: auto;
-  position: relative; /* CRÍTICO para posicionar la firma */
 }
 
 .af-booking-content h3 {
@@ -129,41 +127,6 @@
   margin-bottom: 35px;
   color: #111;
   font-weight: 700;
-  position: relative; /* Asegura que quede sobre la firma si es necesario */
-  z-index: 1;
-}
-
-/* =======================================================
-   FIRMA DIAGONAL (NUEVO)
-======================================================= */
-
-.designer-signature {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 220px;
-  height: 220px;
-  overflow: hidden;
-  pointer-events: none; /* No interfiere con clics */
-  z-index: 0; /* Por debajo del contenido principal */
-}
-
-.designer-signature span {
-  position: absolute;
-  top: 53px!important;
-  right: -55px;
-  width: 250px;
-  padding: 6px 0;
-  background: linear-gradient(90deg, #e6c77b, #caa851);
-  color: #000;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: center;
-  white-space: nowrap;
-  transform: rotate(45deg);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 /* =======================================================
@@ -186,8 +149,6 @@
   align-items: center;
   gap: 8px;
   transition: all 0.25s ease;
-  position: relative; /* Asegura que quede sobre la firma */
-  z-index: 1;
 }
 
 
@@ -229,8 +190,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 25px;
-  position: relative; /* Asegura que el form quede sobre la firma */
-  z-index: 1;
 }
 
 .af-form-group {
@@ -388,3 +347,4 @@
     padding: 18px;
   }
 }
+

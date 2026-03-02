@@ -57,7 +57,7 @@ export default function HomePage() {
           </h1>
 
           <p className="lead">
-            Degrades · Barba · Estilo · Reserva online
+            Degrades · Barba · Colometría · Reserva online
           </p>
 
           <a href="#servicios" className="btn btn-outline-light">

@@ -333,21 +333,17 @@
   text-align: center;
   padding: 40px 20px;
   margin: 20px auto;
-  background-color: #fcfcfc;
-  /* Fondo suave */
-  border: 2px dashed #ddd;
-  /* Borde punteado para que parezca un placeholder */
+  background-color: #fcfcfc; /* Fondo suave */
+  border: 2px dashed #ddd;    /* Borde punteado para que parezca un placeholder */
   border-radius: 12px;
   color: #555;
-  max-width: 500px;
-  /* Para que no se estire de más en PC */
+  max-width: 500px; /* Para que no se estire de más en PC */
 }
 
 .bl-icon-warning {
   font-size: 3rem;
   margin-bottom: 15px;
-  filter: grayscale(1);
-  /* Un toque estético más sobrio */
+  filter: grayscale(1); /* Un toque estético más sobrio */
   opacity: 0.7;
 }
 
@@ -368,20 +364,16 @@
 @media (max-width: 480px) {
   .bl-message-container {
     padding: 30px 15px;
-    margin: 10px;
-    /* Un poco más de aire en los bordes de la pantalla */
-    border-width: 1px;
-    /* Borde más fino en móvil */
+    margin: 10px; /* Un poco más de aire en los bordes de la pantalla */
+    border-width: 1px; /* Borde más fino en móvil */
   }
 
   .bl-icon-warning {
-    font-size: 2.5rem;
-    /* Ícono un pelín más chico en móvil */
+    font-size: 2.5rem; /* Ícono un pelín más chico en móvil */
   }
 
   .bl-message-container p {
-    font-size: 1rem;
-    /* Texto ajustado para pantallas chicas */
+    font-size: 1rem; /* Texto ajustado para pantallas chicas */
   }
 
   .bl-message-container small {
@@ -390,55 +382,3 @@
 }
 
 
-
-
-/* =======================================================
-   FIRMA DIAGONAL PRO - SUPERIOR DERECHA (CORREGIDO)
-======================================================= */
-/* =======================================================
-   FIRMA DIAGONAL PRO - SUPERIOR DERECHA (DEFINITIVO)
-======================================================= */
-/* =======================================================
-   FIRMA DIAGONAL PRO - SUPERIOR DERECHA (CORREGIDO)
-======================================================= */
-
-/* AJUSTE: .bl-content NO debe tener overflow: hidden, 
-   o romperemos el scroll interno.
-*/
-/* =======================================================
-   FIRMA DIAGONAL PRO - SUPERIOR DERECHA (AJUSTADO)
-======================================================= */
-.bl-content {
-  position: relative;
-  overflow-y: auto;
-}
-
-.designer-signature {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 240px;   /* antes 170 */
-  height: 230px;  /* antes 170 */
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.designer-signature span {
-  position: absolute;
-  top: 53px!important;
-  right: -70px;
-  width: 270px;
-  padding: 7px 0;
-  background: linear-gradient(90deg, #e6c77b, #caa851);
-  color: #000;
-  font-size: 9px;       /* más grande ahora */
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: center;
-  white-space: nowrap;
-
-  transform: rotate(43deg);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-}

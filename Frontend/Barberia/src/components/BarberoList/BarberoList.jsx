@@ -67,10 +67,7 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
 
           {/* CONTENT */}
           <section className="bl-content">
-            {/* --- FIRMA DIAGONAL AGREGADA --- */}
-            <div className="designer-signature">
-              <span>Designed by MATIAS PERRENG</span>
-            </div>
+          
             
             <button className="bl-btn-volver" onClick={onVolver}>
               ← Volver
