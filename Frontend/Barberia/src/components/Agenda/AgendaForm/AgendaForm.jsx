@@ -37,7 +37,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     // Validación Email (Opcional pero debe ser válido si se escribe)
     if (form.email.trim() && !validarEmail(form.email)) newErrors.email = "Email inválido";
     
-    // 🔥 CAMBIO AQUÍ: Validación Teléfono OBLIGATORIO
+    // 🔥 Validación Teléfono OBLIGATORIO
     if (!form.telefono.trim()) {
       newErrors.telefono = "El teléfono es obligatorio";
     } else if (!validarTelefono(form.telefono)) {
@@ -134,6 +134,11 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
           </aside>
 
           <section className="af-booking-content">
+            {/* --- FIRMA DIAGONAL AGREGADA --- */}
+            <div className="designer-signature">
+              <span>Designed by MATIAS PERRENG</span>
+            </div>
+
             <button className="af-btn-volver" onClick={onVolver}>
               ← Volver
             </button>
@@ -154,7 +159,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                 {errors.email && <small className="af-error">{errors.email}</small>}
               </div>
 
-              {/* 🔥 CAMBIO: Label con asterisco y validación activa */}
+              {/* 🔥 Label con asterisco y validación activa */}
               <div className="af-form-group">
                 <label>Teléfono *</label>
                 <input

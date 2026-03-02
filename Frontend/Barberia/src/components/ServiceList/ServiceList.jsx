@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./ServicesList.css";
 import API_URL from "../../services/api";
 
-
 const ServiciosList = ({ onSelectServicio }) => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,11 +22,13 @@ const ServiciosList = ({ onSelectServicio }) => {
     <div className="servicios-grid">
       {servicios.map((servicio) => (
         <div className="servicio-card" key={servicio.id_servicio}>
-          <img
-            src={`${API_URL}/media/servicios/${servicio.imagen}`}
-            alt={servicio.nombre}
-            className="servicio-img"
-          />
+          <div className="servicio-img-wrapper">
+            <img
+              src={`${API_URL}/media/servicios/${servicio.imagen}`}
+              alt={servicio.nombre}
+              className="servicio-img"
+            />
+          </div>
 
           <div className="servicio-body">
             <h3 className="servicio-title">
@@ -44,14 +45,15 @@ const ServiciosList = ({ onSelectServicio }) => {
 
             <div className="servicio-footer">
               <span className="servicio-precio">
-                ${servicio.precio}
+                <small>$</small>{servicio.precio}
               </span>
 
               <button
                 className="btn-reservar"
                 onClick={() => onSelectServicio(servicio)}
               >
-                Reservar ahora
+                {/* El span es necesario para la animación 3D del texto */}
+                <span>RESERVAR AHORA</span>
               </button>
             </div>
           </div>

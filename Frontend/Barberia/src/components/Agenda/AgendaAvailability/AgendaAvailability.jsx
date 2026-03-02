@@ -15,7 +15,6 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
   const hoy = useMemo(() => new Date(), []);
   const hoyISO = hoy.toISOString().split("T")[0];
 
-
   const fechaMax = useMemo(() => {
     const d = new Date(hoy);
     d.setHours(0, 0, 0, 0);
@@ -23,7 +22,6 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
     return d;
   }, [hoy]);
 
- 
   const horariosRef = useRef(null);
 
   const [mesActual, setMesActual] = useState(hoy.getMonth());
@@ -157,7 +155,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
     else if (nuevoMes > 11) { nuevoMes = 0; nuevoAnio++; }
 
     setMesActual(nuevoMes);
-    setAnioActual(nuevoAnio);
+    setAnioAnio(nuevoAnio);
     setFechaSeleccionada(null);
     setHorarios([]);
   };
@@ -197,6 +195,11 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
           </aside>
 
           <section className="aa-booking-content">
+            {/* --- FIRMA DIAGONAL AGREGADA --- */}
+            <div className="designer-signature">
+              <span>Designed by MATIAS PERRENG</span>
+            </div>
+            
             <button className="aa-btn-volver" onClick={onVolver}>
               ← Volver
             </button>

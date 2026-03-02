@@ -1,66 +1,79 @@
-/* =========================
-   GRID
-========================= */
-
+/* =======================================================
+   GRID - DISEÑO DE ALTO IMPACTO
+======================================================= */
 .servicios-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 12px;
+  padding: 40px 12px;
+  position: relative;
 }
 
-/* =========================
-   CARD
-========================= */
-
+/* =======================================================
+   CARD - EFECTO "DEEP GLASS"
+======================================================= */
 .servicio-card {
-  background: #0f0f0f;
+  background: #0a0a0a; /* Un negro más puro */
   color: #fff;
   border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  border: 1px solid rgba(230, 199, 123, 0.1); /* Borde sutil dorado */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  position: relative;
 }
 
 .servicio-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  transform: translateY(-8px);
+  border-color: rgba(230, 199, 123, 0.4);
+  box-shadow: 0 30px 60px rgba(230, 199, 123, 0.15);
 }
 
-/* =========================
-   IMAGEN
-========================= */
+/* =======================================================
+   IMAGEN CON DEGRADADO (SIN ZOOM PARA EVITAR GLITCH)
+======================================================= */
+.servicio-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #0a0a0a;
+}
 
 .servicio-img {
   width: 100%;
-  height: 220px;
+  height: 100%;
   object-fit: cover;
-  filter: brightness(0.8) contrast(1.05);
+  filter: brightness(0.7) contrast(1.1);
 }
 
-/* =========================
-   BODY
-========================= */
+/* Sombra interna para fundir la imagen con el texto */
+.servicio-img-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, #0a0a0a, transparent);
+  pointer-events: none;
+}
 
+/* =======================================================
+   BODY Y TIPOGRAFÍA
+======================================================= */
 .servicio-body {
   padding: 26px 26px 28px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0),
-    #0f0f0f 45%
-  );
+  background: #0a0a0a;
+  position: relative;
 }
-
-/* =========================
-   TIPOGRAFÍA
-========================= */
 
 .servicio-title {
   font-size: 15px;
@@ -68,132 +81,154 @@
   letter-spacing: 3px;
   text-transform: uppercase;
   margin-bottom: 6px;
+  color: #fff;
 }
 
 .servicio-duracion {
   font-size: 0.7rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  opacity: 0.55;
+  color: #e6c77b;
+  opacity: 0.8;
   margin-bottom: 14px;
 }
 
 .servicio-desc {
   font-size: 13px;
   line-height: 1.7;
-  color: #bdbdbd;
+  color: #a0a0a0;
   flex-grow: 1;
 }
 
 /* =========================
-   FOOTER
+   FOOTER Y PRECIO
 ========================= */
-
 .servicio-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 26px;
   gap: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 20px;
 }
 
-/* =========================
-   PRECIO
-========================= */
-
 .servicio-precio {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 1px;
-  color: #e6c77b;
+  color: #fff;
 }
 
 .servicio-precio small {
   font-size: 0.8rem;
-  opacity: 0.7;
+  color: #e6c77b;
   margin-right: 2px;
 }
 
-/* =========================
-   BOTÓN
-========================= */
-
+/* =======================================================
+   BOTÓN PRO - EFECTO COMBINADO (RELLENO + BRILLO)
+======================================================= */
 .btn-reservar {
+  position: relative;
   background: transparent;
-  border: 1px solid rgba(230, 199, 123, 0.55);
+  border: 1px solid rgba(230, 199, 123, 0.6);
   color: #e6c77b;
   border-radius: 999px;
-  padding: 8px 20px;
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  height: 40px; 
+  padding: 0 24px;
+  
   font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.25s ease;
+  
+  /* Curva de transición suave */
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  z-index: 1;
+}
+
+/* EFECTO 1: Fondo que sube (Liquid fill) */
+.btn-reservar::after {
+  content: "";
+  position: absolute;
+  bottom: -100%; /* Empieza oculto abajo */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #e6c77b;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: -2; /* Detrás de todo */
+}
+
+/* EFECTO 2: Brillo que cruza (Shimmer) */
+.btn-reservar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-20deg);
+  z-index: -1;
+  /* Animación continua del brillo */
+  animation: lightSweep 5s infinite;
+}
+
+@keyframes lightSweep {
+  0% { left: -150%; }
+  25% { left: 150%; }
+  100% { left: 150%; }
+}
+
+/* Texto para animar independientemente */
+.btn-reservar span {
+  transition: all 0.4s ease;
+  display: inline-block;
+  transform: rotateX(0deg);
 }
 
 .btn-reservar:hover {
-  background: #e6c77b;
-  color: #000;
+  border-color: #e6c77b;
+  box-shadow: 0 0 20px rgba(230, 199, 123, 0.4);
 }
 
-/* =========================
-   LOADING
-========================= */
+/* Activación EFECTO 1: Subir fondo */
+.btn-reservar:hover::after {
+  bottom: 0;
+}
 
-.loading {
-  text-align: center;
-  color: #ccc;
+/* Activación de cambios en el texto */
+.btn-reservar:hover span {
+  color: #000;
+  transform: rotateX(10deg);
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
-
-/* TABLET */
 @media (max-width: 1024px) {
-  .servicios-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-  }
-
-  .servicio-img {
-    height: 200px;
-  }
+  .servicios-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .servicio-img-wrapper { height: 200px; }
 }
 
-/* MOBILE */
 @media (max-width: 600px) {
-  .servicios-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .servicio-img {
-    height: 180px;
-  }
-
-  .servicio-body {
-    padding: 22px 20px 24px;
-  }
-
-  .servicio-title {
-    font-size: 14px;
-    letter-spacing: 2px;
-  }
-
-  .servicio-desc {
-    font-size: 12.5px;
-  }
-
-  .servicio-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .btn-reservar {
-    width: 100%;
-    text-align: center;
-    padding: 10px 0;
-  }
+  .servicios-grid { grid-template-columns: 1fr; gap: 25px; }
+  .servicio-footer { flex-direction: row; align-items: center; justify-content: space-between; }
+  .btn-reservar { padding: 0 20px; }
 }

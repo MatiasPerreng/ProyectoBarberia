@@ -6,7 +6,7 @@ import API_URL from "../../services/api";
 const BarberosList = ({ onSelectBarbero, onVolver }) => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
-  const [loading, setLoading] = useState(true); // Estado para controlar la carga
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -67,6 +67,11 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
 
           {/* CONTENT */}
           <section className="bl-content">
+            {/* --- FIRMA DIAGONAL AGREGADA --- */}
+            <div className="designer-signature">
+              <span>Designed by MATIAS PERRENG</span>
+            </div>
+            
             <button className="bl-btn-volver" onClick={onVolver}>
               ← Volver
             </button>

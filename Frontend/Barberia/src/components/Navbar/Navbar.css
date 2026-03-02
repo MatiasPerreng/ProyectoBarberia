@@ -1,134 +1,121 @@
-/* =========================
-   NAVBAR KING PRO
-========================= */
+/* =======================================================
+   NAVBAR PRO - LOGO DISRUPTIVO & LINKS ELEGANTES
+======================================================= */
+
+/* IMPORTANTE: Agrega esta fuente en tu HTML para la nitidez del logo:
+   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Inter:wght@400;600&display=swap" rel="stylesheet"> 
+*/
 
 .navbar-pro {
   position: fixed;
   top: 0;
   width: 100%;
-  height: 72px;
-  padding: 0 48px;
-
+  height: 75px;
+  padding: 0 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.88),
-      rgba(0, 0, 0, 0.35)
-    );
-
-  backdrop-filter: blur(5px);
-
-  border-bottom: 1px solid rgba(230, 199, 123, 0.18);
-
+  
+  /* Fondo cristalino con ruido sutil para ir a juego con el Hero */
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  
+  border-bottom: 1px solid rgba(230, 199, 123, 0.15);
   z-index: 1000;
-  transition: all 0.35s ease;
-}
-
-/* línea dorada inferior */
-.navbar-pro::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 92%;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(230,199,123,0.35),
-    transparent
-  );
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* =========================
-   MARCA
+   LOGO "HYPER-DESIGN" (EL CAMBIO FUERTE)
 ========================= */
 
 .nav-left {
-  position: relative;
   display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-/* mini corona */
-.nav-left::before {
-  content: "♛";
-  position: absolute;
-  top: -10px;
-  left: 2px;
-  font-size: 0.7rem;
-  color: rgba(230,199,123,0.7);
+  align-items: baseline;
+  gap: 10px;
+  cursor: pointer;
 }
 
 .nav-monogram {
-  font-family: "Cinzel", serif;
-  font-size: 1.7rem;
-  letter-spacing: 3px;
-  font-weight: 600;
-  color: rgba(230, 199, 123, 0.95);
-  position: relative;
+  /* Fuente Syne: Ultra moderna y pesada */
+  font-family: 'Syne', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -3px; /* Letras casi fundidas, muy pro */
+  line-height: 1;
+  
+  /* Gradiente metálico de alto contraste */
+  background: linear-gradient(
+    165deg, 
+    #ffffff 20%, 
+    #e6c77b 50%, 
+    #96782f 80%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Sombra de profundidad para que "salte" del fondo negro */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)) 
+          drop-shadow(0 0 12px rgba(230, 199, 123, 0.2));
+  
+  transition: all 0.3s ease;
 }
 
-/* base del monograma */
-.nav-monogram::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 100%;
-  height: 1px;
-  background: rgba(230, 199, 123, 0.35);
+.nav-left:hover .nav-monogram {
+  letter-spacing: -1.5px; /* Efecto elástico al pasar el mouse */
+  filter: drop-shadow(0 0 20px rgba(230, 199, 123, 0.5));
 }
 
 .nav-brand {
-  font-family: "Cinzel", serif;
-  font-size: 0.85rem;
-  letter-spacing: 4px;
-  color: rgba(230, 199, 123, 0.75);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: #e6c77b;
   text-transform: uppercase;
+  opacity: 0.8;
 }
 
 /* =========================
-   LINKS
+   LINKS (LOS QUE TE GUSTARON)
 ========================= */
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
 
 .nav-right a {
   position: relative;
-  margin-left: 32px;
-
-  font-family: "Cinzel", serif;
-  font-size: 0.72rem;
-  letter-spacing: 3px;
-  font-weight: 500;
-
+  margin-left: 35px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   text-decoration: none;
-
-  color: rgba(255, 255, 255, 0.7)!important;
-  transition: color 0.25s ease;
-}
-
-/* subrayado dorado */
-.nav-right a::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -10px;
-  transform: translateX(-50%);
-  width: 0%;
-  height: 1px;
-  background: rgba(230, 199, 123, 0.8);
-  transition: width 0.25s ease;
+  color: rgba(255, 255, 255, 0.5) !important;
+  transition: all 0.3s ease;
 }
 
 .nav-right a:hover {
-  color: rgba(230, 199, 123, 0.95);
+  color: #fff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Línea que se expande desde el centro */
+.nav-right a::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background: #e6c77b;
+  box-shadow: 0 0 10px rgba(230, 199, 123, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
 }
 
 .nav-right a:hover::after {
@@ -136,43 +123,26 @@
 }
 
 /* =========================
-   SCROLL STATE
+   ESTADO SCROLL (COMPACTO)
 ========================= */
 
 .navbar-pro.scrolled {
-  background: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(6px);
-  height: 64px;
-  border-bottom: 1px solid rgba(230, 199, 123, 0.12);
+  height: 62px;
+  background: rgba(0, 0, 0, 0.96);
+  border-bottom: 1px solid rgba(230, 199, 123, 0.3);
+}
+
+.navbar-pro.scrolled .nav-monogram {
+  font-size: 1.9rem;
 }
 
 /* =========================
    MOBILE
 ========================= */
 
-@media (max-width: 600px) {
-  .navbar-pro {
-    padding: 0 20px;
-    height: 64px;
-  }
-
-  .nav-left::before {
-    display: none;
-  }
-
-  .nav-monogram {
-    font-size: 1.4rem;
-    letter-spacing: 2px;
-  }
-
-  .nav-brand {
-    font-size: 0.65rem;
-    letter-spacing: 2.5px;
-  }
-
-  .nav-right a {
-    margin-left: 18px;
-    font-size: 0.6rem;
-    letter-spacing: 1px;
-  }
+@media (max-width: 850px) {
+  .navbar-pro { padding: 0 25px; }
+  .nav-brand { display: none; }
+  .nav-right a { margin-left: 20px; font-size: 0.65rem; }
+  .nav-monogram { font-size: 1.8rem; letter-spacing: -2px; }
 }

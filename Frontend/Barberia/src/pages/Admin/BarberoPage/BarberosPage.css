@@ -340,6 +340,7 @@
 .barberos-descanso-tag {
   font-size: 0.8rem;
   color: #cfa85a;
+  margin-left: 10px;
   background: rgba(230, 199, 123, 0.1);
   padding: 4px 10px;
   border-radius: 6px;
