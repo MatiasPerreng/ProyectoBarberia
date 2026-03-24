@@ -19,6 +19,7 @@ import LoginBarbero from "../pages/Public/Homepage/LoginBarbero/LoginBarbero";
 ===================== */
 import BarberoPerfil from "../pages/Shared/Perfil/PerfilPage";
 import HistorialAgenda from "../pages/Shared/Historial/HistorialAgenda";
+import EstadisticasPage from "../pages/Shared/Estadisticas/EstadisticasPage";
 
 /* =====================
     BARBERO
@@ -34,7 +35,8 @@ import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import BarberosPage from "../pages/Admin/BarberoPage/BarberosPage";
 import HorariosPage from "../pages/Admin/HorarioPage/HorariosPage";
 import ServicioPage from "../pages/Admin/ServicioPage/ServicioPage";
-import BlacklistPage from "../pages/Admin/BlacklistPage/BlacklistPage"; // IMPORTACIÓN NUEVA
+import BlacklistPage from "../pages/Admin/BlacklistPage/BlacklistPage";
+import CarouselPage from "../pages/Admin/CarouselPage/CarouselPage";
 import AdminLayout from "../components/Admin/AdminLayout/AdminLayout";
 
 /* =====================
@@ -94,6 +96,17 @@ export default function AppRouter() {
           <ProtectedRoute role="barbero">
             <BarberoLayout>
               <HistorialAgenda />
+            </BarberoLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/barbero/estadisticas"
+        element={
+          <ProtectedRoute role="barbero">
+            <BarberoLayout>
+              <EstadisticasPage />
             </BarberoLayout>
           </ProtectedRoute>
         }
@@ -180,7 +193,28 @@ export default function AppRouter() {
         }
       />
 
-      {/* NUEVA RUTA LISTA NEGRA */}
+      <Route
+        path="/admin/estadisticas"
+        element={
+          <ProtectedRoute role="admin">
+            <AdminLayout>
+              <EstadisticasPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/carrusel"
+        element={
+          <ProtectedRoute role="admin">
+            <AdminLayout>
+              <CarouselPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/admin/blacklist"
         element={

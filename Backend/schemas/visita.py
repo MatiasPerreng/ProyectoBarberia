@@ -9,12 +9,11 @@ import datetime
 class VisitaBase(BaseModel):
     fecha_hora: datetime.datetime
     id_cliente: int
-    id_barbero: int
     id_servicio: int
 
 
 class VisitaCreate(VisitaBase):
-    pass
+    id_barbero: Optional[int] = None  # null = asignar automáticamente
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -46,8 +45,8 @@ class VisitaOut(BaseModel):
 
     servicio_nombre: str
     servicio_duracion: int
+    servicio_precio: Optional[float] = None  # para total estimado en Mi Agenda
 
-    # 🔥 CAMPOS QUE FALTABAN (FIX REAL)
     barbero_id: Optional[int] = None
     barbero_nombre: str = ""
 

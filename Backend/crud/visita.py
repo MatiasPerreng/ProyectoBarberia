@@ -110,6 +110,11 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     servicio = db.query(Servicio).filter(Servicio.id_servicio == visita_in.id_servicio).first()
     if not servicio: raise ValueError("Servicio no existe")
 
+    # 🔥 VALIDACIÓN: No reservar en el pasado
+    ahora_local = obtener_ahora_local()
+    if visita_in.fecha_hora < ahora_local:
+        raise ValueError("No se pueden reservar turnos en el pasado.")
+
     # 🔥 VALIDACIÓN: Máximo 2 agendas por día
     if cliente_tiene_limite_turnos(db, visita_in.id_cliente, visita_in.fecha_hora.date()):
         raise ValueError("Ya tenés 2 turnos reservados para hoy.")

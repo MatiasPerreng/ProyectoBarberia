@@ -137,9 +137,6 @@ h1 {
 /* ================================
    FILTRO DE FECHA – TURNOS
 ================================ */
-/* ================================
-   FILTRO DE FECHA – TURNOS
-================================ */
 
 .turnos-filtro-fecha {
   display: flex;
@@ -203,24 +200,7 @@ h1 {
 }
 
 /* ================================
-   RESPONSIVE
-================================ */
-
-@media (max-width: 480px) {
-  .turnos-filtro-fecha {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .turnos-date-filter,
-  .turnos-btn-todos {
-    width: 100%;
-  }
-}
-
-
-/* ================================
-   RESPONSIVE
+   RESPONSIVE – TURNOS FILTRO
 ================================ */
 
 @media (max-width: 480px) {

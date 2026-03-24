@@ -46,3 +46,22 @@ def get_current_login_barbero(
         )
 
     return login_barbero
+
+
+def get_current_admin(
+    login_barbero=Depends(get_current_login_barbero)
+):
+    """Exige rol admin. Para endpoints que solo el administrador puede usar."""
+    if login_barbero.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado. Se requiere rol de administrador."
+        )
+    return login_barbero
+
+
+def get_current_staff(
+    login_barbero=Depends(get_current_login_barbero)
+):
+    """Acepta admin o barbero. Para endpoints que usa el personal (agenda, cancelar, etc)."""
+    return login_barbero

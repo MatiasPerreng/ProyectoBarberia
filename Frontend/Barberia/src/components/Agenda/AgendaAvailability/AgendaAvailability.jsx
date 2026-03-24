@@ -155,7 +155,7 @@ const AgendaAvailability = ({ servicio, barbero, onSelectFechaHora, onVolver }) 
     else if (nuevoMes > 11) { nuevoMes = 0; nuevoAnio++; }
 
     setMesActual(nuevoMes);
-    setAnioAnio(nuevoAnio);
+    setAnioActual(nuevoAnio);
     setFechaSeleccionada(null);
     setHorarios([]);
   };

@@ -15,6 +15,7 @@ const HistorialAgenda = () => {
 
   const [fecha, setFecha] = useState(hoy);
   const [modoTodos, setModoTodos] = useState(true);
+  const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
     setError(null);
@@ -77,12 +78,47 @@ const HistorialAgenda = () => {
         )}
       </div>
 
-      {turnos.length === 0 && (
-        <p className="kb-empty">No hay turnos en el historial</p>
-      )}
+      {/* 🔍 BUSCADOR POR NOMBRE */}
+      <div className="kb-filtro-busqueda">
+        <input
+          type="search"
+          className="kb-search-input"
+          placeholder="Buscar por nombre del cliente…"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      </div>
 
-      <div className="kb-list">
-        {turnos.map((t) => {
+      {(() => {
+        const termino = busqueda.trim().toLowerCase();
+        const turnosFiltrados = termino
+          ? turnos.filter((t) => {
+              const nombre = (t.cliente_nombre || "").toLowerCase();
+              const apellido = (t.cliente_apellido || "").toLowerCase();
+              const nombreCompleto = `${nombre} ${apellido}`.trim();
+              return (
+                nombre.includes(termino) ||
+                apellido.includes(termino) ||
+                nombreCompleto.includes(termino)
+              );
+            })
+          : turnos;
+
+        return (
+          <>
+            {turnos.length === 0 && (
+              <p className="kb-empty">No hay turnos en el historial</p>
+            )}
+
+            {turnos.length > 0 && turnosFiltrados.length === 0 && (
+              <p className="kb-empty">
+                Ningún cliente coincide con "{busqueda}"
+              </p>
+            )}
+
+            {turnosFiltrados.length > 0 && (
+              <div className="kb-list">
+                {turnosFiltrados.map((t) => {
           const stringFecha = t.fecha_hora.replace(" ", "T");
           const d = new Date(stringFecha);
           
@@ -122,7 +158,11 @@ const HistorialAgenda = () => {
             </div>
           );
         })}
-      </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
     </div>
   );
 };

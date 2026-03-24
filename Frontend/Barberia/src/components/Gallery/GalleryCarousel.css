@@ -47,6 +47,13 @@
   font-weight: 600;
 }
 
+.gallery-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+}
+
 .gallery-title-line {
   width: 90px;
   height: 2px;
@@ -67,12 +74,13 @@
 #galleryCarousel {
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
 .carousel-inner {
   background: transparent;
   border-radius: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* ===============================

@@ -122,8 +122,8 @@
     0 10px 24px rgba(230, 199, 123, 0.55);
 }
 
-/* ELIMINAR */
-.btn-delete {
+/* ELIMINAR - scoped para evitar conflictos con otros .btn-delete */
+.servicio-actions .btn-delete {
   flex: 1;
   padding: 11px 0;
   border-radius: 999px;
@@ -144,7 +144,7 @@
     background 0.2s ease;
 }
 
-.btn-delete:hover {
+.servicio-actions .btn-delete:hover {
   background: linear-gradient(135deg, #dc2626, #991b1b);
   transform: translateY(-2px);
   box-shadow:

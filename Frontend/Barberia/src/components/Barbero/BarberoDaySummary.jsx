@@ -2,11 +2,11 @@ const hoy = new Date().toISOString().split("T")[0];
 
 const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
   const turnosValidos = turnos.filter(
-    (t) => t.estado !== "cancelado"
+    (t) => String(t.estado || "").toUpperCase() !== "CANCELADO"
   );
 
   const total = turnosValidos.reduce(
-    (acc, t) => acc + (t.precio || 0),
+    (acc, t) => acc + (t.servicio_precio || t.precio || 0),
     0
   );
 
@@ -31,7 +31,7 @@ const BarberoDaySummary = ({ turnos, fecha, onChangeFecha }) => {
             Total estimado
           </span>
           <span className="summary-value highlight">
-            ${total}
+            ${typeof total === "number" ? total.toFixed(2) : total}
           </span>
         </div>
       </div>

@@ -97,7 +97,14 @@ const AdminLayout = ({ children }) => {
               Servicios
             </NavLink>
 
-            {/* NUEVA RUTA BLACKLIST */}
+            <NavLink to="/admin/estadisticas" onClick={handleNavClick}>
+              Estadísticas
+            </NavLink>
+
+            <NavLink to="/admin/carrusel" onClick={handleNavClick}>
+              Carrusel
+            </NavLink>
+
             <NavLink to="/admin/blacklist" onClick={handleNavClick}>
               Lista Negra
             </NavLink>

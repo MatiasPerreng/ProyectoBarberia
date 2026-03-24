@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database import get_db
+from core.dependencias import get_current_admin, get_current_staff
 import crud.cliente as crud_cliente
 from schemas import ClienteCreate, ClienteUpdate, ClienteOut
 
@@ -15,13 +16,20 @@ router = APIRouter(
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/", response_model=List[ClienteOut])
-def listar_clientes(db: Session = Depends(get_db)):
+def listar_clientes(
+    staff=Depends(get_current_staff),
+    db: Session = Depends(get_db)
+):
     return crud_cliente.get_clientes(db)
 
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.get("/{cliente_id}", response_model=ClienteOut)
-def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
+def obtener_cliente(
+    cliente_id: int,
+    staff=Depends(get_current_staff),
+    db: Session = Depends(get_db)
+):
     cliente = crud_cliente.get_cliente_by_id(db, cliente_id)
 
     if not cliente:
@@ -51,6 +59,7 @@ def crear_cliente(
 def actualizar_cliente(
     cliente_id: int,
     cliente_in: ClienteUpdate,
+    admin=Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
     cliente = crud_cliente.get_cliente_by_id(db, cliente_id)
@@ -66,7 +75,11 @@ def actualizar_cliente(
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.delete("/{cliente_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db)):
+def eliminar_cliente(
+    cliente_id: int,
+    admin=Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
     cliente = crud_cliente.get_cliente_by_id(db, cliente_id)
 
     if not cliente:

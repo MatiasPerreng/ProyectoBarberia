@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database import get_db
+from core.dependencias import get_current_admin
 import crud.horario as crud_horario
 from schemas import HorarioBarberoCreate, HorarioBarberoOut
 
@@ -39,6 +40,7 @@ def listar_horarios_por_barbero(
 )
 def crear_horario(
     horario_in: HorarioBarberoCreate,
+    admin=Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
     return crud_horario.create_horario(db, horario_in)
@@ -46,7 +48,11 @@ def crear_horario(
 #----------------------------------------------------------------------------------------------------------------------
 
 @router.delete("/{horario_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_horario(horario_id: int, db: Session = Depends(get_db)):
+def eliminar_horario(
+    horario_id: int,
+    admin=Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
     horario = crud_horario.get_horario_by_id(db, horario_id)
 
     if not horario:

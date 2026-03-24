@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +15,8 @@ from routers import (
     auth,
     admin,
     perfil,
+    estadisticas,
+    carousel,
     tv,
 )
 
@@ -22,17 +26,17 @@ app = FastAPI(
 )
 
 # =======================
-# TEST EMAIL (temporal)
+# TEST EMAIL (solo si ENABLE_TEST_EMAIL=true en .env)
 # =======================
-
-@app.get("/test-email")
-async def test_email():
-    await enviar_email_confirmacion(
-        destinatario="tuemail@gmail.com",
-        asunto="Test Barbería",
-        cuerpo="Este es un email de prueba desde FastAPI.",
-    )
-    return {"status": "email enviado"}
+if os.getenv("ENABLE_TEST_EMAIL", "").lower() in ("true", "1", "yes"):
+    @app.get("/test-email")
+    async def test_email():
+        await enviar_email_confirmacion(
+            destinatario="tuemail@gmail.com",
+            asunto="Test Barbería",
+            cuerpo="Este es un email de prueba desde FastAPI.",
+        )
+        return {"status": "email enviado"}
 
 
 # =======================
@@ -53,6 +57,14 @@ app.mount(
     name="media-barberos",
 )
 
+# Crear directorio carrusel si no existe
+Path("static/carousel").mkdir(parents=True, exist_ok=True)
+app.mount(
+    "/media/carousel",
+    StaticFiles(directory="static/carousel"),
+    name="media-carousel",
+)
+
 # =======================
 # CORS
 # =======================
@@ -62,8 +74,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "http://192.168.1.20:5173",
-        "http://186.53.207.192:5173",
+        "http://192.168.1.62:5173",
+        "http://167.62.53.159:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -82,6 +94,8 @@ app.include_router(horarios.router)
 app.include_router(visitas.router)
 app.include_router(admin.router)
 app.include_router(perfil.router)
+app.include_router(estadisticas.router)
+app.include_router(carousel.router)
 app.include_router(tv.router)
 
 # =======================

@@ -11,7 +11,7 @@ from models import Cliente, Visita # Importamos Cliente para buscar el teléfono
 
 # Importaciones directas de archivos para evitar círculos viciosos de inicialización
 from schemas.visita import VisitaCreate, VisitaOut, VisitaUpdate
-from core.dependencias import get_current_login_barbero
+from core.dependencias import get_current_login_barbero, get_current_staff
 from core.email import enviar_email_confirmacion
 from core.email_templates import (
     generar_email_confirmacion,
@@ -42,6 +42,10 @@ def visita_to_out(visita):
     if isinstance(visita, dict):
         return visita
 
+    servicio_precio = None
+    if visita.servicio and visita.servicio.precio is not None:
+        servicio_precio = float(visita.servicio.precio)
+
     return {
         "id_visita": visita.id_visita,
         "fecha_hora": visita.fecha_hora,
@@ -53,6 +57,7 @@ def visita_to_out(visita):
         "cliente_telefono": visita.cliente.telefono if visita.cliente else "",
         "servicio_nombre": visita.servicio.nombre if visita.servicio else "",
         "servicio_duracion": visita.servicio.duracion_min if visita.servicio else 0,
+        "servicio_precio": servicio_precio,
 
         "barbero_id": visita.barbero.id_barbero if visita.barbero else None,
         "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
@@ -173,11 +178,20 @@ def crear_visita(
 # ======================================================================================
 
 @router.post("/{visita_id}/cancelar", status_code=status.HTTP_200_OK)
-def cancelar_visita(visita_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def cancelar_visita(
+    visita_id: int,
+    background_tasks: BackgroundTasks,
+    staff=Depends(get_current_staff),
+    db: Session = Depends(get_db)
+):
     from crud import visita as crud_v
     visita = crud_v.get_visita_by_id(db, visita_id)
     if not visita:
         raise HTTPException(status_code=404, detail="Visita no encontrada")
+
+    # Evitar re-cancelar y reenviar notificaciones
+    if str(visita.estado).upper() == "CANCELADO":
+        return {"ok": True, "message": "El turno ya estaba cancelado"}
 
     visita.estado = "CANCELADO"
     db.commit()
@@ -203,7 +217,12 @@ def cancelar_visita(visita_id: int, background_tasks: BackgroundTasks, db: Sessi
 # ======================================================================================
 
 @router.patch("/{visita_id}/estado", response_model=VisitaOut)
-def actualizar_estado_visita(visita_id: int, data: VisitaUpdate, db: Session = Depends(get_db)):
+def actualizar_estado_visita(
+    visita_id: int,
+    data: VisitaUpdate,
+    staff=Depends(get_current_staff),
+    db: Session = Depends(get_db)
+):
     from crud import visita as crud_v
     try:
         visita = crud_v.update_estado_visita(db, visita_id, data.estado)
@@ -212,7 +231,11 @@ def actualizar_estado_visita(visita_id: int, data: VisitaUpdate, db: Session = D
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/{visita_id}", response_model=VisitaOut)
-def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
+def obtener_visita(
+    visita_id: int,
+    staff=Depends(get_current_staff),
+    db: Session = Depends(get_db)
+):
     from crud import visita as crud_v
     visita = crud_v.get_visita_by_id(db, visita_id)
     if not visita:
@@ -220,7 +243,10 @@ def obtener_visita(visita_id: int, db: Session = Depends(get_db)):
     return visita_to_out(visita)
 
 @router.get("/", response_model=List[VisitaOut])
-def listar_visitas(db: Session = Depends(get_db)):
+def listar_visitas(
+    staff=Depends(get_current_staff),
+    db: Session = Depends(get_db)
+):
     from crud import visita as crud_v
     crud_v.marcar_visitas_completadas(db)
     # Suponiendo que tienes un método get_visitas general en crud

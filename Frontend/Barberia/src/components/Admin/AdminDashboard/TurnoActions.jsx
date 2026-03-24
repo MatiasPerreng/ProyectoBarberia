@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API_URL from "../../../services/api";
+import { apiFetch } from "../../../services/apiClient";
 import "./TurnoActions.css";
 
 const TurnoActions = ({ turno, onCancelSuccess }) => {
@@ -9,11 +9,8 @@ const TurnoActions = ({ turno, onCancelSuccess }) => {
   const cancelarTurno = async () => {
     try {
       setLoading(true);
-      await fetch(`${API_URL}/visitas/${turno.id_visita}/cancelar`, {
+      await apiFetch(`/visitas/${turno.id_visita}/cancelar`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
       });
 
       setShowModal(false);

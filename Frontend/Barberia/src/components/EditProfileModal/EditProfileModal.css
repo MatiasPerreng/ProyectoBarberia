@@ -87,16 +87,21 @@
 }
 
 /* ======================================================
-   ACTIONS (CENTRADAS Y BALANCEADAS)
+   ACTIONS
 ====================================================== */
 .edit-profile-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14x;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 12px;
 }
 
+.edit-profile-actions .edit-profile-btn {
+  width: 100%;
+}
+
 .edit-profile-btn {
+  width: 100%;
   height: 52px;
   border-radius: 16px;
   font-size: 0.95rem;

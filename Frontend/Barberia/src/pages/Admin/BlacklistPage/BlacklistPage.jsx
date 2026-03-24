@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { apiFetch } from "../../../services/apiClient";
 import "./BlacklistPage.css";
 
 const BlacklistPage = () => {
@@ -7,12 +7,11 @@ const BlacklistPage = () => {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ telefono: "", motivo: "" });
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
   const fetchBlacklist = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/blacklist`);
-      setNumeros(res.data);
+      const res = await apiFetch("/admin/blacklist");
+      const data = await res.json();
+      if (res.ok) setNumeros(data);
     } catch (err) {
       console.error("Error al cargar lista negra", err);
     } finally {
@@ -27,20 +26,26 @@ const BlacklistPage = () => {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/admin/blacklist`, form);
+      const res = await apiFetch("/admin/blacklist", {
+        method: "POST",
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Error al bloquear número");
       setForm({ telefono: "", motivo: "" });
       fetchBlacklist();
       alert("Número bloqueado correctamente");
     } catch (err) {
-      alert(err.response?.data?.detail || "Error al bloquear número");
+      alert(err.message || "Error al bloquear número");
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("¿Estás seguro de que deseas desbloquear este número?")) {
       try {
-        await axios.delete(`${API_URL}/admin/blacklist/${id}`);
-        fetchBlacklist();
+        const res = await apiFetch(`/admin/blacklist/${id}`, { method: "DELETE" });
+        if (res.ok) fetchBlacklist();
+        else alert("Error al eliminar");
       } catch (err) {
         alert("Error al eliminar");
       }

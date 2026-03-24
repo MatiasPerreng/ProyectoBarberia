@@ -3,7 +3,7 @@ from typing import Optional, Tuple, List, Union
 from sqlalchemy.orm import Session
 
 from crud.horarios import get_horarios_barbero_para_fecha
-from crud.horarios_excepcion import get_excepcion_para_fecha
+from crud.horarios_excepciones import get_excepcion_para_fecha
 from models import HorarioBarbero
 
 HorarioEspecial = Tuple[time, time]

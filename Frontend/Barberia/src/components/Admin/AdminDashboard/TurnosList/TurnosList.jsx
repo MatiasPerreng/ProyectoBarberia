@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import API_URL from "../../../../services/api";
+import { apiFetch } from "../../../../services/apiClient";
 import TurnoActions from "../TurnoActions";
 
 // -----------------------------
@@ -63,12 +63,12 @@ const TurnosList = ({ filtro }) => {
 
     setLoading(true);
 
-    let url = `${API_URL}/admin/turnos?filtro=${filtro}`;
+    let url = `/admin/turnos?filtro=${filtro}`;
     if (!modoTodos) {
       url += `&fecha=${fecha}`;
     }
 
-    fetch(url)
+    apiFetch(url)
       .then((res) => res.json())
       .then((data) => setTurnos(data))
       .finally(() => setLoading(false));
