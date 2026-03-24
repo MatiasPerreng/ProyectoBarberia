@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import date, datetime, timedelta
 from typing import Optional, List
-from zoneinfo import ZoneInfo
 
 from database import get_db
 from core.dependencias import get_current_staff
@@ -18,7 +17,12 @@ router = APIRouter(prefix="/estadisticas", tags=["Estadísticas"])
 
 
 def get_now_uy():
-    return datetime.now(ZoneInfo("America/Montevideo")).replace(tzinfo=None)
+    """Fecha/hora Uruguay. Usa zoneinfo si está disponible, sino UTC."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Montevideo")).replace(tzinfo=None)
+    except Exception:
+        return datetime.now()
 
 
 def _query_ganancias(db: Session, id_barbero: Optional[int], desde: date, hasta: date):
