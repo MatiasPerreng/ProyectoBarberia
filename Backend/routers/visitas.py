@@ -43,7 +43,10 @@ def visita_to_out(visita):
         return visita
 
     servicio_precio = None
-    if visita.servicio and visita.servicio.precio is not None:
+    frozen = getattr(visita, "precio_al_reservar", None)
+    if frozen is not None:
+        servicio_precio = float(frozen)
+    elif visita.servicio and visita.servicio.precio is not None:
         servicio_precio = float(visita.servicio.precio)
 
     return {

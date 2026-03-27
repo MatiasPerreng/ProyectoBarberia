@@ -1,7 +1,8 @@
 from typing import Optional
 import datetime
+import decimal
 
-from sqlalchemy import DateTime, Enum, ForeignKeyConstraint, Index, TIMESTAMP, text, Boolean
+from sqlalchemy import DateTime, DECIMAL, Enum, ForeignKeyConstraint, Index, TIMESTAMP, text, Boolean
 from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,8 +25,13 @@ class Visita(Base):
     id_cliente: Mapped[int] = mapped_column(INTEGER, nullable=False)
     id_barbero: Mapped[int] = mapped_column(INTEGER, nullable=False)
     id_servicio: Mapped[int] = mapped_column(INTEGER, nullable=False)
+
+    # Precio del servicio al momento de la reserva (estadÌsticas no cambian si se edita el servicio)
+    precio_al_reservar: Mapped[Optional[decimal.Decimal]] = mapped_column(
+        DECIMAL(10, 2), nullable=True
+    )
     
-    # Campo para controlar el envÌo de WhatsApp
+    # Campo para controlar el envùo de WhatsApp
     notificado_wsp: Mapped[bool] = mapped_column(
         Boolean, 
         nullable=False, 

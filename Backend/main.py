@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from fastapi import FastAPI
+
 # Path base del backend (donde está main.py)
 BASE_DIR = Path(__file__).resolve().parent
 from fastapi.staticfiles import StaticFiles

@@ -26,12 +26,12 @@ def get_now_uy():
 
 
 def _query_ganancias(db: Session, id_barbero: Optional[int], desde: date, hasta: date):
-    """Base query: visitas COMPLETADAS con precio del servicio."""
+    """Base query: visitas COMPLETADAS con precio congelado al reservar (fallback: precio actual del servicio)."""
     q = (
         db.query(
             Visita.fecha_hora,
             Visita.id_barbero,
-            func.coalesce(Servicio.precio, 0).label("precio"),
+            func.coalesce(Visita.precio_al_reservar, Servicio.precio, 0).label("precio"),
         )
         .join(Servicio, Servicio.id_servicio == Visita.id_servicio)
         .filter(
