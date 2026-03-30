@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../../../../services/apiClient";
 import TurnoActions from "../TurnoActions";
 
@@ -50,15 +50,14 @@ const formatearFecha = (fechaHoraStr) => {
 // -----------------------------
 const hoy = new Date().toISOString().split("T")[0];
 
-const TurnosList = ({ filtro }) => {
+const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [fecha, setFecha] = useState(hoy);
   const [modoTodos, setModoTodos] = useState(true);
 
-  // 🔁 Fetch turnos
-  useEffect(() => {
+  const loadTurnos = useCallback(() => {
     if (!filtro) return;
 
     setLoading(true);
@@ -68,11 +67,20 @@ const TurnosList = ({ filtro }) => {
       url += `&fecha=${fecha}`;
     }
 
-    apiFetch(url)
+    apiFetch(url, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setTurnos(data))
       .finally(() => setLoading(false));
   }, [filtro, fecha, modoTodos]);
+
+  useEffect(() => {
+    loadTurnos();
+  }, [loadTurnos]);
+
+  const handleCancelSuccess = () => {
+    loadTurnos();
+    onStatsNeedRefresh?.();
+  };
 
   // 🧼 Al cambiar filtro → volvemos a TODOS
   useEffect(() => {
@@ -137,7 +145,7 @@ const TurnosList = ({ filtro }) => {
             </div>
 
             {filtro !== "cancelados" && (
-              <TurnoActions turno={t} />
+              <TurnoActions turno={t} onCancelSuccess={handleCancelSuccess} />
             )}
           </div>
         );

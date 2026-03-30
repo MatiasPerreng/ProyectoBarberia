@@ -1,7 +1,7 @@
 import TurnosList from "./TurnosList/TurnosList";
 import BarberoAgendaView from "./BarberoAgendaView";
 
-const DashboardDrawer = ({ open, type, onClose }) => {
+const DashboardDrawer = ({ open, type, onClose, onStatsNeedRefresh }) => {
   if (!open) return null;
 
   return (
@@ -22,11 +22,11 @@ const DashboardDrawer = ({ open, type, onClose }) => {
         ========================= */}
         <div className="drawer-content">
           {type === "pendientes" && (
-            <TurnosList filtro="pendientes" />
+            <TurnosList filtro="pendientes" onStatsNeedRefresh={onStatsNeedRefresh} />
           )}
 
           {type === "hoy" && (
-            <TurnosList filtro="hoy" />
+            <TurnosList filtro="hoy" onStatsNeedRefresh={onStatsNeedRefresh} />
           )}
 
           {type === "barberos" && (
@@ -34,7 +34,7 @@ const DashboardDrawer = ({ open, type, onClose }) => {
           )}
 
           {type === "cancelados" && (
-            <TurnosList filtro="cancelados" />
+            <TurnosList filtro="cancelados" onStatsNeedRefresh={onStatsNeedRefresh} />
           )}
         </div>
       </div>
