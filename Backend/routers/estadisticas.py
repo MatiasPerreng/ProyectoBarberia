@@ -45,6 +45,15 @@ def _query_ganancias(db: Session, id_barbero: Optional[int], desde: date, hasta:
     return q
 
 
+def _primera_fecha_completada(db: Session, id_barbero: Optional[int]) -> Optional[date]:
+    q = db.query(func.min(func.date(Visita.fecha_hora))).filter(
+        Visita.estado == "COMPLETADO"
+    )
+    if id_barbero is not None:
+        q = q.filter(Visita.id_barbero == id_barbero)
+    return q.scalar()
+
+
 @router.get("/ganancias")
 def get_ganancias(
     desde: Optional[date] = Query(None, description="Inicio del período"),
@@ -62,19 +71,20 @@ def get_ganancias(
     now = get_now_uy()
     hoy = now.date()
 
+    # Barbero: solo sus datos. Admin: todos o filtro por id_barbero.
+    filtro_barbero = login.barbero_id if login.role == "barbero" else id_barbero
+
     # Default: últimos 12 meses
     if hasta is None:
         hasta = hoy
     if desde is None:
         if agrupacion == "dia":
-            desde = hasta - timedelta(days=30)
+            primera_fecha = _primera_fecha_completada(db, filtro_barbero)
+            desde = primera_fecha or (hasta - timedelta(days=30))
         elif agrupacion == "mes":
             desde = hasta - timedelta(days=365)
         else:
             desde = date(hasta.year - 2, 1, 1)
-
-    # Barbero: solo sus datos. Admin: todos o filtro por id_barbero.
-    filtro_barbero = login.barbero_id if login.role == "barbero" else id_barbero
 
     # Obtener todas las visitas completadas en el rango
     rows = (
