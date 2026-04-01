@@ -16,6 +16,8 @@ const HistorialAgenda = () => {
   const [fecha, setFecha] = useState(hoy);
   const [modoTodos, setModoTodos] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
+  const FILAS_POR_PAGINA = 5;
 
   useEffect(() => {
     setError(null);
@@ -43,6 +45,10 @@ const HistorialAgenda = () => {
         setError("Error de conexión");
       });
   }, [fecha, modoTodos]);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [fecha, modoTodos, busqueda, turnos]);
 
   if (error) {
     return <p className="kb-error">{error}</p>;
@@ -103,6 +109,12 @@ const HistorialAgenda = () => {
               );
             })
           : turnos;
+        const totalPaginas = Math.ceil(turnosFiltrados.length / FILAS_POR_PAGINA);
+        const inicio = (paginaActual - 1) * FILAS_POR_PAGINA;
+        const turnosPaginados = turnosFiltrados.slice(
+          inicio,
+          inicio + FILAS_POR_PAGINA
+        );
 
         return (
           <>
@@ -118,7 +130,7 @@ const HistorialAgenda = () => {
 
             {turnosFiltrados.length > 0 && (
               <div className="kb-list">
-                {turnosFiltrados.map((t) => {
+                {turnosPaginados.map((t) => {
           const stringFecha = t.fecha_hora.replace(" ", "T");
           const d = new Date(stringFecha);
           
@@ -137,27 +149,62 @@ const HistorialAgenda = () => {
             timeZone: "America/Montevideo"
           });
 
+          const fechaLinea =
+            fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1);
+
           return (
             <div key={t.id_visita} className="kb-card">
-              <p className="kb-text">
+              <div className="kb-card-head">
+                <span className="kb-date-kicker">Turno</span>
                 <span className="kb-date">
-                  El día {fechaTexto} a las {horaTexto}hs
-                </span>,{" "}
-                <strong>
-                  {t.cliente_nombre} {t.cliente_apellido}
-                </strong>{" "}
-                se hizo{" "}
-                <strong className="kb-service">
-                  {t.servicio_nombre}
-                </strong>{" "}
-                con{" "}
-                <strong className="kb-barbero">
-                  {t.barbero_nombre}
-                </strong>.
-              </p>
+                  {fechaLinea} · {horaTexto} hs
+                </span>
+              </div>
+              <div className="kb-card-body">
+                <div className="kb-card-col">
+                  <span className="kb-kicker">Cliente</span>
+                  <p className="kb-client">
+                    {t.cliente_nombre} {t.cliente_apellido}
+                  </p>
+                </div>
+                <div className="kb-card-col">
+                  <span className="kb-kicker">Servicio</span>
+                  <p className="kb-service">{t.servicio_nombre}</p>
+                </div>
+                <div className="kb-card-col kb-card-col-barbero">
+                  <span className="kb-kicker">Atendido por</span>
+                  <p className="kb-barbero">{t.barbero_nombre}</p>
+                </div>
+              </div>
             </div>
           );
         })}
+              </div>
+            )}
+
+            {turnosFiltrados.length > 0 && totalPaginas > 1 && (
+              <div className="kb-pagination">
+                <button
+                  type="button"
+                  className="kb-page-btn"
+                  onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                  disabled={paginaActual === 1}
+                >
+                  Anterior
+                </button>
+                <span className="kb-page-indicator">
+                  Página {paginaActual} de {totalPaginas}
+                </span>
+                <button
+                  type="button"
+                  className="kb-page-btn"
+                  onClick={() =>
+                    setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
+                  }
+                  disabled={paginaActual === totalPaginas}
+                >
+                  Siguiente
+                </button>
               </div>
             )}
           </>

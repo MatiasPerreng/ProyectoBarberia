@@ -1,10 +1,20 @@
 import BarberoAgendaItem from "../BarberoAgendaItem/BarberoAgendaItem";
 import "./BarberoAgendaList.css";
 
+const formatoHora24 = (fh) => {
+  if (!fh) return "";
+  const d = new Date(fh);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("es-UY", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
+
 const normalizarTurno = (t) => {
   const fh = t.fecha_hora || t.fechaHora;
-  const [datePart, timePart] = fh ? String(fh).split(" ") : ["", ""];
-  const hora = timePart || (fh ? new Date(fh).toLocaleTimeString("es-UY", { hour: "2-digit", minute: "2-digit" }) : "");
+  const hora = t.hora && String(t.hora).trim() ? t.hora : formatoHora24(fh);
   return {
     ...t,
     id_visita: t.id_visita || t.id,

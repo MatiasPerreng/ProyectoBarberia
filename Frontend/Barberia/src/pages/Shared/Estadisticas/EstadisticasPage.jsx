@@ -100,6 +100,12 @@ export default function EstadisticasPage() {
       }))
     : [];
 
+  const pxPorBarra =
+    agrupacion === "dia" ? 118 : agrupacion === "mes" ? 88 : 94;
+  const chartMinWidth = Math.max(680, chartData.length * pxPorBarra);
+  const barSize =
+    agrupacion === "dia" ? 40 : agrupacion === "mes" ? 32 : 36;
+
   return (
     <div className="estadisticas-page">
       <h1>
@@ -163,24 +169,47 @@ export default function EstadisticasPage() {
           <div className="estadisticas-chart-container">
             <h2>Ganancias por período</h2>
             {chartData.length > 0 ? (
-              <div style={{ width: "100%", height: 320 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 60, left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                  <XAxis
-                    dataKey="periodo"
-                    tick={{ fontSize: 12 }}
-                    angle={chartData.length > 6 ? -45 : 0}
-                    textAnchor={chartData.length > 6 ? "end" : "middle"}
-                  />
-                  <YAxis tickFormatter={(v) => formatMoneda(v)} tick={{ fontSize: 12 }} />
-                  <Tooltip
-                    formatter={(value) => formatMoneda(value)}
-                    labelFormatter={(label) => `Período: ${label}`}
-                  />
-                  <Bar dataKey="total" fill="#cfa85a" radius={[4, 4, 0, 0]} name="Total" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="estadisticas-chart-scroll">
+                <div
+                  className="estadisticas-chart-inner"
+                  style={{ minWidth: `${chartMinWidth}px`, height: 340 }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData}
+                      barCategoryGap="16%"
+                      barGap={1}
+                      margin={{ top: 20, right: 20, bottom: 72, left: 24 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                      <XAxis
+                        dataKey="periodo"
+                        interval={0}
+                        tickMargin={12}
+                        minTickGap={12}
+                        tick={{ fontSize: 12 }}
+                        angle={chartData.length > 7 ? -40 : 0}
+                        textAnchor={chartData.length > 7 ? "end" : "middle"}
+                      />
+                      <YAxis
+                        width={94}
+                        tickFormatter={(v) => formatMoneda(v)}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip
+                        formatter={(value) => formatMoneda(value)}
+                        labelFormatter={(label) => `Período: ${label}`}
+                      />
+                      <Bar
+                        dataKey="total"
+                        barSize={barSize}
+                        fill="#cfa85a"
+                        radius={[6, 6, 0, 0]}
+                        name="Total"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             ) : (
               <p className="estadisticas-empty">

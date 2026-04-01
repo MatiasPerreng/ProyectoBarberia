@@ -29,6 +29,7 @@ const BarberoDashboard = () => {
           hora: new Date(v.fecha_hora).toLocaleTimeString("es-UY", {
             hour: "2-digit",
             minute: "2-digit",
+            hour12: false,
           }),
 
           cliente_nombre: v.cliente_nombre,

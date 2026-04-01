@@ -120,6 +120,18 @@
   margin-top: 0;
 }
 
+.estadisticas-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.estadisticas-chart-inner {
+  width: 100%;
+}
+
 .estadisticas-empty {
   color: #666;
   font-style: italic;
@@ -158,5 +170,12 @@
 
   .estadisticas-chart-container {
     padding: 16px;
+  }
+
+  .estadisticas-chart-scroll {
+    margin-left: -4px;
+    margin-right: -4px;
+    padding-left: 4px;
+    padding-right: 4px;
   }
 }

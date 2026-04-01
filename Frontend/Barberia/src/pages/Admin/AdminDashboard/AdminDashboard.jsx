@@ -82,9 +82,14 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <h1>Dashboard</h1>
+      <header className="admin-dashboard-hero">
+        <h1>Dashboard</h1>
+        <p className="admin-dashboard-subtitle">
+          Métricas en vivo y accesos rápidos a tu operación diaria.
+        </p>
+      </header>
 
-      {loading && <p>Cargando métricas…</p>}
+      {loading && <p className="admin-dashboard-loading">Cargando métricas…</p>}
       {error && <p className="error">{error}</p>}
 
       {stats && (
