@@ -182,12 +182,7 @@
   box-sizing: border-box;
 }
 
-.admin-content-inner h1 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  margin: 0;
-}
+/* Títulos de página: ver styles/layoutPageTitles.css */
 
 /* =======================================================
    GRID DE CARDS

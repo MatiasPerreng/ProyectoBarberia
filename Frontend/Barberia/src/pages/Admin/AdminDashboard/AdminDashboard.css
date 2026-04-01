@@ -6,14 +6,8 @@
   margin-bottom: 8px;
 }
 
-.admin-dashboard-hero h1,
-.admin-page h1,
-h1 {
-  font-family: "Montserrat", system-ui, sans-serif;
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #111;
+/* Tipografía del título: styles/layoutPageTitles.css (.admin-content-inner .admin-dashboard-hero h1) */
+.admin-dashboard-hero h1 {
   margin: 0 0 8px;
 }
 
@@ -321,9 +315,8 @@ button.admin-card {
     margin-right: auto;
   }
 
-  .admin-dashboard-hero h1,
-  h1 {
-    font-size: 1.65rem;
+  .admin-dashboard-hero h1 {
+    font-size: clamp(1.3rem, 4vw, 1.65rem);
   }
 
   .admin-cards {

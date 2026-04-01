@@ -1,0 +1,41 @@
+/* =======================================================
+   Título principal de cada pantalla (admin / barbero)
+   Misma fuente y escala en todas las vistas.
+======================================================= */
+
+.admin-content-inner > h1,
+.barbero-content-inner > h1,
+.admin-content-inner .admin-dashboard-hero h1,
+.barbero-content-inner .barbero-dashboard h1,
+.barbero-content-inner .barbero-agenda-page > h1,
+.admin-content-inner .admin-header-title,
+.barbero-content-inner .admin-header-title,
+.admin-content-inner .kb-title,
+.barbero-content-inner .kb-title,
+.admin-content-inner .perfil-title,
+.barbero-content-inner .perfil-title,
+.admin-content-inner .estadisticas-h1,
+.barbero-content-inner .estadisticas-h1,
+.admin-content-inner .barberos-header h2,
+.admin-content-inner .horarios-header h2,
+.admin-content-inner .blist-header h2 {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  color: #111;
+}
+
+.admin-content-inner > h1,
+.barbero-content-inner > h1,
+.barbero-content-inner .barbero-dashboard h1,
+.barbero-content-inner .barbero-agenda-page > h1 {
+  margin: 0;
+}
+
+/* Historial: mismo título que el resto; sin mayúsculas forzadas */
+.admin-content-inner .kb-historial .kb-title,
+.barbero-content-inner .kb-historial .kb-title {
+  text-transform: none;
+}

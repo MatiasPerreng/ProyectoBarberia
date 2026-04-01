@@ -152,30 +152,30 @@ const HistorialAgenda = () => {
           const fechaLinea =
             fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1);
 
+          const nombreCliente =
+            `${t.cliente_nombre || ""} ${t.cliente_apellido || ""}`.trim() ||
+            "—";
+          const nombreServicio = (t.servicio_nombre || "").trim() || "—";
+          const nombreBarbero = (t.barbero_nombre || "").trim();
+
           return (
             <div key={t.id_visita} className="kb-card">
-              <div className="kb-card-head">
-                <span className="kb-date-kicker">Turno</span>
-                <span className="kb-date">
-                  {fechaLinea} · {horaTexto} hs
+              <p className="kb-card-narrativa">
+                <span className="kb-narrativa-fecha">
+                  El día {fechaLinea} a las {horaTexto} hs
                 </span>
-              </div>
-              <div className="kb-card-body">
-                <div className="kb-card-col">
-                  <span className="kb-kicker">Cliente</span>
-                  <p className="kb-client">
-                    {t.cliente_nombre} {t.cliente_apellido}
-                  </p>
-                </div>
-                <div className="kb-card-col">
-                  <span className="kb-kicker">Servicio</span>
-                  <p className="kb-service">{t.servicio_nombre}</p>
-                </div>
-                <div className="kb-card-col kb-card-col-barbero">
-                  <span className="kb-kicker">Atendido por</span>
-                  <p className="kb-barbero">{t.barbero_nombre}</p>
-                </div>
-              </div>
+                {", "}
+                <span className="kb-narrativa-cliente">{nombreCliente}</span>
+                {" se hizo "}
+                <span className="kb-narrativa-servicio">{nombreServicio}</span>
+                {nombreBarbero ? (
+                  <>
+                    {" con el barbero "}
+                    <span className="kb-narrativa-barbero">{nombreBarbero}</span>
+                  </>
+                ) : null}
+                {"."}
+              </p>
             </div>
           );
         })}

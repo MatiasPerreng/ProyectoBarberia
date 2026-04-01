@@ -6,17 +6,56 @@
   padding: 0 0 40px;
 }
 
-.estadisticas-page h1 {
-  font-size: 2rem;
+/* Tipografía base: styles/layoutPageTitles.css */
+.estadisticas-h1 {
+  margin: 0 0 24px;
+}
+
+.estadisticas-h1--admin .estadisticas-h1-line1,
+.estadisticas-h1--admin .estadisticas-h1-line2 {
+  display: inline;
   font-weight: 800;
-  letter-spacing: 0.6px;
   color: #111;
-  margin-bottom: 24px;
+}
+
+.estadisticas-h1--admin .estadisticas-h1-line2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Móvil: dos líneas fijas (evita corte feo a mitad de frase) */
+@media (max-width: 520px) {
+  .estadisticas-h1--admin {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    line-height: 1.15;
+  }
+
+  .estadisticas-h1--admin .estadisticas-h1-line1,
+  .estadisticas-h1--admin .estadisticas-h1-line2 {
+    display: block;
+  }
+
+  .estadisticas-h1--admin .estadisticas-h1-line1 {
+    font-size: 1.35rem;
+    letter-spacing: -0.03em;
+  }
+
+  .estadisticas-h1--admin .estadisticas-h1-line2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #4b5563;
+    letter-spacing: 0.02em;
+  }
 }
 
 .estadisticas-page h2 {
-  font-size: 1.2rem;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: #333;
   margin-bottom: 16px;
 }

@@ -108,8 +108,15 @@ export default function EstadisticasPage() {
 
   return (
     <div className="estadisticas-page">
-      <h1>
-        {isAdmin ? "Estadísticas de la barbería" : "Mis ganancias"}
+      <h1 className={isAdmin ? "estadisticas-h1 estadisticas-h1--admin" : "estadisticas-h1"}>
+        {isAdmin ? (
+          <>
+            <span className="estadisticas-h1-line1">Estadísticas</span>{" "}
+            <span className="estadisticas-h1-line2">de la barbería</span>
+          </>
+        ) : (
+          "Mis ganancias"
+        )}
       </h1>
 
       {/* Filtros */}
