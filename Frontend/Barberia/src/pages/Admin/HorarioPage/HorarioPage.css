@@ -1,166 +1,36 @@
-/* =======================================================
-   OVERLAY
-======================================================= */
-.success-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(3px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: successFadeIn 0.2s ease;
-  padding: 15px; /* Evita que el modal toque los bordes en móviles */
-}
+/* Success modal: estilos globales en main.jsx → SuccessModal.css + modalsShared.css */
 
-/* =======================================================
-   CARD
-======================================================= */
-.success-modal-card {
-  background: linear-gradient(180deg, #141414, #0f0f0f);
-  border-radius: 16px;
-  padding: 28px;
-  width: 90%;
-  max-width: 420px;
-  text-align: center;
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(230, 199, 123, 0.12);
-  border: 1px solid rgba(230, 199, 123, 0.15);
-  animation: successScaleIn 0.25s ease;
-  box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
-}
+/* ======================================================
+    PÁGINA (Inter, mismo criterio que Barberos / historial)
+====================================================== */
 
-/* =======================================================
-   TEXTOS
-======================================================= */
-.success-modal-title {
-  color: #e6c77b;
-  margin: 0 0 10px 0;
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-}
-
-.success-modal-text {
-  color: #d1d5db;
-  font-size: 0.95rem;
-  line-height: 1.55;
-  margin-bottom: 26px;
-}
-
-/* =======================================================
-   ACTIONS
-======================================================= */
-.success-modal-actions {
-  display: flex;
-  justify-content: center;
-}
-
-/* Botón dorado */
-.success-modal-btn-confirm {
-  background: linear-gradient(135deg, #e6c77b, #f3db9c);
-  border: none;
-  padding: 12px 26px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: #111 !important; /* Forzar negro iOS */
-  box-shadow: 0 8px 22px rgba(230, 199, 123, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  -webkit-appearance: none; /* Fix iOS */
-}
-
-.success-modal-btn-confirm:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(230, 199, 123, 0.45);
-}
-
-/* =======================================================
-   ANIMATIONS
-======================================================= */
-@keyframes successFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes successScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* =======================================================
-   RESPONSIVE
-======================================================= */
-@media (max-width: 480px) {
-  .success-modal-card {
-    width: 100%;
-    max-width: none;
-    padding: 22px 18px;
-    border-radius: 14px;
-    margin: 0; /* Quitamos margen para usar el padding del overlay */
-  }
-
-  .success-modal-btn-confirm {
-    width: 100%;
-  }
-
-  .success-modal-overlay {
-    padding: 20px;
-  }
-}
-
-.success-modal-whatsapp-note {
-  font-size: 0.8rem; /* Texto bien chico */
-  color: #666;       /* Gris suave */
-  margin-bottom: 20px;
-  margin-top: -5px;  /* Para pegarlo un poco más al texto de arriba */
-  font-style: italic;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* FIX: Alinea con la primera línea, no al centro */
-  gap: 5px;
-  max-width: 280px; /* Evita que el texto se estire de más */
-  margin-left: auto;
-  margin-right: auto;
-  text-align: left; /* Alineación para que el punto quede pegado al inicio del bloque */
-}
-
-/* Opcional: un puntito verde sutil antes del texto */
-.success-modal-whatsapp-note::before {
-  content: "";
-  display: inline-block;
-  flex-shrink: 0; /* Evita que el punto se aplaste en móviles */
-  width: 6px;
-  height: 6px;
-  background-color: #25d366; /* Color WhatsApp */
-  border-radius: 50%;
-  margin-top: 5px; /* Nivela el punto con el texto */
+.horarios-page-root {
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ======================================================
-    HEADER
+    HEADER (toolbar tarjeta, alineado a Barberos / historial)
 ====================================================== */
 
 .horarios-header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   flex-wrap: wrap;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--kb-shadow-admin-toolbar);
+  border: 1px solid rgba(207, 168, 90, 0.1);
 }
 
-.horarios-header h2 {
+.horarios-header h2,
+.horarios-header .kb-page-title {
   margin: 0;
   margin-right: auto;
+  flex: 1 1 200px;
 }
 
 /* ======================================================
@@ -168,17 +38,19 @@
 ====================================================== */
 
 .horarios-select-barbero {
-  height: 38px;
+  height: 44px;
   min-width: 220px;
   padding: 0 42px 0 14px;
 
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(207, 168, 90, 0.28);
   background-color: #fff;
-  color: #111 !important; /* FORZAR NEGRO iOS */
+  color: #1a1814 !important;
 
+  font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
 
   appearance: none;
@@ -186,54 +58,70 @@
   -webkit-tap-highlight-color: transparent; 
 
   background-image:
-    linear-gradient(45deg, transparent 50%, #e6c77b 50%),
-    linear-gradient(135deg, #e6c77b 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, #cfa85a 50%),
+    linear-gradient(135deg, #cfa85a 50%, transparent 50%);
   background-position:
-    calc(100% - 20px) 15px,
-    calc(100% - 14px) 15px;
+    calc(100% - 20px) 17px,
+    calc(100% - 14px) 17px;
   background-size: 6px 6px;
   background-repeat: no-repeat;
 
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .horarios-select-barbero:focus {
   outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
+  border-color: #cfa85a;
+  box-shadow:
+    0 0 0 3px rgba(207, 168, 90, 0.22),
+    0 2px 8px rgba(207, 168, 90, 0.12);
 }
 
 /* ======================================================
-    BOTÓN PRIMARIO
+    BOTÓN PRIMARIO (alineado a Barberos)
 ====================================================== */
 
 .horarios-btn-primary {
-  padding: 12px 24px;
-  border-radius: 999px;
-  border: none;
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(207, 168, 90, 0.45);
+  background: linear-gradient(145deg, #f0d99a 0%, #cfa85a 55%, #c49a47 100%);
+  color: #1a1814 !important;
 
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
-  color: #111 !important; /* FORZAR NEGRO iOS */
-
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
 
   cursor: pointer;
   -webkit-tap-highlight-color: transparent; 
-  box-shadow: 0 10px 26px rgba(230, 199, 123, 0.45);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 4px 14px rgba(207, 168, 90, 0.35);
   -webkit-appearance: none;
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
 }
 
 .horarios-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(230, 199, 123, 0.65);
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 8px 22px rgba(207, 168, 90, 0.42);
+}
+
+.horarios-btn-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 0 0 3px rgba(207, 168, 90, 0.35),
+    0 4px 14px rgba(207, 168, 90, 0.35);
 }
 
 /* ======================================================
@@ -241,22 +129,40 @@
 ====================================================== */
 
 .horarios-empty {
-  margin-top: 60px;
-  padding: 40px 20px;
+  margin-top: 32px;
+  padding: 36px 24px;
   text-align: center;
-  border-radius: 14px;
-  background: #f8f8f8;
+  border-radius: 18px;
+  background: var(--kb-admin-bg-surface, #ffffff);
+  border: 1px solid rgba(207, 168, 90, 0.18);
+  box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
 }
 
 .horarios-empty-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: #1a1814;
 }
 
 .horarios-empty-subtitle {
   font-size: 0.95rem;
-  color: #666;
+  color: #575049;
+  line-height: 1.5;
+}
+
+.horarios-loading {
+  margin: 28px 0 8px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #575049;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed rgba(207, 168, 90, 0.35);
 }
 
 /* ======================================================
@@ -264,13 +170,16 @@
 ====================================================== */
 
 .horarios-error {
-  background: rgba(255, 60, 60, 0.15);
-  color: #ffb3b3;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 14px;
+  font-family: inherit;
+  background: rgba(185, 28, 28, 0.08);
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 16px;
   text-align: center;
+  border: 1px solid rgba(185, 28, 28, 0.2);
 }
 
 /* ======================================================
@@ -281,7 +190,13 @@
   .horarios-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .horarios-header h2,
+  .horarios-header .kb-page-title {
+    width: 100%;
+    flex: none;
   }
 
   .horarios-select-barbero,
@@ -291,269 +206,251 @@
 }
 
 /* ======================================================
-    REPETICIÓN DE SELECT
+    BOTÓN ELIMINAR — solo dentro de la página Horarios
+    (evita pisar .btn-delete en Servicios u otras vistas)
 ====================================================== */
 
-.horarios-select-barbero {
-  height: 38px;
-  min-width: 220px;
-  padding: 0 42px 0 14px;
+.horarios-page-root .btn-delete {
+  font-family: "Inter", system-ui, sans-serif;
+  min-width: 88px;
+  padding: 8px 14px;
 
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background-color: #fff;
-  color: #111 !important;
+  border-radius: 11px;
+  border: 1.5px solid rgba(185, 28, 28, 0.38);
 
-  font-size: 0.9rem;
+  background: #fffefb;
+  color: #b91c1c !important;
+
+  font-size: 0.8125rem;
   font-weight: 600;
-  cursor: pointer;
-
-  appearance: none;
-  -webkit-appearance: none; 
-
-  background-image:
-    linear-gradient(45deg, transparent 50%, #e6c77b 50%),
-    linear-gradient(135deg, #e6c77b 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) 15px,
-    calc(100% - 14px) 15px;
-  background-size: 6px 6px;
-  background-repeat: no-repeat;
-
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.horarios-select-barbero:focus {
-  outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
-}
-
-/* ======================================================
-    REPETICIÓN DE EMPTY
-====================================================== */
-
-.horarios-empty {
-  margin-top: 60px;
-  padding: 40px 20px;
-  text-align: center;
-  border-radius: 14px;
-  background: #f8f8f8;
-}
-
-.horarios-empty-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.horarios-empty-subtitle {
-  font-size: 0.95rem;
-  color: #666;
-}
-
-/* ======================================================
-    REPETICIÓN DE ERROR
-====================================================== */
-
-.horarios-error {
-  background: rgba(255, 60, 60, 0.15);
-  color: #ffb3b3;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 14px;
-  text-align: center;
-}
-
-/* ======================================================
-    REPETICIÓN DE MEDIA QUERY 600 (2)
-====================================================== */
-
-@media (max-width: 600px) {
-  .horarios-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .horarios-select-barbero,
-  .horarios-btn-primary {
-    width: 100%;
-  }
-}
-
-/* ======================================================
-    BOTÓN ELIMINAR
-====================================================== */
-
-.btn-delete {
-  min-width: 96px;
-  padding: 8px 18px;
-
-  border-radius: 999px;
-  border: 1px solid rgba(185, 28, 28, 0.35);
-
-  background: linear-gradient(135deg,
-      #2a0f0f,
-      #4a1414);
-
-  color: #f5f5f5 !important;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.01em;
+  text-transform: none;
 
   cursor: pointer;
   -webkit-tap-highlight-color: transparent; 
   -webkit-appearance: none;
 
-  box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.25),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
   transition:
-    background 0.2s ease,
+    background 0.18s ease,
     transform 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.btn-delete:hover {
-  background: linear-gradient(135deg,
-      #5c1a1a,
-      #7a1f1f);
+.horarios-page-root .btn-delete:hover {
+  background: #fef2f2;
+  border-color: rgba(185, 28, 28, 0.5);
+  color: #991b1b !important;
   transform: translateY(-1px);
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.12);
 }
 
-.btn-delete:active {
+.horarios-page-root .btn-delete:active {
   transform: translateY(0);
+}
+
+.horarios-page-root .btn-delete:focus-visible {
+  outline: none;
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.35);
+    0 0 0 3px rgba(185, 28, 28, 0.22),
+    0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 /* ======================================================
-    FILTROS (DÍAS Y VIGENCIA)
+    FILTROS (DÍAS Y VIGENCIA) — segmentos estilo King Barber
 ====================================================== */
 
 .horarios-filtros {
   display: flex;
-  gap: 16px;
-  margin-bottom: 22px;
   flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 18px 24px;
+  margin-bottom: 22px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--kb-admin-bg-surface, #ffffff);
+  box-shadow: var(--kb-shadow-admin-filtros), var(--kb-shadow-admin-filtros-inset);
+  border: 1px solid rgba(207, 168, 90, 0.16);
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.filtro-grupo--dias {
+  flex: 1 1 280px;
+}
+
+.filtro-grupo--vigencia {
+  flex: 0 1 auto;
+  margin-left: auto;
+}
+
+.filtro-grupo-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a6228;
 }
 
 .filtro-dias {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .filtro-dia {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: #fff !important; /* Fix fondo iOS */
-  color: #111 !important; /* Forzar negro en iOS */
-  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 8px 12px;
+  min-height: 38px;
+  min-width: 44px;
+  border-radius: 11px;
+  border: 1px solid rgba(207, 168, 90, 0.28);
+  background: #fff !important;
+  color: #1a1814 !important;
+  font-size: 0.78rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent; 
   -webkit-appearance: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.15s ease;
 }
 
+.filtro-dia:hover {
+  border-color: rgba(207, 168, 90, 0.45);
+  box-shadow: 0 2px 8px rgba(207, 168, 90, 0.12);
+}
 
 .filtro-dia.active {
-  background: #e6c77b !important; /* Forzar color activo */
-  border-color: #e6c77b;
-  color: #111 !important; /* TEXTO NEGRO CUANDO ESTÁ ACTIVO */
+  background: linear-gradient(145deg, #f5e5c4 0%, #e4c77a 45%, #cfa85a 100%) !important;
+  border-color: rgba(207, 168, 90, 0.55) !important;
+  color: #1a1814 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 3px 12px rgba(207, 168, 90, 0.28);
 }
 
 .filtro-vigencia {
-  display: flex;
-  gap: 8px;
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(207, 168, 90, 0.2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .filtro-vigencia button {
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: #fff !important; /* Fix fondo iOS */
-  color: #111 !important; /* Forzar negro en iOS */
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-family: inherit;
+  padding: 9px 18px;
+  border-radius: 11px;
+  border: none;
+  background: transparent !important;
+  color: #575049 !important;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   -webkit-appearance: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.filtro-vigencia button:hover {
+  color: #1a1814 !important;
+  background: rgba(255, 255, 255, 0.55) !important;
 }
 
 .filtro-vigencia button.active {
-  background: #111 !important;
-  color: #fff !important;
-  border-color: #111;
+  background: linear-gradient(145deg, #f0d99a 0%, #cfa85a 90%) !important;
+  color: #1a1814 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 2px 10px rgba(207, 168, 90, 0.25);
+}
+
+.filtro-vigencia button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(207, 168, 90, 0.35);
+}
+
+.filtro-vigencia button.active:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(207, 168, 90, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 2px 10px rgba(207, 168, 90, 0.25);
 }
 
 /* ======================================================
-    MEDIA QUERY 600 (3 - FILTROS)
+    FILTROS — móvil
 ====================================================== */
 
 @media (max-width: 600px) {
-
   .horarios-filtros {
     flex-direction: column;
+    align-items: stretch;
+    align-content: flex-start;
     gap: 14px;
   }
 
-  .filtro-dias {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 4px 2px 8px;
-    -webkit-overflow-scrolling: touch;
+  /* Evita que flex-grow:1 del desktop estire el bloque “Días” y deje un hueco antes de Vigencia */
+  .filtro-grupo--dias,
+  .filtro-grupo--vigencia {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 0;
   }
 
-  .filtro-dias::-webkit-scrollbar {
-    display: none;
+  .filtro-grupo--vigencia {
+    margin-left: 0;
+  }
+
+  /* 6 días en grilla 3×2: caben en el ancho sin scroll lateral */
+  .filtro-dias {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px 5px;
+    overflow: visible;
+    padding: 2px 0 4px;
+    margin: 0;
   }
 
   .filtro-dia {
-    flex: 0 0 auto;
-    padding: 8px 14px;
-    min-width: auto;
-    height: 36px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    background: #fff !important;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    min-width: 0;
+    width: 100%;
+    justify-self: stretch;
+    padding: 7px 2px;
+    min-height: 34px;
+    font-size: clamp(0.65rem, 2.8vw, 0.76rem);
+    letter-spacing: 0;
+    text-align: center;
     white-space: nowrap;
-    line-height: 1;
-    color: #111 !important; /* Fix azul iOS */
-  }
-
-  .filtro-dia.active {
-    background: #111 !important;
-    color: #fff !important;
-    border-color: #111;
   }
 
   .filtro-vigencia {
-    display: flex;
-    gap: 10px;
+    width: 100%;
+    justify-content: stretch;
   }
 
   .filtro-vigencia button {
     flex: 1;
-    height: 40px;
-    padding: 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    border-radius: 12px;
-    color: #111 !important; /* Fix azul iOS */
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .filtro-vigencia button.active {
-    background: #111 !important;
-    color: #fff !important;
+    text-align: center;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }

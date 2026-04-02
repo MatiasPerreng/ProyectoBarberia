@@ -69,44 +69,44 @@ const AdminLayout = ({ children }) => {
 
           {/* NAV */}
           <nav className="admin-nav">
+            {/* Resumen + día a día */}
             <NavLink to="/admin" end onClick={handleNavClick}>
               Dashboard
             </NavLink>
-
             <NavLink to="/admin/mi-agenda" onClick={handleNavClick}>
               Mi agenda
             </NavLink>
-
             <NavLink to="/admin/historial" onClick={handleNavClick}>
               Historial
             </NavLink>
 
-            <NavLink to="/admin/perfil" onClick={handleNavClick}>
-              Mi perfil
-            </NavLink>
-
+            {/* Equipo, turnos y catálogo */}
             <NavLink to="/admin/barberos" onClick={handleNavClick}>
               Barberos
             </NavLink>
-
             <NavLink to="/admin/horarios" onClick={handleNavClick}>
               Horarios
             </NavLink>
-
             <NavLink to="/admin/servicios" onClick={handleNavClick}>
               Servicios
             </NavLink>
 
+            {/* Negocio y web pública */}
             <NavLink to="/admin/estadisticas" onClick={handleNavClick}>
               Estadísticas
             </NavLink>
-
             <NavLink to="/admin/carrusel" onClick={handleNavClick}>
               Carrusel
             </NavLink>
 
+            {/* Política */}
             <NavLink to="/admin/blacklist" onClick={handleNavClick}>
               Lista Negra
+            </NavLink>
+
+            {/* Cuenta */}
+            <NavLink to="/admin/perfil" onClick={handleNavClick}>
+              Mi perfil
             </NavLink>
           </nav>
 

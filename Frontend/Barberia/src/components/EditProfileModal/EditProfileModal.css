@@ -27,6 +27,9 @@
     0 30px 80px rgba(0, 0, 0, 0.9),
     inset 0 0 0 1px rgba(230, 199, 123, 0.15);
   animation: editProfileIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes editProfileIn {
@@ -47,11 +50,11 @@
 .edit-profile-title {
   margin-bottom: 26px;
   text-align: center;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #e6c77b;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 /* ======================================================

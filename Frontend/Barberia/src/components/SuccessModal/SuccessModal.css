@@ -11,6 +11,8 @@
   justify-content: center;
   z-index: 9999;
   padding: 15px;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* =======================================================
@@ -33,13 +35,16 @@
    TEXTOS
 ======================================================= */
 .success-modal-title {
+  font-family: inherit;
   color: #e6c77b;
   margin: 0 0 10px 0;
   font-size: 1.4rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .success-modal-text {
+  font-family: inherit;
   color: #d1d5db;
   font-size: 1rem;
   line-height: 1.5;
@@ -87,6 +92,7 @@
 }
 
 .success-modal-btn-confirm {
+  font-family: inherit;
   background: linear-gradient(135deg, #e6c77b, #f3db9c);
   border: none;
   padding: 14px 20px;

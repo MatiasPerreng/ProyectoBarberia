@@ -5,7 +5,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
-  background: linear-gradient(180deg, #fafafa, #f3f4f6);
+  background: transparent;
 }
 
 /* ===============================
@@ -37,7 +37,7 @@
   padding: 16px;
   border-radius: 18px;
   background: #fff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kb-shadow-admin-toolbar);
 }
 
 /* INPUT DATE – DESKTOP OK */
@@ -158,13 +158,11 @@
 
 .kb-card {
   position: relative;
-  background: linear-gradient(180deg, #ffffff, #fafafa);
+  background: var(--kb-admin-bg-surface, #ffffff);
   border-radius: 18px;
   padding: 16px 22px;
   border: 1px solid rgba(207, 168, 90, 0.16);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
   overflow: hidden;
   cursor: default;
   transition:
@@ -178,10 +176,7 @@
 .kb-card:hover {
   transform: translateY(-2px);
   border-color: rgba(207, 168, 90, 0.34);
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.1),
-    0 8px 22px rgba(207, 168, 90, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  box-shadow: var(--kb-shadow-admin-card-hover), var(--kb-shadow-admin-card-hover-inset);
 }
 
 .kb-card::before {
@@ -205,10 +200,27 @@
 }
 
 /* Dorado King Barber en plano — buen contraste, sin tramos claros ilegibles */
+.kb-narrativa-lead,
+.kb-narrativa-rest {
+  display: inline;
+}
+
+.kb-narrativa-sep--comma {
+  display: inline;
+}
+
 .kb-narrativa-fecha {
   font-weight: 800;
   letter-spacing: -0.01em;
   color: #5c4a1f;
+}
+
+/* Hora + “hs” siempre juntos (evita “17:30” / “hs” en dos líneas) */
+.kb-narrativa-hora {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #5c4a1f;
+  white-space: nowrap;
 }
 
 .kb-narrativa-cliente {
@@ -234,7 +246,7 @@
    PAGINACION
 ================================ */
 .kb-pagination {
-  margin-top: 20px;
+  margin-top: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -338,7 +350,7 @@
   }
 
   .kb-card {
-    padding: 20px 20px 22px 24px;
+    padding: 18px 18px 18px 22px;
     border-radius: 18px;
   }
 
@@ -347,19 +359,48 @@
   }
 
   .kb-card-narrativa {
-    font-size: 16px;
-    line-height: 1.85;
-    padding: 4px 0 6px;
-    letter-spacing: 0.02em;
-    word-spacing: 0.02em;
+    font-size: 15px;
+    line-height: 1.72;
+    padding: 0;
+    letter-spacing: 0.01em;
+    word-spacing: normal;
+    hyphens: none;
+    word-break: normal;
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+  }
+
+  /* Fecha/hora arriba; relato abajo — sin coma colgada entre bloques */
+  .kb-narrativa-lead {
+    display: block;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(207, 168, 90, 0.14);
+  }
+
+  .kb-narrativa-sep--comma {
+    display: none;
+  }
+
+  .kb-narrativa-rest {
+    display: block;
+    line-height: 1.75;
   }
 
   .kb-narrativa-servicio {
     font-size: 1em;
+    overflow-wrap: anywhere;
+  }
+
+  /* Solo en pantallas ridículamente angostas, permitir partir hora+hs */
+  @media (max-width: 300px) {
+    .kb-narrativa-hora {
+      white-space: normal;
+    }
   }
 
   .kb-pagination {
-    margin-top: 28px;
+    margin-top: 40px;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
@@ -385,11 +426,11 @@
   }
 
   .kb-card {
-    padding: 18px 16px 20px 22px;
+    padding: 16px 14px 16px 20px;
   }
 
   .kb-card-narrativa {
-    font-size: 15px;
-    line-height: 1.8;
+    font-size: 14px;
+    line-height: 1.7;
   }
 }

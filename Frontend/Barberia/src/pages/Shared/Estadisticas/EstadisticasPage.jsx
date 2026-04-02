@@ -13,6 +13,18 @@ import { getGanancias } from "../../../services/estadisticas";
 import API_URL from "../../../services/api";
 import "./EstadisticasPage.css";
 
+/** Ejes Recharts: Inter + cifras tabulares (alineación y misma “cara” que el resto del admin) */
+const CHART_TICK = {
+  fill: "#6b6560",
+  fontSize: 11,
+  fontFamily: "Inter, system-ui, sans-serif",
+  fontWeight: 500,
+};
+const CHART_TICK_Y = {
+  ...CHART_TICK,
+  fontFeatureSettings: '"tnum"',
+};
+
 const formatMoneda = (n) => {
   try {
     return new Intl.NumberFormat("es-UY", {
@@ -107,7 +119,9 @@ export default function EstadisticasPage() {
     agrupacion === "dia" ? 40 : agrupacion === "mes" ? 32 : 36;
 
   return (
-    <div className="estadisticas-page">
+    <div
+      className={`estadisticas-page estadisticas-page-root${isAdmin ? " admin-kb-page" : ""}`}
+    >
       <h1 className={isAdmin ? "estadisticas-h1 estadisticas-h1--admin" : "estadisticas-h1"}>
         {isAdmin ? (
           <>
@@ -119,7 +133,7 @@ export default function EstadisticasPage() {
         )}
       </h1>
 
-      {/* Filtros */}
+      {/* Filtros (tarjeta alineada a Horarios / Barberos) */}
       <div className="estadisticas-filtros">
         <div className="estadisticas-agrupacion">
           <label>Agrupar por:</label>
@@ -158,23 +172,29 @@ export default function EstadisticasPage() {
         <>
           {/* Resumen rápido */}
           <div className="estadisticas-resumen admin-cards">
-            <div className="admin-card success">
+            <div className="admin-card success estadisticas-kpi-card">
               <h3>Hoy</h3>
-              <p>{formatMoneda(data.resumen?.hoy)}</p>
+              <p className="estadisticas-kpi-valor">
+                {formatMoneda(data.resumen?.hoy)}
+              </p>
             </div>
-            <div className="admin-card primary">
+            <div className="admin-card primary estadisticas-kpi-card">
               <h3>Este mes</h3>
-              <p>{formatMoneda(data.resumen?.este_mes)}</p>
+              <p className="estadisticas-kpi-valor">
+                {formatMoneda(data.resumen?.este_mes)}
+              </p>
             </div>
-            <div className="admin-card">
+            <div className="admin-card estadisticas-kpi-card">
               <h3>Este año</h3>
-              <p>{formatMoneda(data.resumen?.este_anio)}</p>
+              <p className="estadisticas-kpi-valor">
+                {formatMoneda(data.resumen?.este_anio)}
+              </p>
             </div>
           </div>
 
           {/* Gráfica */}
           <div className="estadisticas-chart-container">
-            <h2>Ganancias por período</h2>
+            <h2 className="estadisticas-chart-title">Ganancias por período</h2>
             {chartData.length > 0 ? (
               <div className="estadisticas-chart-scroll">
                 <div
@@ -188,24 +208,47 @@ export default function EstadisticasPage() {
                       barGap={1}
                       margin={{ top: 20, right: 20, bottom: 72, left: 24 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                      <CartesianGrid
+                        strokeDasharray="3 6"
+                        stroke="rgba(0, 0, 0, 0.06)"
+                        vertical={false}
+                      />
                       <XAxis
                         dataKey="periodo"
                         interval={0}
                         tickMargin={12}
                         minTickGap={12}
-                        tick={{ fontSize: 12 }}
+                        tick={CHART_TICK}
                         angle={chartData.length > 7 ? -40 : 0}
                         textAnchor={chartData.length > 7 ? "end" : "middle"}
+                        height={chartData.length > 7 ? 72 : 48}
                       />
                       <YAxis
-                        width={94}
+                        width={88}
                         tickFormatter={(v) => formatMoneda(v)}
-                        tick={{ fontSize: 12 }}
+                        tick={CHART_TICK_Y}
                       />
                       <Tooltip
                         formatter={(value) => formatMoneda(value)}
                         labelFormatter={(label) => `Período: ${label}`}
+                        contentStyle={{
+                          fontFamily: "Inter, system-ui, sans-serif",
+                          fontSize: 13,
+                          borderRadius: 12,
+                          border: "1px solid rgba(207, 168, 90, 0.22)",
+                          boxShadow:
+                            "0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(207, 168, 90, 0.08)",
+                        }}
+                        labelStyle={{
+                          fontWeight: 600,
+                          color: "#1a1814",
+                          marginBottom: 6,
+                        }}
+                        itemStyle={{
+                          fontWeight: 700,
+                          color: "#5c4a1f",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
                       />
                       <Bar
                         dataKey="total"

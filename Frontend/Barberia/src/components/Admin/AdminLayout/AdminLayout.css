@@ -5,7 +5,7 @@
 .admin-layout {
   min-height: 100vh;
   display: flex;
-  background: #f6f7f8;
+  background: var(--kb-app-bg-canvas, #faf9f7);
 }
 
 /* =======================================================
@@ -170,7 +170,7 @@
   flex-direction: column;
   /* 🔥 */
 
-  background: #f6f7f8;
+  background: var(--kb-app-bg-canvas, #faf9f7);
   box-sizing: border-box;
 }
 

@@ -1,45 +1,49 @@
-/* =========================
-   SERVICIO CARD – ADMIN (PRO)
-========================= */
+/* Admin servicios — misma línea que ServiceList (cards negras + acento dorado) */
 
 .servicio-card {
-  background: linear-gradient(180deg, #141414, #0c0c0c);
-  color: #f5f5f5;
-  border-radius: 16px;
-  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: linear-gradient(165deg, #141414 0%, #0a0a0a 45%, #080808 100%);
+  color: #f4f4f5;
+  border-radius: 18px;
+  padding: 16px 18px 18px;
+  border: 1px solid rgba(230, 199, 123, 0.14);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-
+  gap: 10px;
+  box-shadow: var(--kb-shadow-admin-dark), var(--kb-shadow-admin-dark-inset);
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .servicio-card:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 22px 50px rgba(0, 0, 0, 0.85),
-    inset 0 0 0 1px rgba(230, 199, 123, 0.12);
+  transform: translateY(-2px);
+  border-color: rgba(230, 199, 123, 0.32);
+  box-shadow: var(--kb-shadow-admin-dark-hover), var(--kb-shadow-admin-dark-hover-inset);
 }
 
-/* =========================
-   IMAGEN (FOCO VISUAL)
-========================= */
-
 .servicio-image {
+  position: relative;
   width: 100%;
-  height: 150px;
-  border-radius: 12px;
+  height: 148px;
+  border-radius: 14px;
   overflow: hidden;
-  background: #000;
+  background: #0a0a0a;
+  border: 1px solid rgba(230, 199, 123, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 14px 36px rgba(0, 0, 0, 0.14);
+}
 
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+.servicio-image::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background: linear-gradient(to top, rgba(8, 8, 8, 0.92), transparent);
+  pointer-events: none;
 }
 
 .servicio-image img {
@@ -47,116 +51,124 @@
   height: 100%;
   object-fit: cover;
   display: block;
-
+  filter: brightness(0.82) contrast(1.05);
   transition: transform 0.35s ease, filter 0.35s ease;
 }
 
 .servicio-card:hover .servicio-image img {
-  transform: scale(1.04);
-  filter: brightness(1.05);
+  transform: scale(1.03);
+  filter: brightness(0.92) contrast(1.05);
 }
 
-/* =========================
-   TEXTO / INFO
-========================= */
-
 .servicio-card h4 {
-  margin: 8px 0 0;
-  font-size: 1.08rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  margin: 6px 0 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  color: #fafafa;
+  text-align: center;
+}
+
+.servicio-card .servicio-meta-price {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
   color: #e6c77b;
   text-align: center;
 }
 
-.servicio-card p {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #eaeaea;
-  text-align: center;
-}
-
-.servicio-card small {
-  font-size: 0.8rem;
+.servicio-card .servicio-meta-duration {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: #9ca3af;
   text-align: center;
 }
 
-/* =========================
-   ACTIONS
-========================= */
-
 .servicio-actions {
-  margin-top: auto;
+  margin-top: 8px;
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
 }
 
-/* EDITAR */
-.btn-edit {
-  flex: 1;
-  padding: 11px 0;
-  border-radius: 999px;
-  border: none;
-
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
-  color: #111;
-  font-weight: 700;
-  letter-spacing: 0.6px;
+.servicio-actions .btn-edit {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 11px;
+  border: 1px solid rgba(207, 168, 90, 0.5);
+  background: linear-gradient(145deg, #f5e5c4 0%, #e4c77a 50%, #cfa85a 100%);
+  color: #1a1814;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
-
   box-shadow:
-    0 6px 16px rgba(230, 199, 123, 0.35);
-
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 2px 10px rgba(207, 168, 90, 0.28);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
 }
 
-.btn-edit:hover {
-  background: linear-gradient(135deg, #f0d88f, #d9b86c);
-  transform: translateY(-2px);
+.servicio-actions .btn-edit:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
   box-shadow:
-    0 10px 24px rgba(230, 199, 123, 0.55);
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 6px 18px rgba(207, 168, 90, 0.38);
 }
 
-/* ELIMINAR - scoped para evitar conflictos con otros .btn-delete */
 .servicio-actions .btn-delete {
-  flex: 1;
-  padding: 11px 0;
-  border-radius: 999px;
-  border: none;
-
-  background: linear-gradient(135deg, #b91c1c, #7f1d1d);
-  color: #fff;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 11px;
+  border: 1px solid #b91c1c;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  color: #0a0a0a;
+  font-family: inherit;
+  font-size: 0.8125rem;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.01em;
   cursor: pointer;
-
   box-shadow:
-    0 6px 16px rgba(185, 28, 28, 0.35);
-
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 10px rgba(220, 38, 38, 0.35);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    background 0.18s ease,
+    transform 0.15s ease,
+    border-color 0.18s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
 }
 
 .servicio-actions .btn-delete:hover {
-  background: linear-gradient(135deg, #dc2626, #991b1b);
-  transform: translateY(-2px);
+  background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+  border-color: #991b1b;
+  color: #0a0a0a;
+  transform: translateY(-1px);
+  filter: brightness(1.02);
   box-shadow:
-    0 10px 24px rgba(220, 38, 38, 0.55);
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 6px 18px rgba(185, 28, 28, 0.45);
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
-
 @media (max-width: 600px) {
+  .servicio-card {
+    padding: 14px 14px 16px;
+  }
+
   .servicio-image {
-    height: 120px;
+    height: 132px;
+    border-radius: 12px;
+  }
+
+  .servicio-actions .btn-edit,
+  .servicio-actions .btn-delete {
+    padding: 11px 14px;
   }
 }

@@ -3,7 +3,9 @@
 ====================================================== */
 
 .horarios-list {
-  margin-top: 24px;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -14,20 +16,35 @@
 ====================================================== */
 
 .horario-card {
-  background: #f8f9fa;
-  border-radius: 14px;
-  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  background: var(--kb-admin-bg-surface, #ffffff);
+  border-radius: 18px;
+  padding: 18px 20px 18px 24px;
+  border: 1px solid rgba(207, 168, 90, 0.16);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 14px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.horario-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, #e6c77b, #cfa85a);
 }
 
 .horario-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: rgba(207, 168, 90, 0.32);
+  box-shadow: var(--kb-shadow-admin-card-hover), var(--kb-shadow-admin-card-hover-inset);
 }
 
 /* ======================================================
@@ -41,19 +58,22 @@
 }
 
 .horario-dia {
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   font-size: 1.05rem;
-  color: #111;
+  color: #1a1814;
 }
 
 .horario-horas {
   font-size: 0.95rem;
-  color: #333;
+  font-weight: 600;
+  color: #5c4a1f;
 }
 
 .horario-vigencia {
   font-size: 0.8rem;
-  color: #777;
+  color: #6b6560;
+  font-weight: 500;
 }
 
 /* ======================================================
@@ -71,55 +91,75 @@
 ====================================================== */
 
 .btn-copy {
-  padding: 12px 24px;
-  border-radius: 999px;
-  border: none;
+  font-family: inherit;
+  padding: 9px 16px;
+  border-radius: 11px;
+  border: 1px solid rgba(207, 168, 90, 0.42);
+  background: linear-gradient(145deg, #f5e5c4 0%, #e4c77a 50%, #cfa85a 100%);
+  color: #1a1814;
 
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
-  color: #111;
-
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
 
   cursor: pointer;
-  box-shadow: 0 10px 26px rgba(230, 199, 123, 0.45);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 2px 8px rgba(207, 168, 90, 0.22);
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
 }
 
 .btn-copy:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(230, 199, 123, 0.65);
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 6px 16px rgba(207, 168, 90, 0.32);
 }
 
 .btn-copy:active {
   transform: translateY(0);
 }
 
+.btn-copy:focus-visible {
+  outline: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 0 0 3px rgba(207, 168, 90, 0.28),
+    0 2px 8px rgba(207, 168, 90, 0.22);
+}
+
 .horario-actions .btn-delete {
-  min-width: 96px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(185, 28, 28, 0.35);
-  background: linear-gradient(135deg, #2a0f0f, #4a1414);
-  color: #f5f5f5;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.6px;
+  min-width: 88px;
+  padding: 8px 14px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(185, 28, 28, 0.38);
+  background: #fffefb;
+  color: #b91c1c;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition:
+    background 0.18s ease,
+    transform 0.15s ease,
+    border-color 0.18s ease,
+    box-shadow 0.15s ease;
 }
 
 .horario-actions .btn-delete:hover {
-  background: linear-gradient(135deg, #5c1a1a, #7a1f1f);
+  background: #fef2f2;
+  border-color: rgba(185, 28, 28, 0.5);
+  color: #991b1b;
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.12);
 }
 
 .horario-actions .btn-delete:active {
@@ -139,19 +179,22 @@
 
 /* Select */
 .copy-panel select {
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 0.85rem;
+  font-family: inherit;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(207, 168, 90, 0.28);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1a1814;
   background: #fff;
   cursor: pointer;
 }
 
 .copy-panel select:focus {
   outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 2px rgba(230, 199, 123, 0.35);
+  border-color: #cfa85a;
+  box-shadow: 0 0 0 3px rgba(207, 168, 90, 0.2);
 }
 
 /* Confirmar */
@@ -250,18 +293,20 @@
   .horario-actions .btn-copy,
   .horario-actions .btn-delete {
     width: 100%;
-    padding: 12px 0;
-    font-size: 0.95rem;
-    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    border-radius: 12px;
   }
 
   .horario-actions .btn-delete {
-    background: #b81e1e;
-    color: #fff;
+    background: #fffefb;
+    color: #b91c1c;
+    border: 1.5px solid rgba(185, 28, 28, 0.38);
   }
 
   .horario-actions .btn-delete:hover {
-    background: #a41919;
+    background: #fef2f2;
+    color: #991b1b;
   }
 
   /* COPY PANEL */

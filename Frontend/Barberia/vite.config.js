@@ -12,6 +12,7 @@ export default defineConfig({
       "kingbarber.webhop.net",
       "167.62.232.17",
       "186.53.205.51",
+      "179.27.203.212",
       "localhost",
       "127.0.0.1",
     ],

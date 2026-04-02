@@ -65,14 +65,12 @@ button.admin-card {
 .admin-card {
   position: relative;
   isolation: isolate;
-  background: linear-gradient(165deg, #ffffff 0%, #f9fafb 55%, #f3f4f6 100%);
+  background: var(--kb-admin-bg-surface, #ffffff);
   padding: 18px 20px 20px;
   padding-left: 22px;
   border-radius: 18px;
   border: 1px solid rgba(207, 168, 90, 0.14);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
   cursor: pointer;
   overflow: hidden;
   transition:
@@ -111,10 +109,7 @@ button.admin-card {
 .admin-card:hover {
   transform: translateY(-3px);
   border-color: rgba(207, 168, 90, 0.32);
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.1),
-    0 8px 22px rgba(207, 168, 90, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  box-shadow: var(--kb-shadow-admin-card-hover), var(--kb-shadow-admin-card-hover-inset);
 }
 
 .admin-card:hover .admin-card-shine {

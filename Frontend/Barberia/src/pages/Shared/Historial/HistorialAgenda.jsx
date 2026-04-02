@@ -161,20 +161,32 @@ const HistorialAgenda = () => {
           return (
             <div key={t.id_visita} className="kb-card">
               <p className="kb-card-narrativa">
-                <span className="kb-narrativa-fecha">
-                  El día {fechaLinea} a las {horaTexto} hs
+                <span className="kb-narrativa-lead">
+                  <span className="kb-narrativa-fecha">El día {fechaLinea}</span>{" "}
+                  <span className="kb-narrativa-hora">
+                    a las {horaTexto}
+                    {"\u00a0"}
+                    hs
+                  </span>
                 </span>
-                {", "}
-                <span className="kb-narrativa-cliente">{nombreCliente}</span>
-                {" se hizo "}
-                <span className="kb-narrativa-servicio">{nombreServicio}</span>
-                {nombreBarbero ? (
-                  <>
-                    {" con el barbero "}
-                    <span className="kb-narrativa-barbero">{nombreBarbero}</span>
-                  </>
-                ) : null}
-                {"."}
+                <span
+                  className="kb-narrativa-sep kb-narrativa-sep--comma"
+                  aria-hidden="true"
+                >
+                  ,{" "}
+                </span>
+                <span className="kb-narrativa-rest">
+                  <span className="kb-narrativa-cliente">{nombreCliente}</span>
+                  {" se\u00a0hizo "}
+                  <span className="kb-narrativa-servicio">{nombreServicio}</span>
+                  {nombreBarbero ? (
+                    <>
+                      {" con el barbero "}
+                      <span className="kb-narrativa-barbero">{nombreBarbero}</span>
+                    </>
+                  ) : null}
+                  {"."}
+                </span>
               </p>
             </div>
           );

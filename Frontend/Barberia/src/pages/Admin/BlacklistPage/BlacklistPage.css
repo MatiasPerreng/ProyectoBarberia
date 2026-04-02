@@ -1,36 +1,73 @@
-/* ======================================================
-   CONTENEDOR Y CABECERA
-====================================================== */
+/* Lista negra — alineado a Horarios / Estadísticas / admin-kb-page */
+
+.blist-page-root {
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
 .blist-page-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
   animation: blistFadeIn 0.3s ease;
 }
 
-.blist-header h2 {
+/* ---------- Cabecera (toolbar tipo tarjeta) ---------- */
+
+.blist-header {
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: var(--kb-admin-bg-surface, #ffffff);
+  border: 1px solid rgba(207, 168, 90, 0.1);
+  box-shadow: var(--kb-shadow-admin-toolbar);
+}
+
+.blist-header .kb-page-title {
   margin: 0;
 }
 
-.blist-header p {
-  color: #666;
-  font-size: 0.95rem;
-  margin-top: 4px;
+.blist-header-subtitle {
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #6b6560;
+  font-weight: 500;
+  max-width: 520px;
 }
 
-/* ======================================================
-   TARJETA DE FORMULARIO
-====================================================== */
+/* ---------- Secciones ---------- */
+
+.blist-section-title {
+  margin: 0 0 16px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a6228;
+}
+
+.blist-section-title--table {
+  margin-bottom: 12px;
+}
+
+.blist-table-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Formulario ---------- */
+
 .blist-card-form {
-  background: linear-gradient(180deg, #ffffff, #f6f7f8);
+  background: var(--kb-admin-bg-surface, #ffffff);
   border-radius: 18px;
-  padding: 26px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 22px 24px 24px;
+  border: 1px solid rgba(207, 168, 90, 0.12);
+  box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
 }
 
 .blist-form {
   display: flex;
-  gap: 20px;
+  gap: 16px 20px;
   align-items: flex-end;
   flex-wrap: wrap;
 }
@@ -40,84 +77,91 @@
   flex-direction: column;
   gap: 8px;
   flex: 1;
-  min-width: 240px;
+  min-width: 200px;
 }
 
 .blist-form-group label {
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #444;
+  color: #5c4a1f;
 }
 
 .blist-form-group input {
-  height: 48px;
-  padding: 0 16px;
-  border-radius: 14px;
-  border: 1px solid #ddd;
-  background: white;
-  font-size: 1rem;
-  transition: all 0.2s;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(207, 168, 90, 0.28);
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1814;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blist-form-group input::placeholder {
+  color: #9ca3af;
 }
 
 .blist-form-group input:focus {
   outline: none;
-  border-color: #e6c77b;
-  box-shadow: 0 0 0 3px rgba(230, 199, 123, 0.2);
+  border-color: #cfa85a;
+  box-shadow: 0 0 0 3px rgba(207, 168, 90, 0.2);
 }
 
-/* ======================================================
-   BOTONES (ESTILO BARBEROS)
-====================================================== */
 .blist-btn-primary {
-  padding: 0 24px;
-  height: 48px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, #e6c77b, #cfa85a);
-  color: #111;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  padding: 0 22px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(207, 168, 90, 0.45);
+  background: linear-gradient(145deg, #f0d99a 0%, #cfa85a 55%, #c49a47 100%);
+  color: #1a1814;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
   cursor: pointer;
-  box-shadow: 0 10px 26px rgba(230, 199, 123, 0.45);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 4px 14px rgba(207, 168, 90, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
 .blist-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(230, 199, 123, 0.65);
-}
-
-.blist-btn-danger {
-  padding: 8px 16px;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, #b91c1c, #dc2626);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
-  transition: all 0.2s;
-}
-
-.blist-btn-danger:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.4);
+  filter: brightness(1.03);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 8px 22px rgba(207, 168, 90, 0.42);
 }
 
-/* ======================================================
-   TABLA / LISTADO
-====================================================== */
+.blist-btn-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 0 0 3px rgba(207, 168, 90, 0.35),
+    0 4px 14px rgba(207, 168, 90, 0.35);
+}
+
+/* ---------- Tabla ---------- */
+
 .blist-table-wrapper {
-  background: white;
+  background: var(--kb-admin-bg-surface, #ffffff);
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(207, 168, 90, 0.1);
+  box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
+}
+
+.blist-loading {
+  padding: 28px 20px;
+  text-align: center;
+  font-weight: 600;
+  color: #6b6560;
+  font-size: 0.95rem;
 }
 
 .blist-table {
@@ -126,72 +170,123 @@
 }
 
 .blist-table th {
-  background: #f8f9fa;
-  padding: 18px;
+  background: linear-gradient(180deg, #fdfcfa 0%, #faf9f7 100%);
+  padding: 14px 18px;
   text-align: left;
-  font-size: 0.8rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #888;
-  border-bottom: 1px solid #eee;
+  color: #7a6228;
+  border-bottom: 1px solid rgba(207, 168, 90, 0.14);
 }
 
 .blist-table td {
-  padding: 18px;
-  border-bottom: 1px solid #f1f1f1;
-  font-size: 0.95rem;
-  color: #333;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.9rem;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.blist-row:last-child td {
+  border-bottom: none;
 }
 
 .blist-tel-cell {
   font-weight: 700;
-  color: #111;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: #1a1814;
 }
 
 .blist-no-reason {
-  color: #aaa;
+  color: #9ca3af;
   font-style: italic;
+  font-weight: 500;
 }
 
-/* ======================================================
-   RESPONSIVE MOBILE 📱
-====================================================== */
-@media (max-width: 768px) {
-  .blist-page-container {
-    padding: 10px;
-  }
+.blist-empty {
+  text-align: center;
+  color: #6b6560;
+  font-weight: 500;
+  padding: 36px 20px !important;
+}
 
+.blist-btn-danger {
+  padding: 9px 16px;
+  border-radius: 11px;
+  border: 1px solid #b91c1c;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  color: #0a0a0a;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 8px rgba(220, 38, 38, 0.25);
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.blist-btn-danger:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 4px 14px rgba(185, 28, 28, 0.35);
+}
+
+.blist-btn-danger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.25);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 768px) {
   .blist-form {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .blist-btn-primary {
-    width: 100%;
+  .blist-form-group {
+    min-width: 0;
   }
 
-  /* Ocultar cabecera de tabla y convertir filas en Cards */
+  .blist-btn-primary {
+    width: 100%;
+    height: 48px;
+  }
+
   .blist-table thead {
     display: none;
   }
 
-  .blist-table, .blist-table tbody, .blist-table tr, .blist-table td {
+  .blist-table,
+  .blist-table tbody,
+  .blist-table tr,
+  .blist-table td {
     display: block;
     width: 100%;
   }
 
   .blist-table-wrapper {
     background: transparent;
+    border: none;
     box-shadow: none;
+    overflow: visible;
   }
 
   .blist-row {
-    background: white;
-    margin-bottom: 16px;
-    padding: 20px;
-    border-radius: 18px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border: 1px solid rgba(0,0,0,0.02);
+    background: var(--kb-admin-bg-surface, #ffffff);
+    margin-bottom: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(207, 168, 90, 0.12);
+    box-shadow: var(--kb-shadow-admin-card), var(--kb-shadow-admin-card-inset);
   }
 
   .blist-table td {
@@ -200,38 +295,52 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
+    gap: 12px;
+    font-size: 0.88rem;
   }
-
 
   .blist-table td::before {
     content: attr(data-label);
     font-weight: 800;
-    color: #999;
-    font-size: 0.7rem;
+    color: #7a6228;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+    flex-shrink: 0;
   }
 
-
   .blist-tel-cell {
-    border-bottom: 1px solid #f0f0f0 !important;
-    padding-bottom: 15px !important;
-    margin-bottom: 10px;
-    font-size: 1.1rem !important;
+    border-bottom: 1px solid rgba(207, 168, 90, 0.12) !important;
+    padding-bottom: 14px !important;
+    margin-bottom: 8px;
+    font-size: 1.05rem !important;
   }
 
   .blist-actions-cell {
-    justify-content: center !important;
-    padding-top: 15px !important;
+    justify-content: stretch !important;
+    padding-top: 12px !important;
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .blist-actions-cell::before {
+    display: none;
   }
 
   .blist-btn-danger {
     width: 100%;
-    height: 48px;
+    min-height: 44px;
+    font-size: 0.85rem;
   }
 }
 
 @keyframes blistFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

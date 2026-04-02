@@ -5,7 +5,7 @@
 .barbero-layout {
   min-height: 100vh;
   display: flex;
-  background: #f6f7f8;
+  background: var(--kb-app-bg-canvas, #faf9f7);
 }
 
 /* =======================================================
@@ -166,7 +166,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #f6f7f8;
+  background: var(--kb-app-bg-canvas, #faf9f7);
 }
 
 /* CONTENIDO REAL */

@@ -45,6 +45,8 @@
   z-index: 12000;
   padding: 16px;
   animation: cancelFadeIn 0.2s ease;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .cancel-modal-card-unique {
@@ -57,13 +59,16 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(230, 199, 123, 0.12);
   border: 1px solid rgba(230, 199, 123, 0.15);
   animation: cancelScaleIn 0.25s ease;
+  box-sizing: border-box;
 }
 
 .cancel-modal-card-unique h2 {
+  font-family: inherit;
   color: #e6c77b;
   margin-bottom: 10px;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
   margin-top: 0;
 }
 

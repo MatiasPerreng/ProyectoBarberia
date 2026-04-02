@@ -53,42 +53,56 @@ const BlacklistPage = () => {
   };
 
   return (
-    <div className="blist-page-container">
+    <div className="blist-page-root admin-kb-page blist-page-container">
       <header className="blist-header">
-        <h2>🚫 Lista Negra</h2>
-        <p>Los números en esta lista no podrán realizar reservas en el sistema.</p>
+        <h2 className="kb-page-title">Lista negra</h2>
+        <p className="blist-header-subtitle">
+          Los números bloqueados no podrán reservar turnos en el sistema.
+        </p>
       </header>
 
-      <section className="blist-card-form">
+      <section className="blist-card-form" aria-labelledby="blist-form-heading">
+        <h3 id="blist-form-heading" className="blist-section-title">
+          Bloquear número
+        </h3>
         <form onSubmit={handleAdd} className="blist-form">
           <div className="blist-form-group">
-            <label>Teléfono</label>
+            <label htmlFor="blist-tel">Teléfono</label>
             <input
+              id="blist-tel"
               type="text"
               placeholder="Ej: 099123456"
               value={form.telefono}
               onChange={(e) => setForm({ ...form, telefono: e.target.value })}
               required
+              autoComplete="tel"
             />
           </div>
           <div className="blist-form-group">
-            <label>Motivo del bloqueo</label>
+            <label htmlFor="blist-motivo">Motivo (opcional)</label>
             <input
+              id="blist-motivo"
               type="text"
-              placeholder="Ej: No se presenta a las citas"
+              placeholder="Ej: Inasistencias repetidas"
               value={form.motivo}
               onChange={(e) => setForm({ ...form, motivo: e.target.value })}
             />
           </div>
           <button type="submit" className="blist-btn-primary">
-            Bloquear Número
+            Bloquear número
           </button>
         </form>
       </section>
 
-      <section className="blist-table-wrapper">
+      <section className="blist-table-section" aria-labelledby="blist-list-heading">
+        <h3 id="blist-list-heading" className="blist-section-title blist-section-title--table">
+          Números bloqueados
+        </h3>
+        <div className="blist-table-wrapper">
         {loading ? (
-          <div className="blist-loading">Cargando lista...</div>
+          <div className="blist-loading" role="status">
+            Cargando lista…
+          </div>
         ) : (
           <table className="blist-table">
             <thead>
@@ -130,6 +144,7 @@ const BlacklistPage = () => {
             </tbody>
           </table>
         )}
+        </div>
       </section>
     </div>
   );

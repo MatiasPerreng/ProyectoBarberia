@@ -30,6 +30,8 @@ body.modal-open {
     padding: 20px;
     box-sizing: border-box;
     overflow: hidden; 
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 .booking-container {
@@ -44,9 +46,27 @@ body.modal-open {
     overflow-y: auto; 
     scrollbar-width: thin;
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
     
     /* FIX iOS: Evita el resaltado azul al tocar el contenedor */
     -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 480px) {
+  .booking-overlay {
+    align-items: flex-start;
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .booking-container {
+    max-height: min(88dvh, calc(100svh - 24px));
+  }
 }
 
 /* Ocultar scrollbar si prefieres diseño limpio */

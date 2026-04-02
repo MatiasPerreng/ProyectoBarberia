@@ -19,7 +19,7 @@
   margin-bottom: 0;
   padding: 0;
   overflow: hidden;
-  background: linear-gradient(165deg, #ffffff 0%, #fafafa 100%);
+  background: var(--kb-admin-bg-surface, #ffffff);
   border-radius: 16px;
   border: 1px solid rgba(207, 168, 90, 0.16);
   border-left: none;
