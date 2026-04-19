@@ -220,6 +220,12 @@ def crear_visita(
         raise he
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.exception("crear_visita: error no controlado")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo completar la reserva. Reintentá en unos momentos.",
+        ) from e
 
 
 @router.post("/mercadopago/sincronizar", response_model=VisitaOut)
@@ -229,7 +235,18 @@ def mercadopago_sincronizar(
 ):
     from crud import visita as crud_v
 
-    visita, err = crud_v.sincronizar_pago_mercadopago(db, body)
+    # No llamar eliminar_visitas_mp_abandonadas aquí: si el usuario tardó en el checkout de MP,
+    # borrar pendientes antes de sincronizar eliminaba la visita y rompía la asociación pago–turno.
+
+    try:
+        visita, err = crud_v.sincronizar_pago_mercadopago(db, body)
+    except Exception as e:
+        logger.exception("MP sincronizar: error no controlado")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error al contactar Mercado Pago o guardar el turno. Reintentá en unos segundos.",
+        ) from e
+
     if not visita:
         logger.warning("MP sincronizar visita: %s", err or "sin detalle")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=err or "No se pudo sincronizar el pago.")
@@ -252,6 +269,8 @@ def mercadopago_asociar_link(
 async def mercadopago_webhook(request: Request, db: Session = Depends(get_db)):
     from utils.mercadopago_api import webhook_secret
     from crud import visita as crud_v
+
+    # Sin cleanup previo: el webhook debe poder asociar el pago aunque la reserva lleve varios minutos.
 
     sec = webhook_secret()
     if sec and request.query_params.get("s") != sec:

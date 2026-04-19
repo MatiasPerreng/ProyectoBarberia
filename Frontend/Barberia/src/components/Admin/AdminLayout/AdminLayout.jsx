@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuthContext } from "../../../auth/AuthContext";
 import Footer from "../../Footer/Footer";
+import AdminMercadoPagoPolling from "../AdminMercadoPagoPolling/AdminMercadoPagoPolling";
 
 const MOBILE_BREAKPOINT = 768;
 
@@ -31,6 +32,7 @@ const AdminLayout = ({ children }) => {
 
   return (
     <>
+      <AdminMercadoPagoPolling />
       {/* =========================
           HEADER MOBILE
       ========================= */}

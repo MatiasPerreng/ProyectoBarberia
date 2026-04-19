@@ -1,22 +1,63 @@
 import React, { useEffect, useState } from "react";
 import "./ServicesList.css";
 import API_URL from "../../services/api";
+import { formatFastApiDetail, networkFailureMessage } from "../../utils/apiError";
 
 const ServiciosList = ({ onSelectServicio }) => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
     fetch(`${API_URL}/servicios/`)
-      .then((res) => res.json())
-      .then((data) => {
-        setServicios(data);
-        setLoading(false);
+      .then(async (res) => {
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(formatFastApiDetail(body) || "No se pudieron cargar los servicios");
+        }
+        return Array.isArray(body) ? body : [];
       })
-      .catch((err) => console.error(err));
+      .then((data) => {
+        if (!cancelled) {
+          setServicios(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if (!cancelled) {
+          setError(err.message || networkFailureMessage(err));
+          setServicios([]);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) return <p className="loading">Cargando servicios...</p>;
+
+  if (error) {
+    return (
+      <div className="servicios-grid" style={{ padding: "2rem", textAlign: "center" }}>
+        <p className="loading">{error}</p>
+        <button
+          type="button"
+          className="btn-reservar"
+          onClick={() => window.location.reload()}
+          style={{ marginTop: "1rem" }}
+        >
+          <span>REINTENTAR</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="servicios-grid">

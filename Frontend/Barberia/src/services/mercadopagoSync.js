@@ -1,7 +1,18 @@
 import API_URL from "./api";
+import { formatFastApiDetail, networkFailureMessage } from "../utils/apiError";
 
 function apiBase() {
   return String(API_URL || "").replace(/\/+$/, "");
+}
+
+async function jsonBody(res) {
+  return res.json().catch(() => ({}));
+}
+
+function errorFromSyncBody(data) {
+  const detail = formatFastApiDetail(data);
+  if (detail) return detail;
+  return "No se pudo sincronizar con Mercado Pago.";
 }
 
 export function visitaDebeSincronizarMp(v) {
@@ -15,21 +26,19 @@ export function visitaDebeSincronizarMp(v) {
 }
 
 export async function sincronizarPagoMercadoPagoPorVisita(idVisita) {
-  const res = await fetch(`${apiBase()}/visitas/mercadopago/sincronizar`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ external_reference: String(idVisita) }),
-  });
-  const data = await res.json().catch(() => ({}));
+  let res;
+  try {
+    res = await fetch(`${apiBase()}/visitas/mercadopago/sincronizar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ external_reference: String(idVisita) }),
+    });
+  } catch (e) {
+    return { ok: false, data: null, error: networkFailureMessage(e) };
+  }
+  const data = await jsonBody(res);
   if (!res.ok) {
-    const detail = data?.detail;
-    const errMsg =
-      typeof detail === "string"
-        ? detail
-        : Array.isArray(detail)
-          ? detail.map((x) => (x && typeof x === "object" && "msg" in x ? x.msg : String(x))).join(" ")
-          : "No se pudo sincronizar con Mercado Pago.";
-    return { ok: false, data: null, error: errMsg };
+    return { ok: false, data: null, error: errorFromSyncBody(data) };
   }
   return { ok: true, data, error: null };
 }
@@ -46,21 +55,19 @@ export async function sincronizarPagoMercadoPagoPorVisitaConReintentos(idVisita)
 
 /** Mismo criterio que Burgers/PedidoPagoResultado: payment_id, external_reference, preference_id. */
 export async function sincronizarVisitaMercadoPagoCompleto(syncBody) {
-  const res = await fetch(`${apiBase()}/visitas/mercadopago/sincronizar`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(syncBody),
-  });
-  const data = await res.json().catch(() => ({}));
+  let res;
+  try {
+    res = await fetch(`${apiBase()}/visitas/mercadopago/sincronizar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(syncBody),
+    });
+  } catch (e) {
+    return { ok: false, data: null, error: networkFailureMessage(e) };
+  }
+  const data = await jsonBody(res);
   if (!res.ok) {
-    const detail = data?.detail;
-    const errMsg =
-      typeof detail === "string"
-        ? detail
-        : Array.isArray(detail)
-          ? detail.map((x) => (x && typeof x === "object" && "msg" in x ? x.msg : String(x))).join(" ")
-          : "No se pudo sincronizar con Mercado Pago.";
-    return { ok: false, data: null, error: errMsg };
+    return { ok: false, data: null, error: errorFromSyncBody(data) };
   }
   return { ok: true, data, error: null };
 }

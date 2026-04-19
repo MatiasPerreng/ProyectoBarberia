@@ -1,13 +1,18 @@
+import logging
 import os
 from pathlib import Path
 
 # Cargar Backend/.env con override antes que core/email u otros (evita MERCADOPAGO_* heredados del sistema).
 import database  # noqa: F401
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
+from fastapi.responses import JSONResponse
 
 # Path base del backend (donde está main.py)
 BASE_DIR = Path(__file__).resolve().parent
+
+logger = logging.getLogger(__name__)
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -31,6 +36,26 @@ app = FastAPI(
     title="API Barbería",
     version="1.0.0",
 )
+
+
+@app.middleware("http")
+async def catch_unhandled_server_errors(request: Request, call_next):
+    """Evita respuestas HTML genéricas ante fallos no previstos; deja pasar HTTPException y validación."""
+    try:
+        return await call_next(request)
+    except HTTPException:
+        raise
+    except RequestValidationError:
+        raise
+    except ResponseValidationError:
+        raise
+    except Exception:
+        logger.exception("Error no controlado en %s %s", request.method, request.url.path)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Error interno del servidor. Reintentá más tarde."},
+        )
+
 
 # =======================
 # TEST EMAIL (solo si ENABLE_TEST_EMAIL=true en .env)

@@ -1,47 +1,52 @@
 import API_URL from "./api";
+import { formatFastApiDetail, networkFailureMessage } from "../utils/apiError";
+
+async function jsonBody(res) {
+  return res.json().catch(() => ({}));
+}
 
 /* =========================
    CREAR VISITA
 ========================= */
-function formatApiError(err) {
-  const d = err?.detail;
-  if (typeof d === "string") return d;
-  if (Array.isArray(d)) {
-    return d
-      .map((x) => (x && typeof x === "object" && "msg" in x ? x.msg : String(x)))
-      .join(" ");
-  }
-  return "Error al crear visita";
-}
-
 export async function crearVisita(data) {
-  const res = await fetch(`${API_URL}/visitas/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(formatApiError(err));
+  let res;
+  try {
+    res = await fetch(`${API_URL}/visitas/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  } catch (e) {
+    throw new Error(networkFailureMessage(e));
   }
 
-  return await res.json();
+  const err = await jsonBody(res);
+  if (!res.ok) {
+    throw new Error(formatFastApiDetail(err) || "Error al crear visita");
+  }
+
+  return err;
 }
 
 /* =========================
    AGENDA BARBERO
 ========================= */
 export async function getAgendaBarbero(idBarbero) {
-  const res = await fetch(`${API_URL}/barberos/${idBarbero}/agenda`);
-
-  if (!res.ok) {
-    throw new Error("Error al cargar agenda");
+  let res;
+  try {
+    res = await fetch(`${API_URL}/barberos/${idBarbero}/agenda`);
+  } catch (e) {
+    throw new Error(networkFailureMessage(e));
   }
 
-  return await res.json();
+  if (!res.ok) {
+    const err = await jsonBody(res);
+    throw new Error(formatFastApiDetail(err) || "Error al cargar agenda");
+  }
+
+  return res.json();
 }
 
 /* =========================
@@ -58,16 +63,20 @@ export async function getDisponibilidad({
     url += `&id_barbero=${id_barbero}`;
   }
 
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error("Error al cargar disponibilidad");
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    throw new Error(networkFailureMessage(e));
   }
 
-  return await res.json();
+  if (!res.ok) {
+    const err = await jsonBody(res);
+    throw new Error(formatFastApiDetail(err) || "Error al cargar disponibilidad");
+  }
+
+  return res.json();
 }
-
-
 
 export async function getDisponibilidadMes({
   mes,
@@ -75,13 +84,19 @@ export async function getDisponibilidadMes({
   id_servicio,
   id_barbero,
 }) {
-  const res = await fetch(
-    `${API_URL}/visitas/disponibilidad-mes?mes=${mes}&anio=${anio}&id_servicio=${id_servicio}&id_barbero=${id_barbero}`
-  );
-
-  if (!res.ok) {
-    throw new Error("Error al cargar disponibilidad mensual");
+  let res;
+  try {
+    res = await fetch(
+      `${API_URL}/visitas/disponibilidad-mes?mes=${mes}&anio=${anio}&id_servicio=${id_servicio}&id_barbero=${id_barbero}`
+    );
+  } catch (e) {
+    throw new Error(networkFailureMessage(e));
   }
 
-  return await res.json();
+  if (!res.ok) {
+    const err = await jsonBody(res);
+    throw new Error(formatFastApiDetail(err) || "Error al cargar disponibilidad mensual");
+  }
+
+  return res.json();
 }

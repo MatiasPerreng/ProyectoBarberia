@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import text, or_
 from typing import Optional, List, Dict, Tuple, Any
 from datetime import datetime, timedelta, time, date
 import decimal
 import json
 import logging
+import os
 import random
 import secrets
 import time as time_module
@@ -75,7 +77,7 @@ def validar_conflicto_descanso(inicio_slot: datetime, duracion_min: int, inicio_
         desc_fin = datetime.combine(fecha, datetime.strptime(fin_desc_str, "%H:%M").time())
         fin_slot = inicio_slot + timedelta(minutes=duracion_min)
         return overlaps(inicio_slot, fin_slot, desc_inicio, desc_fin)
-    except:
+    except Exception:
         return False
 
 def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
@@ -96,7 +98,55 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
 # 🔥 LÓGICA DE NEGOCIO: AUTO-COMPLETAR Y ANTI-SPAM
 # ======================================================================================
 
+def _minutos_expiracion_reserva_mp() -> int:
+    """Umbral para liberar turnos MP abandonados (sin id de pago en BD). Config: MERCADOPAGO_RESERVA_MINUTOS."""
+    raw = os.getenv("MERCADOPAGO_RESERVA_MINUTOS", "15").strip()
+    try:
+        n = int(raw)
+    except ValueError:
+        return 15
+    return max(5, min(n, 180))
+
+
+def eliminar_visitas_mp_abandonadas(db: Session) -> int:
+    """
+    Elimina reservas en PENDIENTE_CONFIRMACION_MP cuando no hubo pago iniciado en MP
+    (sin mercadopago_payment_id) tras el umbral en minutos. Libera el horario para otros clientes.
+
+    No borra filas que ya tengan id de pago (pago en curso o pendiente de acreditación en MP),
+    para no romper la asociación pago–visita cuando el webhook/sync llega tarde.
+
+    Importante: no invocar esta función inmediatamente antes de sincronizar_pago_mercadopago ni en el
+    webhook de MP: un usuario puede tardar > umbral en el checkout y aún así pagar; borrar antes
+    rompería la asociación. Usar solo en disponibilidad, crear visita, marcar completadas, etc.
+    """
+    mins = _minutos_expiracion_reserva_mp()
+    try:
+        deleted = (
+            db.query(Visita)
+            .filter(Visita.estado == "PENDIENTE_CONFIRMACION_MP")
+            .filter(or_(Visita.medio_pago == "mercadopago", Visita.medio_pago.is_(None)))
+            .filter(Visita.mercadopago_payment_id.is_(None))
+            .filter(Visita.created_at.isnot(None))
+            .filter(text("TIMESTAMPDIFF(MINUTE, visita.created_at, NOW()) >= :m").bindparams(m=mins))
+            .delete(synchronize_session=False)
+        )
+        if deleted:
+            db.commit()
+            logger.info(
+                "MP cleanup: eliminadas %s reserva(s) pendiente(s) sin pago (>= %s min)",
+                deleted,
+                mins,
+            )
+        return int(deleted or 0)
+    except Exception as e:
+        db.rollback()
+        logger.warning("MP cleanup: error (no bloquea la petición): %s", e)
+        return 0
+
+
 def marcar_visitas_completadas(db: Session) -> None:
+    eliminar_visitas_mp_abandonadas(db)
     ahora = obtener_ahora_local()
     visitas = db.query(Visita).options(joinedload(Visita.servicio)).filter(Visita.estado == "CONFIRMADO").all()
     for v in visitas:
@@ -146,6 +196,7 @@ def asignar_barbero_automatico(db: Session, fecha_hora: datetime, duracion_min: 
     return random.choice(menos_cargados)
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
+    eliminar_visitas_mp_abandonadas(db)
     servicio = db.query(Servicio).filter(Servicio.id_servicio == visita_in.id_servicio).first()
     if not servicio: raise ValueError("Servicio no existe")
 
@@ -256,6 +307,7 @@ def get_visitas_completadas_por_barbero(db: Session, barbero_id: int, fecha: Opt
     return query.order_by(Visita.fecha_hora.desc()).all()
 
 def get_disponibilidad(db: Session, fecha: date, id_servicio: Optional[int], id_barbero: Optional[int] = None, duracion_override: Optional[int] = None):
+    eliminar_visitas_mp_abandonadas(db)
     if duracion_override:
         duracion = duracion_override
     else:

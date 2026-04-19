@@ -1,9 +1,11 @@
 import API_URL from "./api";
+import { networkFailureMessage } from "../utils/apiError";
 
 /**
  * Cliente HTTP centralizado.
  * - Añade Authorization cuando hay token (excepto si requireAuth: false)
  * - Redirige a login en 401
+ * - Fallos de red: lanza Error con mensaje claro
  */
 export async function apiFetch(path, options = {}) {
   const { requireAuth = true, ...fetchOptions } = options;
@@ -15,7 +17,12 @@ export async function apiFetch(path, options = {}) {
     ...fetchOptions.headers,
   };
   const url = path.startsWith("http") ? path : `${API_URL}${path}`;
-  const res = await fetch(url, { ...fetchOptions, headers });
+  let res;
+  try {
+    res = await fetch(url, { ...fetchOptions, headers });
+  } catch (e) {
+    throw new Error(networkFailureMessage(e));
+  }
   if (res.status === 401 && requireAuth) {
     localStorage.removeItem("token");
     window.location.href = "/login-barbero";

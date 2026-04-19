@@ -100,7 +100,10 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
         setShowDuplicate(true);
       } 
       else {
-        alert("Ocurrió un error: " + rawMessage);
+        const msg =
+          (rawMessage && String(rawMessage).trim()) ||
+          "Ocurrió un error inesperado. Reintentá o contactanos si persiste.";
+        alert("Ocurrió un error: " + msg);
       }
     } finally {
       setLoading(false);
