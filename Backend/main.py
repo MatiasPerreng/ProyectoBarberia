@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 
+# Cargar Backend/.env con override antes que core/email u otros (evita MERCADOPAGO_* heredados del sistema).
+import database  # noqa: F401
+
 from fastapi import FastAPI
 
 # Path base del backend (donde está main.py)
@@ -74,17 +77,27 @@ app.mount(
 )
 
 # =======================
-# CORS
+# CORS (mismo criterio que ProyectoBurgers: CORS_ORIGINS + opcional CORS_ORIGIN_REGEX)
+# Si el front abre desde otro host (dominio, IP LAN, túnel), el POST a /visitas/mercadopago/sincronizar
+# falla en el navegador y la BD nunca se actualiza.
 # =======================
+
+_default_cors = (
+    "http://localhost:5173,http://127.0.0.1:5173,"
+    "http://localhost:4173,http://127.0.0.1:4173,"
+    "http://192.168.1.62:5173,http://167.62.53.159:5173,"
+    "http://167.62.232.17:5173,http://186.53.205.51:5173,http://179.27.203.212:5173,"
+    "https://kingbarber.webhop.net,http://kingbarber.webhop.net"
+)
+_cors_raw = os.getenv("CORS_ORIGINS", _default_cors)
+_cors_origins = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+_cors_regex_raw = os.getenv("CORS_ORIGIN_REGEX", "").strip()
+_cors_origin_regex = _cors_regex_raw if _cors_regex_raw else None
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://192.168.1.62:5173",
-        "http://167.62.53.159:5173",
-    ],
+    allow_origins=_cors_origins,
+    allow_origin_regex=_cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

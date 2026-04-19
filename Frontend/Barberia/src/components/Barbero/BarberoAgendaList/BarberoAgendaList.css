@@ -277,6 +277,34 @@
   line-height: 1;
 }
 
+/* Columna derecha: comprobante MP + estado (misma fila, sin sumar alto a la card) */
+.barbero-agenda-item .agenda-aside {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+  align-self: start;
+}
+
+.barbero-agenda-item .agenda-aside-mp {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(240px, 52vw);
+}
+
+.barbero-agenda-item .agenda-aside-mp .mp-comprobante-link {
+  max-width: 100%;
+}
+
+.barbero-agenda-item .agenda-aside .estado {
+  flex: 0 0 auto;
+  margin-top: 0;
+  align-self: center;
+}
+
 /* =======================================================
    ESTADO (BADGE)
 ======================================================= */
@@ -407,6 +435,35 @@
     margin-top: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
+
+  .barbero-agenda-item .agenda-aside {
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    align-self: stretch;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    padding-top: 2px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    margin-top: 2px;
+  }
+
+  .barbero-agenda-item .agenda-aside-mp {
+    max-width: none;
+    flex: 1 1 auto;
+    min-width: min(100%, 280px);
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .barbero-agenda-item .agenda-aside-mp .mp-comprobante-link {
+    justify-content: center;
+  }
+
+  .barbero-agenda-item .agenda-aside .estado {
+    margin-top: 0;
+    flex: 0 0 auto;
+  }
 }
 
 /* EXTRA SMALL — texto "WhatsApp" siempre visible (no solo el ícono) */
@@ -426,6 +483,18 @@
 
   .barbero-agenda-item .agenda-wsp {
     padding: 8px 10px;
+  }
+
+  /* Si no entra en una línea, el comprobante arriba y el estado debajo, alineados a la derecha */
+  .barbero-agenda-item .agenda-aside {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .barbero-agenda-item .agenda-aside-mp {
+    min-width: 0;
+    flex: 1 1 auto;
   }
 }
 

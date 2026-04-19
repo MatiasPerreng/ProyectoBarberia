@@ -51,8 +51,27 @@
 }
 
 .admin-turno-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
   padding: 12px 16px 10px 18px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.admin-turno-head .admin-turno-date-pill {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.admin-turno-head-mp {
+  flex: 0 0 auto;
+  max-width: 52%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .admin-turno-date-pill {
@@ -142,4 +161,44 @@
     grid-template-columns: 1fr;
     padding-right: 42px;
   }
+}
+
+/* Móvil: cabecera en dos líneas — fecha legible, comprobante ancho cómodo */
+@media (max-width: 540px) {
+  .admin-turno-head {
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px 10px 16px;
+  }
+
+  .admin-turno-head .admin-turno-date-pill {
+    flex: 1 1 100%;
+    max-width: 100%;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .admin-turno-head-mp {
+    flex: 1 1 100%;
+    max-width: 100%;
+    justify-content: center;
+  }
+
+  .admin-turno-head-mp .mp-comprobante-link {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+  }
+}
+
+.admin-turno-mp-pending {
+  margin: 0 18px 10px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: rgba(120, 90, 40, 0.95);
+  background: rgba(207, 168, 90, 0.12);
+  border-radius: 10px;
 }

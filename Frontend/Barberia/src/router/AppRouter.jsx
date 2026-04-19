@@ -12,6 +12,7 @@ import TvTurnoPage from "../pages/tv/TvTurnoPage";
 ===================== */
 import HomePage from "../pages/Public/Homepage/Homepage";
 import AgendaPage from "../pages/Public/AgendaPage";
+import AgendaPagoResultado from "../pages/Public/AgendaPagoResultado";
 import LoginBarbero from "../pages/Public/Homepage/LoginBarbero/LoginBarbero";
 
 /* =====================
@@ -52,6 +53,7 @@ export default function AppRouter() {
       ===================== */}
       <Route path="/" element={<HomePage />} />
       <Route path="/agenda" element={<AgendaPage />} />
+      <Route path="/agenda/pago-resultado" element={<AgendaPagoResultado />} />
       <Route path="/login-barbero" element={<LoginBarbero />} />
 
       {/* =====================

@@ -81,12 +81,30 @@ export default function AgendaPage() {
   const handleSubmitTurno = async (datosCliente) => {
     const cliente = await crearCliente(datosCliente);
 
-    await crearVisita({
+    const payload = {
       id_cliente: cliente.id_cliente,
       id_barbero: barberoSeleccionado?.id_barbero ?? null,
       id_servicio: servicioSeleccionado.id_servicio,
       fecha_hora: fechaHoraSeleccionada,
-    });
+    };
+    if (datosCliente.pagoMercadoPago) {
+      payload.medio_pago = "mercadopago";
+    }
+
+    const visita = await crearVisita(payload);
+
+    if (datosCliente.pagoMercadoPago) {
+      if (visita.mercadopago_init_point) {
+        const { mpPendingAgendaSave } = await import("../../services/mercadopagoSync");
+        mpPendingAgendaSave(visita, visita.id_visita);
+        window.location.href = visita.mercadopago_init_point;
+        return false;
+      }
+      const detalle =
+        visita.mercadopago_checkout_error ||
+        "No se pudo obtener el enlace de pago. Reintentá o desmarcá la opción y confirmá sin pago anticipado.";
+      throw new Error(detalle);
+    }
 
     return true;
   };
@@ -121,6 +139,8 @@ export default function AgendaPage() {
         <AgendaForm
           onSubmit={handleSubmitTurno}
           onVolver={handleVolverDesdeForm}
+          servicioNombre={servicioSeleccionado?.nombre}
+          servicioPrecio={servicioSeleccionado?.precio}
         />
       )}
     </>

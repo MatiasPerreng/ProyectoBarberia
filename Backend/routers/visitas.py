@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+import json
+import logging
+from fastapi import APIRouter, Depends, HTTPException, Request, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date, datetime, time, timedelta
@@ -11,6 +13,7 @@ from models import Cliente, Visita # Importamos Cliente para buscar el teléfono
 
 # Importaciones directas de archivos para evitar círculos viciosos de inicialización
 from schemas.visita import VisitaCreate, VisitaOut, VisitaUpdate
+from schemas.mercadopago import MercadoPagoAsociarLinkIn, MercadoPagoSyncIn
 from core.dependencias import get_current_login_barbero, get_current_staff
 from core.email import enviar_email_confirmacion
 from core.email_templates import (
@@ -20,6 +23,8 @@ from core.email_templates import (
 
 # Servicios de WhatsApp
 from services.whatsapp import enviar_recordatorio_whatsapp, enviar_cancelacion_whatsapp
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/visitas",
@@ -49,6 +54,21 @@ def visita_to_out(visita):
     elif visita.servicio and visita.servicio.precio is not None:
         servicio_precio = float(visita.servicio.precio)
 
+    medio = getattr(visita, "medio_pago", None)
+    mp_ref = getattr(visita, "mercadopago_referencia", None)
+    mp_pay = getattr(visita, "mercadopago_payment_id", None)
+    mp_rec = getattr(visita, "mercadopago_receipt_url", None)
+    mp_sell = getattr(visita, "mercadopago_seller_activity_url", None)
+    tok = getattr(visita, "token_seguimiento", None)
+    estado_u = str(getattr(visita, "estado", "") or "").upper()
+    # Igual criterio que pedido en Burgers: mostrar datos MP si el turno es MP o hay datos guardados
+    # (evita que el front/admin reciban null aunque la fila tenga payment_id/referencia).
+    mp_visible = (
+        (medio or "").strip() == "mercadopago"
+        or estado_u == "PENDIENTE_CONFIRMACION_MP"
+        or bool(mp_ref or mp_pay or mp_rec or mp_sell)
+    )
+
     return {
         "id_visita": visita.id_visita,
         "fecha_hora": visita.fecha_hora,
@@ -64,6 +84,16 @@ def visita_to_out(visita):
 
         "barbero_id": visita.barbero.id_barbero if visita.barbero else None,
         "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
+
+        "medio_pago": medio,
+        "mercadopago_referencia": mp_ref if mp_visible else None,
+        "mercadopago_payment_id": mp_pay if mp_visible else None,
+        "mercadopago_receipt_url": mp_rec if mp_visible else None,
+        "mercadopago_seller_activity_url": mp_sell if mp_visible else None,
+        "mercadopago_init_point": None,
+        "mercadopago_preference_id": None,
+        "token_seguimiento": tok if mp_visible else None,
+        "mercadopago_checkout_error": None,
     }
 
 # ======================================================================================
@@ -145,6 +175,13 @@ def crear_visita(
         if not cliente:
             raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
+        if getattr(visita_in, "medio_pago", None) == "mercadopago":
+            if not (cliente.email and str(cliente.email).strip()):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Para pagar con Mercado Pago necesitás un email válido.",
+                )
+
         # 2. VALIDACIÓN DE LISTA NEGRA
         if cliente.telefono:
             tel_limpio = "".join(filter(str.isdigit, cliente.telefono))
@@ -159,9 +196,10 @@ def crear_visita(
 
         # 3. CREAR VISITA
         visita = crud_v.create_visita(db, visita_in)
+        visita = crud_v.get_visita_by_id(db, visita.id_visita) or visita
 
-        # 4. EMAIL DE CONFIRMACIÓN
-        if visita.cliente and visita.cliente.email:
+        # 4. EMAIL DE CONFIRMACIÓN (solo turno ya confirmado; MP pendiente se confirma al pagar)
+        if str(visita.estado).upper() == "CONFIRMADO" and visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
                 visita.cliente.email,
@@ -169,12 +207,100 @@ def crear_visita(
                 generar_email_confirmacion(visita)
             )
 
-        return visita_to_out(visita)
+        out = visita_to_out(visita)
+        if getattr(visita_in, "medio_pago", None) == "mercadopago":
+            init, pref, checkout_err = crud_v.checkout_mercadopago_para_visita(db, visita)
+            out["mercadopago_init_point"] = init
+            out["mercadopago_preference_id"] = pref
+            out["mercadopago_checkout_error"] = checkout_err
+
+        return out
 
     except HTTPException as he:
         raise he
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/mercadopago/sincronizar", response_model=VisitaOut)
+def mercadopago_sincronizar(
+    body: MercadoPagoSyncIn,
+    db: Session = Depends(get_db),
+):
+    from crud import visita as crud_v
+
+    visita, err = crud_v.sincronizar_pago_mercadopago(db, body)
+    if not visita:
+        logger.warning("MP sincronizar visita: %s", err or "sin detalle")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=err or "No se pudo sincronizar el pago.")
+
+    return visita_to_out(visita)
+
+
+@router.post("/mercadopago/asociar-link", response_model=VisitaOut)
+def mercadopago_asociar_link(
+    body: MercadoPagoAsociarLinkIn,
+    db: Session = Depends(get_db),
+):
+    from crud import visita as crud_v
+
+    visita = crud_v.asociar_pago_link_mercadopago(db, body.token_seguimiento, body.payment_id)
+    return visita_to_out(visita)
+
+
+@router.api_route("/mercadopago/webhook", methods=["GET", "POST"])
+async def mercadopago_webhook(request: Request, db: Session = Depends(get_db)):
+    from utils.mercadopago_api import webhook_secret
+    from crud import visita as crud_v
+
+    sec = webhook_secret()
+    if sec and request.query_params.get("s") != sec:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Webhook no autorizado")
+
+    payment_id = None
+    if request.method == "GET":
+        if request.query_params.get("topic") == "payment":
+            payment_id = request.query_params.get("id")
+    else:
+        body = None
+        try:
+            body = await request.json()
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.info("Webhook MP: cuerpo no JSON (%s)", e)
+        if isinstance(body, dict):
+            data = body.get("data")
+            if isinstance(data, dict) and data.get("id") is not None:
+                payment_id = str(data["id"])
+            if not payment_id and body.get("id") is not None:
+                payment_id = str(body["id"])
+
+    if payment_id:
+        try:
+            _v, err = crud_v.sincronizar_pago_mercadopago(
+                db,
+                MercadoPagoSyncIn(payment_id=str(payment_id)),
+            )
+            if not _v and err:
+                logger.warning("Webhook MP: no se actualizó visita (%s)", err)
+        except Exception:
+            logger.exception("Webhook MP: error al sincronizar payment_id=%s", payment_id)
+    else:
+        logger.debug("Webhook MP: sin payment_id (GET/POST)")
+
+    return {"received": True}
+
+
+@router.get("/seguimiento/{token}", response_model=VisitaOut)
+def seguimiento_por_token(token: str, db: Session = Depends(get_db)):
+    from crud import visita as crud_v
+
+    visita = crud_v.obtener_visita_por_token(db, token)
+    if not visita:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Enlace inválido o turno no encontrado",
+        )
+    return visita_to_out(visita)
 
 # ======================================================================================
 # CANCELAR VISITA

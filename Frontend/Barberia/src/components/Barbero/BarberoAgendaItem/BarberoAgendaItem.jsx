@@ -1,5 +1,6 @@
 import getDiaTexto from '../../../../utils/date';
 import whatsappIcon from '../../../assets/icons/whatsapp.svg';
+import MercadoPagoComprobanteLink from '../../MercadoPagoComprobanteLink/MercadoPagoComprobanteLink';
 
 
 const estadoVisualClass = (estado) => {
@@ -17,6 +18,10 @@ const BarberoAgendaItem = ({ turno }) => {
     : null;
 
   const clienteNombre = `${turno.cliente_nombre || ""} ${turno.cliente_apellido || ""}`.trim();
+  const mpPay = turno.mercadopago_payment_id;
+  const mpRef = turno.mercadopago_referencia;
+  const mpReceipt = turno.mercadopago_receipt_url;
+  const hayBloqueMp = mpPay || mpRef || mpReceipt;
   const esHoy = diaTexto === "Hoy";
   const diaMostrar =
     !diaTexto
@@ -83,7 +88,39 @@ const BarberoAgendaItem = ({ turno }) => {
         </div>
       </div>
 
-      <span className="estado">{turno.estado}</span>
+      <div className="agenda-aside">
+        {hayBloqueMp && (
+          <div className="agenda-aside-mp" role="group" aria-label="Comprobante Mercado Pago">
+            {(mpPay || mpRef) && (
+              <MercadoPagoComprobanteLink
+                paymentId={mpPay}
+                referencia={mpRef}
+                className="mp-comprobante-link--agenda mp-comprobante-link--compact-row"
+              />
+            )}
+            {mpReceipt && !(mpPay || mpRef) && (
+              <a
+                href={mpReceipt}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mp-comprobante-link mp-comprobante-link--chip mp-comprobante-link--agenda mp-comprobante-link--compact-row"
+                title="Abrir comprobante en Mercado Pago"
+              >
+                <img
+                  className="mp-comprobante-link__logo"
+                  src="/img/mercadopago-logo.png"
+                  alt=""
+                  width={100}
+                  height={18}
+                  loading="lazy"
+                />
+                <span className="mp-comprobante-link__text">Ver comprobante</span>
+              </a>
+            )}
+          </div>
+        )}
+        <span className="estado">{turno.estado}</span>
+      </div>
     </div>
   );
 };

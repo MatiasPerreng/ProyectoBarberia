@@ -4,7 +4,7 @@ import SuccessModal from "../../SuccessModal/SuccessModal";
 import DuplicateBookingModal from "../../DuplicateBookingModal/DuplicateBookingModal";
 import "./AgendaForm.css";
 
-const AgendaForm = ({ onSubmit, onVolver }) => {
+const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
@@ -12,6 +12,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     telefono: "",
   });
 
+  const [pagoMercadoPago, setPagoMercadoPago] = useState(false);
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDuplicate, setShowDuplicate] = useState(false);
@@ -34,8 +35,13 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     // Validación Apellido
     if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
     
-    // Validación Email (Opcional pero debe ser válido si se escribe)
-    if (form.email.trim() && !validarEmail(form.email)) newErrors.email = "Email inválido";
+    // Email obligatorio si Mercado Pago; si no, opcional pero válido
+    if (pagoMercadoPago) {
+      if (!form.email.trim()) newErrors.email = "El email es obligatorio para pagar con Mercado Pago";
+      else if (!validarEmail(form.email)) newErrors.email = "Email inválido";
+    } else if (form.email.trim() && !validarEmail(form.email)) {
+      newErrors.email = "Email inválido";
+    }
     
     // 🔥 Validación Teléfono OBLIGATORIO
     if (!form.telefono.trim()) {
@@ -60,11 +66,13 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     setLoading(true);
 
     try {
-      await onSubmit({
+      const submitResult = await onSubmit({
         ...form,
         email: form.email.trim() || null,
-        telefono: form.telefono.trim(), // Ya no enviamos null porque es obligatorio
+        telefono: form.telefono.trim(),
+        pagoMercadoPago,
       });
+      if (submitResult === false) return;
       setShowSuccess(true);
     } catch (err) {
       const rawMessage = err?.response?.data?.detail || err?.message || "";
@@ -194,9 +202,44 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                 {errors.apellido && <small className="af-error">{errors.apellido}</small>}
               </div>
 
+              <div className="af-mp-option">
+                <label className="af-mp-option__label">
+                  <input
+                    type="checkbox"
+                    checked={pagoMercadoPago}
+                    onChange={(e) => setPagoMercadoPago(e.target.checked)}
+                  />
+                  <img
+                    className="af-mp-option__logo"
+                    src="/img/mercadopago-logo.png"
+                    alt="Mercado Pago"
+                    width={110}
+                    height={28}
+                    loading="lazy"
+                  />
+                  <span className="af-mp-option__text">Pagar anticipado con Mercado Pago</span>
+                </label>
+                {servicioNombre != null && servicioPrecio != null && servicioPrecio !== "" && (
+                  <p className="af-mp-option__hint">
+                    Monto a pagar: <strong>${Number(servicioPrecio).toFixed(0)}</strong> · {servicioNombre}
+                  </p>
+                )}
+                {pagoMercadoPago && (
+                  <p className="af-mp-option__note">
+                    Te llevamos a Mercado Pago para completar el pago. Al volver, tu turno quedará confirmado.
+                  </p>
+                )}
+              </div>
+
               <div className="af-form-actions">
                 <button type="submit" className="af-btn-confirmar" disabled={loading}>
-                  {loading ? "Agendando..." : "Confirmar turno"}
+                  {loading
+                    ? pagoMercadoPago
+                      ? "Preparando pago..."
+                      : "Agendando..."
+                    : pagoMercadoPago
+                      ? "Continuar al pago"
+                      : "Confirmar turno"}
                 </button>
               </div>
             </form>

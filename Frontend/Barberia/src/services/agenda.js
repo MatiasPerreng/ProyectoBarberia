@@ -3,6 +3,17 @@ import API_URL from "./api";
 /* =========================
    CREAR VISITA
 ========================= */
+function formatApiError(err) {
+  const d = err?.detail;
+  if (typeof d === "string") return d;
+  if (Array.isArray(d)) {
+    return d
+      .map((x) => (x && typeof x === "object" && "msg" in x ? x.msg : String(x)))
+      .join(" ");
+  }
+  return "Error al crear visita";
+}
+
 export async function crearVisita(data) {
   const res = await fetch(`${API_URL}/visitas/`, {
     method: "POST",
@@ -13,8 +24,8 @@ export async function crearVisita(data) {
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Error al crear visita");
+    const err = await res.json().catch(() => ({}));
+    throw new Error(formatApiError(err));
   }
 
   return await res.json();

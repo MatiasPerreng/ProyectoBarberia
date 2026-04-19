@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getAdminDashboard } from "../../../services/dashboard";
+import { getAdminDashboard, getAdminMpVisitasPendientesSync } from "../../../services/dashboard";
+import { sincronizarPagoMercadoPagoPorVisitaConReintentos } from "../../../services/mercadopagoSync";
 
 import DashboardCards from "../../../components/Admin/AdminDashboard/DashboardCards";
 import DashboardDrawer from "../../../components/Admin/AdminDashboard/DashboardDrawer";
@@ -8,6 +9,8 @@ import DashboardDrawer from "../../../components/Admin/AdminDashboard/DashboardD
 import "./AdminDashboard.css";
 
 const DASHBOARD_POLL_MS = 45_000;
+/** Igual que Burgers/AdminPage: sincronizar MP mientras el panel está abierto. */
+const MP_ADMIN_SYNC_MS = 25_000;
 
 const AdminDashboard = () => {
   const location = useLocation();
@@ -54,6 +57,36 @@ const AdminDashboard = () => {
     const id = setInterval(() => {
       refreshStats(true);
     }, DASHBOARD_POLL_MS);
+    return () => clearInterval(id);
+  }, [location.pathname, refreshStats]);
+
+  /* Sin webhook / sin volver del checkout: consulta MP por id de visita (external_reference) como Burgers. */
+  useEffect(() => {
+    if (location.pathname !== "/admin") return;
+
+    const runSync = () => {
+      void (async () => {
+        let huboOk = false;
+        try {
+          const { ids } = await getAdminMpVisitasPendientesSync();
+          if (!Array.isArray(ids) || !ids.length) return;
+          for (const idVisita of ids) {
+            const r = await sincronizarPagoMercadoPagoPorVisitaConReintentos(idVisita);
+            if (r.ok && (r.data?.mercadopago_payment_id || r.data?.mercadopago_referencia)) {
+              huboOk = true;
+            }
+          }
+        } catch {
+          /* red o backend */
+        }
+        if (huboOk) {
+          refreshStats(true);
+        }
+      })();
+    };
+
+    runSync();
+    const id = setInterval(runSync, MP_ADMIN_SYNC_MS);
     return () => clearInterval(id);
   }, [location.pathname, refreshStats]);
 

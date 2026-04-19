@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../../../../services/apiClient";
+import { visitaDebeSincronizarMp } from "../../../../services/mercadopagoSync";
+import MercadoPagoComprobanteLink from "../../../MercadoPagoComprobanteLink/MercadoPagoComprobanteLink";
 import TurnoActions from "../TurnoActions";
 import "./TurnosList.css";
 
@@ -136,6 +138,43 @@ const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
               <span className="admin-turno-date-pill">
                 {fechaTexto} · {hora} hs
               </span>
+              {(t.mercadopago_payment_id ||
+                t.mercadopago_referencia ||
+                t.mercadopago_receipt_url) && (
+                <div
+                  className="admin-turno-head-mp"
+                  role="group"
+                  aria-label="Comprobante Mercado Pago"
+                >
+                  {(t.mercadopago_payment_id || t.mercadopago_referencia) && (
+                    <MercadoPagoComprobanteLink
+                      paymentId={t.mercadopago_payment_id}
+                      referencia={t.mercadopago_referencia}
+                      className="mp-comprobante-link--agenda mp-comprobante-link--compact-row"
+                    />
+                  )}
+                  {t.mercadopago_receipt_url &&
+                    !(t.mercadopago_payment_id || t.mercadopago_referencia) && (
+                      <a
+                        href={t.mercadopago_receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mp-comprobante-link mp-comprobante-link--chip mp-comprobante-link--agenda mp-comprobante-link--compact-row"
+                        title="Abrir comprobante en Mercado Pago"
+                      >
+                        <img
+                          className="mp-comprobante-link__logo"
+                          src="/img/mercadopago-logo.png"
+                          alt=""
+                          width={100}
+                          height={18}
+                          loading="lazy"
+                        />
+                        <span className="mp-comprobante-link__text">Ver comprobante</span>
+                      </a>
+                    )}
+                </div>
+              )}
             </div>
             <div className="admin-turno-body">
               <div className="admin-turno-col">
@@ -151,6 +190,14 @@ const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
                 <p className="admin-turno-barbero">{t.barbero || "—"}</p>
               </div>
             </div>
+            {!t.mercadopago_payment_id &&
+              !t.mercadopago_referencia &&
+              !t.mercadopago_receipt_url &&
+              visitaDebeSincronizarMp(t) && (
+                <p className="admin-turno-mp-pending" role="status">
+                  MP: sin n° de operación aún — con el dashboard abierto se consulta Mercado Pago cada ~25 s.
+                </p>
+              )}
             {showActions && (
               <TurnoActions turno={t} onCancelSuccess={handleCancelSuccess} />
             )}
