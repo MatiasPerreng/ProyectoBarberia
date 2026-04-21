@@ -100,6 +100,7 @@ def crear_preferencia_checkout_pro(
     total: Decimal,
     titulo: str,
     payer_email: Optional[str],
+    return_base: Optional[str] = None,
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
     Crea una preferencia Checkout Pro. Devuelve (init_point, preference_id, error).
@@ -108,7 +109,11 @@ def crear_preferencia_checkout_pro(
     if not mp_token_configurado():
         return None, None, "Token MP no configurado"
 
-    front = frontend_base_url().rstrip("/")
+    rb = (return_base or "").strip().rstrip("/")
+    if rb.startswith(("http://", "https://")) and len(rb) <= 512:
+        front = rb
+    else:
+        front = frontend_base_url().rstrip("/")
     retorno = f"{front}/agenda/pago-resultado"
     body: Dict[str, Any] = {
         "items": [

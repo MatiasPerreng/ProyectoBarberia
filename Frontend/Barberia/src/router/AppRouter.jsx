@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import MercadoPagoReturnRecovery from "../components/MercadoPagoReturnRecovery/MercadoPagoReturnRecovery";
 
 
 /* =====================
@@ -47,6 +48,8 @@ import ProtectedRoute from "../router/ProtectedRoute";
 
 export default function AppRouter() {
   return (
+    <>
+      <MercadoPagoReturnRecovery />
     <Routes>
       {/* =====================
           PUBLIC
@@ -230,5 +233,6 @@ export default function AppRouter() {
 
       <Route path="/tv" element={<TvTurnoPage />} />
     </Routes>
+    </>
   );
 }

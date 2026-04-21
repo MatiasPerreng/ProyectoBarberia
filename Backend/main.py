@@ -1,9 +1,12 @@
+import asyncio
 import logging
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 # Cargar Backend/.env con override antes que core/email u otros (evita MERCADOPAGO_* heredados del sistema).
 import database  # noqa: F401
+from database import SessionLocal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
@@ -13,6 +16,42 @@ from fastapi.responses import JSONResponse
 BASE_DIR = Path(__file__).resolve().parent
 
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Cancela visitas MP pendientes vencidas aunque no haya tráfico HTTP (polling cada N segundos)."""
+
+    async def mp_cleanup_loop() -> None:
+        raw = os.getenv("MERCADOPAGO_CLEANUP_INTERVAL_SEC", "45").strip()
+        try:
+            interval = max(15, int(raw))
+        except ValueError:
+            interval = 45
+        await asyncio.sleep(3)
+        while True:
+            db = SessionLocal()
+            try:
+                from crud.visita import cancelar_visitas_mp_abandonadas
+
+                n = cancelar_visitas_mp_abandonadas(db)
+                if n:
+                    logger.info("MP cleanup (background): canceladas %s visita(s) pendientes de pago", n)
+            except Exception:
+                logger.exception("MP cleanup (background)")
+            finally:
+                db.close()
+            await asyncio.sleep(interval)
+
+    task = asyncio.create_task(mp_cleanup_loop())
+    yield
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
+
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -35,6 +74,7 @@ from routers import (
 app = FastAPI(
     title="API Barbería",
     version="1.0.0",
+    lifespan=_lifespan,
 )
 
 

@@ -138,23 +138,19 @@ const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
               <span className="admin-turno-date-pill">
                 {fechaTexto} · {hora} hs
               </span>
-              {(t.mercadopago_payment_id ||
-                t.mercadopago_referencia ||
-                t.mercadopago_receipt_url) && (
+              {(t.mercadopago_payment_id || t.mercadopago_receipt_url) && (
                 <div
                   className="admin-turno-head-mp"
                   role="group"
                   aria-label="Comprobante Mercado Pago"
                 >
-                  {(t.mercadopago_payment_id || t.mercadopago_referencia) && (
+                  {t.mercadopago_payment_id && (
                     <MercadoPagoComprobanteLink
                       paymentId={t.mercadopago_payment_id}
-                      referencia={t.mercadopago_referencia}
                       className="mp-comprobante-link--agenda mp-comprobante-link--compact-row"
                     />
                   )}
-                  {t.mercadopago_receipt_url &&
-                    !(t.mercadopago_payment_id || t.mercadopago_referencia) && (
+                  {t.mercadopago_receipt_url && !t.mercadopago_payment_id && (
                       <a
                         href={t.mercadopago_receipt_url}
                         target="_blank"
@@ -191,7 +187,6 @@ const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
               </div>
             </div>
             {!t.mercadopago_payment_id &&
-              !t.mercadopago_referencia &&
               !t.mercadopago_receipt_url &&
               visitaDebeSincronizarMp(t) && (
                 <p className="admin-turno-mp-pending" role="status">

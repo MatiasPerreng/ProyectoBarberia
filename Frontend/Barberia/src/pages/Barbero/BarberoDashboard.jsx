@@ -47,7 +47,6 @@ const BarberoDashboard = () => {
 
           medio_pago: v.medio_pago,
           mercadopago_payment_id: v.mercadopago_payment_id,
-          mercadopago_referencia: v.mercadopago_referencia,
           mercadopago_receipt_url: v.mercadopago_receipt_url,
           mercadopago_seller_activity_url: v.mercadopago_seller_activity_url,
         }));

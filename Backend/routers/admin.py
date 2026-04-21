@@ -85,7 +85,6 @@ def admin_mercadopago_visitas_pendientes_sync(
             Visita.estado.ilike("pendiente_confirmacion_mp"),
             or_(Visita.medio_pago.is_(None), Visita.medio_pago == "mercadopago"),
             Visita.mercadopago_payment_id.is_(None),
-            Visita.mercadopago_referencia.is_(None),
         )
         .order_by(Visita.id_visita.asc())
         .all()
@@ -159,7 +158,6 @@ def admin_turnos(
             "estado": t.estado.upper(),
             "medio_pago": t.medio_pago,
             "mercadopago_payment_id": t.mercadopago_payment_id,
-            "mercadopago_referencia": t.mercadopago_referencia,
             "mercadopago_receipt_url": getattr(t, "mercadopago_receipt_url", None),
             "mercadopago_seller_activity_url": getattr(t, "mercadopago_seller_activity_url", None),
         }

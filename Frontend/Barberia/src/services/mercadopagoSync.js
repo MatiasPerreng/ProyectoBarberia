@@ -19,7 +19,7 @@ export function visitaDebeSincronizarMp(v) {
   if (!v) return false;
   const st = String(v.estado || "").toUpperCase();
   if (st !== "PENDIENTE_CONFIRMACION_MP") return false;
-  if (v.mercadopago_payment_id || v.mercadopago_referencia) return false;
+  if (v.mercadopago_payment_id) return false;
   if (v.mercadopago_receipt_url) return false;
   if (v.medio_pago && v.medio_pago !== "mercadopago") return false;
   return true;
@@ -48,7 +48,7 @@ export async function sincronizarPagoMercadoPagoPorVisitaConReintentos(idVisita)
   for (let i = 0; i < delays.length; i++) {
     if (delays[i]) await new Promise((r) => setTimeout(r, delays[i]));
     const r = await sincronizarPagoMercadoPagoPorVisita(idVisita);
-    if (r.ok && (r.data?.mercadopago_payment_id || r.data?.mercadopago_referencia)) return r;
+    if (r.ok && r.data?.mercadopago_payment_id) return r;
   }
   return sincronizarPagoMercadoPagoPorVisita(idVisita);
 }
@@ -78,7 +78,7 @@ export async function sincronizarVisitaMercadoPagoCompletoConReintentos(syncBody
   for (let i = 0; i < delays.length; i++) {
     if (delays[i]) await new Promise((r) => setTimeout(r, delays[i]));
     const r = await sincronizarVisitaMercadoPagoCompleto(syncBody);
-    if (r.ok && (r.data?.mercadopago_payment_id || r.data?.mercadopago_referencia)) {
+    if (r.ok && r.data?.mercadopago_payment_id) {
       return r;
     }
   }
@@ -122,8 +122,23 @@ export function mpPendingAgendaSave(visitaSnapshot, idVisita) {
         idVisita,
         phase: "checkout",
         startedAt: Date.now(),
+        /** Solo true justo antes de ir a MP: evita sync “en falso” si otro efecto corre antes del redirect. */
+        readyForReturnSync: false,
       }),
     );
+  } catch {
+    /* */
+  }
+}
+
+/** Llamar inmediatamente antes de `window.location.href = init_point` (usuario ya va al checkout de MP). */
+export function mpPendingMarkDepartedToMercadoPago() {
+  try {
+    const raw = sessionStorage.getItem(MP_SESSION_KEY);
+    if (!raw) return;
+    const p = JSON.parse(raw);
+    p.readyForReturnSync = true;
+    sessionStorage.setItem(MP_SESSION_KEY, JSON.stringify(p));
   } catch {
     /* */
   }

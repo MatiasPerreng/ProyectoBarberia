@@ -19,9 +19,8 @@ const BarberoAgendaItem = ({ turno }) => {
 
   const clienteNombre = `${turno.cliente_nombre || ""} ${turno.cliente_apellido || ""}`.trim();
   const mpPay = turno.mercadopago_payment_id;
-  const mpRef = turno.mercadopago_referencia;
   const mpReceipt = turno.mercadopago_receipt_url;
-  const hayBloqueMp = mpPay || mpRef || mpReceipt;
+  const hayBloqueMp = mpPay || mpReceipt;
   const esHoy = diaTexto === "Hoy";
   const diaMostrar =
     !diaTexto
@@ -91,14 +90,13 @@ const BarberoAgendaItem = ({ turno }) => {
       <div className="agenda-aside">
         {hayBloqueMp && (
           <div className="agenda-aside-mp" role="group" aria-label="Comprobante Mercado Pago">
-            {(mpPay || mpRef) && (
+            {mpPay && (
               <MercadoPagoComprobanteLink
                 paymentId={mpPay}
-                referencia={mpRef}
                 className="mp-comprobante-link--agenda mp-comprobante-link--compact-row"
               />
             )}
-            {mpReceipt && !(mpPay || mpRef) && (
+            {mpReceipt && !mpPay && (
               <a
                 href={mpReceipt}
                 target="_blank"

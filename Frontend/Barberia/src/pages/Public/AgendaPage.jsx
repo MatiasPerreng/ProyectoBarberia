@@ -89,14 +89,18 @@ export default function AgendaPage() {
     };
     if (datosCliente.pagoMercadoPago) {
       payload.medio_pago = "mercadopago";
+      payload.frontend_return_base = window.location.origin;
     }
 
     const visita = await crearVisita(payload);
 
     if (datosCliente.pagoMercadoPago) {
       if (visita.mercadopago_init_point) {
-        const { mpPendingAgendaSave } = await import("../../services/mercadopagoSync");
+        const { mpPendingAgendaSave, mpPendingMarkDepartedToMercadoPago } = await import(
+          "../../services/mercadopagoSync"
+        );
         mpPendingAgendaSave(visita, visita.id_visita);
+        mpPendingMarkDepartedToMercadoPago();
         window.location.href = visita.mercadopago_init_point;
         return false;
       }

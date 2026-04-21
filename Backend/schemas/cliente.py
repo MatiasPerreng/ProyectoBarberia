@@ -7,11 +7,12 @@ class ClienteBase(BaseModel):
     nombre: str
     apellido: str
     telefono: Optional[str] = None
-    email: Optional[EmailStr] = None
 
 
 class ClienteCreate(ClienteBase):
-    pass
+    """Alta desde agenda pública: email obligatorio."""
+
+    email: EmailStr
 
 
 class ClienteUpdate(BaseModel):
@@ -23,7 +24,8 @@ class ClienteUpdate(BaseModel):
 
 class ClienteOut(ClienteBase):
     id_cliente: int
-    created_at: Optional[datetime.datetime]
+    email: Optional[EmailStr] = None
+    created_at: Optional[datetime.datetime] = None
 
     class Config:
         from_attributes = True

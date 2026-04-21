@@ -27,7 +27,7 @@ export default function AdminMercadoPagoPolling() {
           if (!Array.isArray(ids) || !ids.length) return;
           for (const idVisita of ids) {
             const r = await sincronizarPagoMercadoPagoPorVisitaConReintentos(idVisita);
-            if (r.ok && (r.data?.mercadopago_payment_id || r.data?.mercadopago_referencia)) {
+            if (r.ok && r.data?.mercadopago_payment_id) {
               huboOk = true;
             }
           }

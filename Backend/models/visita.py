@@ -38,6 +38,13 @@ class Visita(Base):
         server_default=text("0")  # En MySQL/MariaDB 0 es False
     )
 
+    # Evita reenviar el mail de "pagaste pero el horario ya estaba tomado" (sync + creación de la reserva que ocupa).
+    mp_conflicto_aviso_enviado: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        server_default=text("0"),
+    )
+
     estado: Mapped[Optional[str]] = mapped_column(
         Enum(
             "CONFIRMADO",
@@ -49,7 +56,6 @@ class Visita(Base):
     )
 
     medio_pago: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    mercadopago_referencia: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     mercadopago_payment_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     mercadopago_receipt_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     mercadopago_seller_activity_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)

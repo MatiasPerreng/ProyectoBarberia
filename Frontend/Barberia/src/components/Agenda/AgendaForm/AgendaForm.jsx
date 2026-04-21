@@ -35,11 +35,9 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
     // Validación Apellido
     if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
     
-    // Email obligatorio si Mercado Pago; si no, opcional pero válido
-    if (pagoMercadoPago) {
-      if (!form.email.trim()) newErrors.email = "El email es obligatorio para pagar con Mercado Pago";
-      else if (!validarEmail(form.email)) newErrors.email = "Email inválido";
-    } else if (form.email.trim() && !validarEmail(form.email)) {
+    if (!form.email.trim()) {
+      newErrors.email = "El email es obligatorio";
+    } else if (!validarEmail(form.email)) {
       newErrors.email = "Email inválido";
     }
     
@@ -68,7 +66,7 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
     try {
       const submitResult = await onSubmit({
         ...form,
-        email: form.email.trim() || null,
+        email: form.email.trim(),
         telefono: form.telefono.trim(),
         pagoMercadoPago,
       });
@@ -155,11 +153,13 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
 
             <form className="af-form-grid" onSubmit={handleSubmit} noValidate>
               <div className="af-form-group">
-                <label>Email</label>
+                <label>Email *</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="ejemplo@correo.com"
+                  required
+                  autoComplete="email"
                   value={form.email}
                   onChange={handleChange}
                   className={errors.email ? "af-input-error" : ""}

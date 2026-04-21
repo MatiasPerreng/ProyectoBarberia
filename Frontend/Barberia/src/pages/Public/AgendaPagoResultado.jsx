@@ -39,7 +39,7 @@ export default function AgendaPagoResultado() {
   useEffect(() => {
     const v = state.visita;
     if (!v || broadcastHecho.current) return;
-    if (!v.mercadopago_payment_id && !v.mercadopago_referencia) return;
+    if (!v.mercadopago_payment_id) return;
     broadcastHecho.current = true;
     try {
       const bc = new BroadcastChannel(MP_BROADCAST_NAME);
@@ -143,16 +143,13 @@ export default function AgendaPagoResultado() {
                 Turno <strong>#{state.visita.id_visita}</strong> · Estado:{" "}
                 <strong>{state.visita.estado}</strong>
               </p>
-              {(state.visita.mercadopago_payment_id || state.visita.mercadopago_referencia) && (
+              {state.visita.mercadopago_payment_id && (
                 <p className="agenda-mp-comp mb-2">
-                  <MercadoPagoComprobanteLink
-                    paymentId={state.visita.mercadopago_payment_id}
-                    referencia={state.visita.mercadopago_referencia}
-                  />
+                  <MercadoPagoComprobanteLink paymentId={state.visita.mercadopago_payment_id} />
                 </p>
               )}
               {state.visita.mercadopago_receipt_url &&
-                !(state.visita.mercadopago_payment_id || state.visita.mercadopago_referencia) && (
+                !state.visita.mercadopago_payment_id && (
                   <p className="small mb-2">
                     <a href={state.visita.mercadopago_receipt_url} target="_blank" rel="noopener noreferrer">
                       Ver comprobante (PDF)

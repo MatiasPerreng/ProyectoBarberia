@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import text, or_
+from sqlalchemy import or_
 from typing import Optional, List, Dict, Tuple, Any
 from datetime import datetime, timedelta, time, date
 import decimal
@@ -67,6 +67,48 @@ def overlaps(inicio_a: datetime, fin_a: datetime, inicio_b: datetime, fin_b: dat
     """Detecta si dos rangos de tiempo se solapan."""
     return inicio_a < fin_b and fin_a > inicio_b
 
+
+def _hay_conflicto_turno_activo(
+    db: Session,
+    id_barbero: int,
+    inicio_turno: datetime,
+    duracion_min: int,
+    excluir_id_visita: int,
+) -> bool:
+    """Otro turno CONFIRMADO o PENDIENTE_CONFIRMACION_MP del mismo barbero solapa con este horario."""
+    # Camino rápido: mismo barbero y misma fecha_hora (otro cliente tomó exactamente ese hueco).
+    misma_hora = (
+        db.query(Visita.id_visita)
+        .filter(Visita.id_barbero == id_barbero)
+        .filter(Visita.id_visita != excluir_id_visita)
+        .filter(Visita.estado.in_(("CONFIRMADO", "PENDIENTE_CONFIRMACION_MP")))
+        .filter(Visita.fecha_hora == inicio_turno)
+        .first()
+    )
+    if misma_hora:
+        return True
+
+    fin_turno = inicio_turno + timedelta(minutes=duracion_min)
+    inicio_dia = datetime.combine(inicio_turno.date(), time.min)
+    fin_dia = datetime.combine(inicio_turno.date(), time.max)
+    otras = (
+        db.query(Visita)
+        .options(joinedload(Visita.servicio))
+        .filter(Visita.id_barbero == id_barbero)
+        .filter(Visita.fecha_hora >= inicio_dia, Visita.fecha_hora <= fin_dia)
+        .filter(Visita.id_visita != excluir_id_visita)
+        .filter(Visita.estado.in_(("CONFIRMADO", "PENDIENTE_CONFIRMACION_MP")))
+        .all()
+    )
+    for v in otras:
+        v_dur = v.servicio.duracion_min if v.servicio else 30
+        v_inicio = v.fecha_hora
+        v_fin = v_inicio + timedelta(minutes=v_dur)
+        if overlaps(inicio_turno, fin_turno, v_inicio, v_fin):
+            return True
+    return False
+
+
 def validar_conflicto_descanso(inicio_slot: datetime, duracion_min: int, inicio_desc_str: Optional[str], fin_desc_str: Optional[str]) -> bool:
     """Verifica si el servicio invade el horario de descanso."""
     if not inicio_desc_str or not fin_desc_str:
@@ -99,7 +141,7 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
 # ======================================================================================
 
 def _minutos_expiracion_reserva_mp() -> int:
-    """Umbral para liberar turnos MP abandonados (sin id de pago en BD). Config: MERCADOPAGO_RESERVA_MINUTOS."""
+    """Umbral para cancelar turnos MP abandonados (sin id de pago en BD). Config: MERCADOPAGO_RESERVA_MINUTOS."""
     raw = os.getenv("MERCADOPAGO_RESERVA_MINUTOS", "15").strip()
     try:
         n = int(raw)
@@ -108,37 +150,40 @@ def _minutos_expiracion_reserva_mp() -> int:
     return max(5, min(n, 180))
 
 
-def eliminar_visitas_mp_abandonadas(db: Session) -> int:
+def cancelar_visitas_mp_abandonadas(db: Session) -> int:
     """
-    Elimina reservas en PENDIENTE_CONFIRMACION_MP cuando no hubo pago iniciado en MP
-    (sin mercadopago_payment_id) tras el umbral en minutos. Libera el horario para otros clientes.
+    Marca como CANCELADO las visitas que siguen en PENDIENTE_CONFIRMACION_MP pasado el umbral:
+    no hubo pago **aprobado** (el estado no pasó a CONFIRMADO).
 
-    No borra filas que ya tengan id de pago (pago en curso o pendiente de acreditación en MP),
-    para no romper la asociación pago–visita cuando el webhook/sync llega tarde.
+    Incluye el caso en que Mercado Pago ya creó un pago ``pending`` y guardamos ``mercadopago_payment_id``:
+    si el usuario no termina de pagar, el estado sigue pendiente y aquí se cancela igual.
+
+    Criterio de tiempo: ``created_at`` (Uruguay, ``obtener_ahora_local()`` al crear la visita) <= ahora − umbral.
 
     Importante: no invocar esta función inmediatamente antes de sincronizar_pago_mercadopago ni en el
-    webhook de MP: un usuario puede tardar > umbral en el checkout y aún así pagar; borrar antes
-    rompería la asociación. Usar solo en disponibilidad, crear visita, marcar completadas, etc.
+    webhook de MP: un usuario puede tardar > umbral en el checkout y aún así pagar; cancelar antes
+    rompería la asociación. Usar solo en disponibilidad, crear visita, marcar completadas, o el loop en background.
     """
     mins = _minutos_expiracion_reserva_mp()
+    ahora_uy = obtener_ahora_local()
+    cutoff = ahora_uy - timedelta(minutes=mins)
     try:
-        deleted = (
+        updated = (
             db.query(Visita)
             .filter(Visita.estado == "PENDIENTE_CONFIRMACION_MP")
             .filter(or_(Visita.medio_pago == "mercadopago", Visita.medio_pago.is_(None)))
-            .filter(Visita.mercadopago_payment_id.is_(None))
             .filter(Visita.created_at.isnot(None))
-            .filter(text("TIMESTAMPDIFF(MINUTE, visita.created_at, NOW()) >= :m").bindparams(m=mins))
-            .delete(synchronize_session=False)
+            .filter(Visita.created_at <= cutoff)
+            .update({Visita.estado: "CANCELADO"}, synchronize_session=False)
         )
-        if deleted:
+        if updated:
             db.commit()
             logger.info(
-                "MP cleanup: eliminadas %s reserva(s) pendiente(s) sin pago (>= %s min)",
-                deleted,
+                "MP cleanup: canceladas %s reserva(s) pendiente(s) sin pago (>= %s min)",
+                updated,
                 mins,
             )
-        return int(deleted or 0)
+        return int(updated or 0)
     except Exception as e:
         db.rollback()
         logger.warning("MP cleanup: error (no bloquea la petición): %s", e)
@@ -146,7 +191,7 @@ def eliminar_visitas_mp_abandonadas(db: Session) -> int:
 
 
 def marcar_visitas_completadas(db: Session) -> None:
-    eliminar_visitas_mp_abandonadas(db)
+    cancelar_visitas_mp_abandonadas(db)
     ahora = obtener_ahora_local()
     visitas = db.query(Visita).options(joinedload(Visita.servicio)).filter(Visita.estado == "CONFIRMADO").all()
     for v in visitas:
@@ -196,7 +241,7 @@ def asignar_barbero_automatico(db: Session, fecha_hora: datetime, duracion_min: 
     return random.choice(menos_cargados)
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
-    eliminar_visitas_mp_abandonadas(db)
+    cancelar_visitas_mp_abandonadas(db)
     servicio = db.query(Servicio).filter(Servicio.id_servicio == visita_in.id_servicio).first()
     if not servicio: raise ValueError("Servicio no existe")
 
@@ -219,6 +264,12 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
     hora_solicitada = visita_in.fecha_hora.strftime("%H:%M")
     
     if hora_solicitada not in disponibilidad_actual["turnos"]:
+        logger.info(
+            "crear_visita: hueco ya ocupado (no es flujo MP conflicto). cliente=%s barbero=%s fecha_hora=%s",
+            visita_in.id_cliente,
+            visita_in.id_barbero,
+            visita_in.fecha_hora,
+        )
         raise ValueError("Lo sentimos, alguien se agendó ese turno segundos antes que vos.")
 
     if visita_in.id_barbero is None:
@@ -235,6 +286,8 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
         estado="PENDIENTE_CONFIRMACION_MP" if mp else "CONFIRMADO",
         medio_pago="mercadopago" if mp else None,
         token_seguimiento=secrets.token_urlsafe(16) if mp else None,
+        # Misma hora Uruguay que usa cancelar_visitas_mp_abandonadas (no depender solo del default MySQL).
+        created_at=obtener_ahora_local(),
     )
     db.add(visita)
     try:
@@ -246,6 +299,15 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
             _lanzar_si_falta_estado_mp_en_mysql(e)
         raise
     db.refresh(visita)
+    visita = get_visita_by_id(db, visita.id_visita) or visita
+    try:
+        _notificar_cancelados_mp_si_nuevo_turno_ocupa_slot(db, visita)
+    except Exception as e:
+        logger.exception("MP: notificación conflicto tras crear visita (no bloquea la reserva): %s", e)
+        try:
+            db.rollback()
+        except Exception:
+            pass
     return visita
 
 def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visita:
@@ -307,7 +369,7 @@ def get_visitas_completadas_por_barbero(db: Session, barbero_id: int, fecha: Opt
     return query.order_by(Visita.fecha_hora.desc()).all()
 
 def get_disponibilidad(db: Session, fecha: date, id_servicio: Optional[int], id_barbero: Optional[int] = None, duracion_override: Optional[int] = None):
-    eliminar_visitas_mp_abandonadas(db)
+    cancelar_visitas_mp_abandonadas(db)
     if duracion_override:
         duracion = duracion_override
     else:
@@ -494,6 +556,85 @@ def _pago_mp_pendiente(pay: dict) -> bool:
     return st in ("pending", "in_process", "in_mediation")
 
 
+def _enviar_aviso_conflicto_horario_ocupado_y_marcar(
+    db: Session,
+    visita: Visita,
+    payment_id: str,
+) -> None:
+    """Envía el mail de conflicto MP y persiste mp_conflicto_aviso_enviado para no duplicar."""
+    if getattr(visita, "mp_conflicto_aviso_enviado", False):
+        logger.info("MP conflicto: aviso ya enviado (omitido) visita=%s", visita.id_visita)
+        return
+    from services.mp_conflicto_notificacion import enviar_aviso_pago_horario_ocupado_sync
+
+    enviar_aviso_pago_horario_ocupado_sync(visita, payment_id)
+    visita.mp_conflicto_aviso_enviado = True
+    db.add(visita)
+    db.commit()
+
+
+def _notificar_cancelados_mp_si_nuevo_turno_ocupa_slot(db: Session, visita_nueva: Visita) -> None:
+    """
+    Cuando una reserva CONFIRMADA / PENDIENTE_MP ocupa un horario, revisa turnos CANCELADO (MP)
+    solapados: si en Mercado Pago ya hay pago aprobado para ese id_visita y la sync no corrió,
+    envía el mismo aviso por correo (no depende de POST /mercadopago/sincronizar).
+    """
+    from utils import mercadopago_api as mp_api
+
+    if not mp_api.mp_token_configurado():
+        return
+    st_n = str(visita_nueva.estado or "").upper()
+    if st_n not in ("CONFIRMADO", "PENDIENTE_CONFIRMACION_MP"):
+        return
+    if not visita_nueva.servicio:
+        return
+
+    inicio_n = visita_nueva.fecha_hora
+    dur_n = visita_nueva.servicio.duracion_min
+    fin_n = inicio_n + timedelta(minutes=dur_n)
+    inicio_dia = datetime.combine(inicio_n.date(), time.min)
+    fin_dia = datetime.combine(inicio_n.date(), time.max)
+
+    cancelados = (
+        db.query(Visita)
+        .options(joinedload(Visita.servicio), joinedload(Visita.cliente))
+        .filter(Visita.id_barbero == visita_nueva.id_barbero)
+        .filter(Visita.estado == "CANCELADO")
+        .filter(Visita.id_visita != visita_nueva.id_visita)
+        .filter(Visita.fecha_hora >= inicio_dia, Visita.fecha_hora <= fin_dia)
+        .filter(or_(Visita.medio_pago == "mercadopago", Visita.token_seguimiento.isnot(None)))
+        .filter(Visita.mp_conflicto_aviso_enviado.is_(False))
+        .all()
+    )
+    for cand in cancelados:
+        v_dur = cand.servicio.duracion_min if cand.servicio else 30
+        v_inicio = cand.fecha_hora
+        v_fin = v_inicio + timedelta(minutes=v_dur)
+        if not overlaps(inicio_n, fin_n, v_inicio, v_fin):
+            continue
+        pay = mp_api.buscar_ultimo_pago_por_external_reference(str(cand.id_visita))
+        if not pay or not _pago_mp_aprobado(pay):
+            continue
+        if not _pago_mercadopago_coincide_con_visita(cand, pay):
+            continue
+        try:
+            _enviar_aviso_conflicto_horario_ocupado_y_marcar(
+                db, cand, str(pay.get("id", ""))
+            )
+            logger.info(
+                "MP conflicto: correo tras nueva reserva que ocupa hueco (cancelada=%s nueva=%s)",
+                cand.id_visita,
+                visita_nueva.id_visita,
+            )
+        except Exception as e:
+            logger.exception(
+                "MP conflicto: falló aviso post-reserva visita_cancelada=%s err=%s",
+                cand.id_visita,
+                e,
+            )
+            db.rollback()
+
+
 def _volcar_estado_pago_mp_en_visita(
     visita: Visita,
     pay: dict,
@@ -522,17 +663,17 @@ def _volcar_estado_pago_mp_en_visita(
 
     if _pago_mp_aprobado(pay):
         visita.mercadopago_payment_id = pay_id_str
-        visita.mercadopago_referencia = pay_id_str
-        if str(visita.estado or "").upper() == "PENDIENTE_CONFIRMACION_MP":
+        est_u = str(visita.estado or "").upper()
+        # PENDIENTE: flujo normal. CANCELADO: reactivación tras pago aprobado (slot libre, v. sincronizar/asociar).
+        if est_u in ("PENDIENTE_CONFIRMACION_MP", "CANCELADO"):
             visita.estado = "CONFIRMADO"
     elif _pago_mp_pendiente(pay):
         if not visita.mercadopago_payment_id:
             visita.mercadopago_payment_id = pay_id_str
-            visita.mercadopago_referencia = pay_id_str
     else:
         if not visita.mercadopago_payment_id:
             visita.mercadopago_payment_id = pay_id_str
-            visita.mercadopago_referencia = pay_id_str
+        # Rechazado / cancelado / otros: id interno por si hace falta trazar; sin "referencia" de comprobante.
 
 
 def _commit_visita_tras_volcar_mp(db: Session, visita: Visita, pay: dict) -> None:
@@ -698,11 +839,31 @@ def sincronizar_pago_mercadopago(
     if not visita:
         return None, f"No existe el turno #{id_visita} en la base."
 
+    reactivar_cancelado_aprobado = False
+    est_visita_u = str(visita.estado or "").upper()
+    if est_visita_u == "CANCELADO":
+        if not _pago_mp_aprobado(pay):
+            return None, "Este turno fue cancelado por falta de confirmación de pago a tiempo."
+        dur_min = visita.servicio.duracion_min if visita.servicio else 30
+        if _hay_conflicto_turno_activo(db, visita.id_barbero, visita.fecha_hora, dur_min, visita.id_visita):
+            try:
+                _enviar_aviso_conflicto_horario_ocupado_y_marcar(
+                    db, visita, str(pay.get("id", "") if pay else "")
+                )
+            except Exception as e:
+                logger.exception("MP conflicto: falló aviso por email visita=%s: %s", visita.id_visita, e)
+            return (
+                None,
+                "El horario ya no está disponible: otra persona reservó ese turno mientras tanto. "
+                "Si Mercado Pago cobró el importe, comunicate con la barbería para coordinar o un reembolso.",
+            )
+        reactivar_cancelado_aprobado = True
+
     medio = (getattr(visita, "medio_pago", None) or "").strip()
     pendiente_mp = str(visita.estado or "").upper() == "PENDIENTE_CONFIRMACION_MP"
     if medio and medio != "mercadopago":
         return None, "Ese turno no fue registrado con Mercado Pago."
-    if not medio and not pendiente_mp:
+    if not medio and not pendiente_mp and not reactivar_cancelado_aprobado:
         return None, "Ese turno no está pendiente de confirmación de pago."
 
     if not _pago_mercadopago_coincide_con_visita(visita, pay):
@@ -797,11 +958,8 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Este turno no fue hecho con Mercado Pago.",
         )
-    if str(visita.estado).upper() == "CANCELADO":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Este turno ya no admite asociar pagos.",
-        )
+
+    est_u = str(visita.estado or "").upper()
 
     pay = None
     for intento in range(6):
@@ -815,6 +973,26 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No encontramos ese pago en Mercado Pago. Revisá el número de operación.",
         )
+
+    if est_u == "CANCELADO":
+        if not _pago_mp_aprobado(pay):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Este turno fue cancelado por falta de confirmación de pago a tiempo.",
+            )
+        dur_min = visita.servicio.duracion_min if visita.servicio else 30
+        if _hay_conflicto_turno_activo(db, visita.id_barbero, visita.fecha_hora, dur_min, visita.id_visita):
+            try:
+                _enviar_aviso_conflicto_horario_ocupado_y_marcar(db, visita, str(pay.get("id", "")))
+            except Exception as e:
+                logger.exception("MP conflicto (asociar): falló aviso email visita=%s: %s", visita.id_visita, e)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "El horario ya no está disponible: otra persona reservó ese turno mientras tanto. "
+                    "Si Mercado Pago cobró el importe, coordiná con el cliente un reembolso o otro turno."
+                ),
+            )
 
     ext = mp_api.external_reference_de_pago(pay)
     if ext is not None and ext != visita.id_visita:
@@ -865,7 +1043,11 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
     return visita
 
 
-def checkout_mercadopago_para_visita(db: Session, visita: Visita) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+def checkout_mercadopago_para_visita(
+    db: Session,
+    visita: Visita,
+    frontend_return_base: Optional[str] = None,
+) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
     Tras crear visita MP: preferencia Checkout Pro, link de respaldo, o (None, None, mensaje).
     El tercer valor es un texto corto para mostrar al cliente si no hay URL de pago.
@@ -898,6 +1080,7 @@ def checkout_mercadopago_para_visita(db: Session, visita: Visita) -> Tuple[Optio
             total,
             titulo,
             email.strip() if isinstance(email, str) else None,
+            return_base=frontend_return_base,
         )
         if err:
             logger.info("Checkout MP visita no generado: %s", err)

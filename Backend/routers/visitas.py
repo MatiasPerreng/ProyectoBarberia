@@ -55,18 +55,17 @@ def visita_to_out(visita):
         servicio_precio = float(visita.servicio.precio)
 
     medio = getattr(visita, "medio_pago", None)
-    mp_ref = getattr(visita, "mercadopago_referencia", None)
     mp_pay = getattr(visita, "mercadopago_payment_id", None)
     mp_rec = getattr(visita, "mercadopago_receipt_url", None)
     mp_sell = getattr(visita, "mercadopago_seller_activity_url", None)
     tok = getattr(visita, "token_seguimiento", None)
     estado_u = str(getattr(visita, "estado", "") or "").upper()
     # Igual criterio que pedido en Burgers: mostrar datos MP si el turno es MP o hay datos guardados
-    # (evita que el front/admin reciban null aunque la fila tenga payment_id/referencia).
+    # (evita que el front/admin reciban null aunque la fila tenga payment_id).
     mp_visible = (
         (medio or "").strip() == "mercadopago"
         or estado_u == "PENDIENTE_CONFIRMACION_MP"
-        or bool(mp_ref or mp_pay or mp_rec or mp_sell)
+        or bool(mp_pay or mp_rec or mp_sell)
     )
 
     return {
@@ -86,7 +85,6 @@ def visita_to_out(visita):
         "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
 
         "medio_pago": medio,
-        "mercadopago_referencia": mp_ref if mp_visible else None,
         "mercadopago_payment_id": mp_pay if mp_visible else None,
         "mercadopago_receipt_url": mp_rec if mp_visible else None,
         "mercadopago_seller_activity_url": mp_sell if mp_visible else None,
@@ -175,12 +173,11 @@ def crear_visita(
         if not cliente:
             raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
-        if getattr(visita_in, "medio_pago", None) == "mercadopago":
-            if not (cliente.email and str(cliente.email).strip()):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Para pagar con Mercado Pago necesitás un email válido.",
-                )
+        if not (cliente.email and str(cliente.email).strip()):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Se requiere un email válido en la ficha del cliente para reservar.",
+            )
 
         # 2. VALIDACIÓN DE LISTA NEGRA
         if cliente.telefono:
@@ -209,7 +206,11 @@ def crear_visita(
 
         out = visita_to_out(visita)
         if getattr(visita_in, "medio_pago", None) == "mercadopago":
-            init, pref, checkout_err = crud_v.checkout_mercadopago_para_visita(db, visita)
+            init, pref, checkout_err = crud_v.checkout_mercadopago_para_visita(
+                db,
+                visita,
+                frontend_return_base=getattr(visita_in, "frontend_return_base", None),
+            )
             out["mercadopago_init_point"] = init
             out["mercadopago_preference_id"] = pref
             out["mercadopago_checkout_error"] = checkout_err
@@ -235,8 +236,8 @@ def mercadopago_sincronizar(
 ):
     from crud import visita as crud_v
 
-    # No llamar eliminar_visitas_mp_abandonadas aquí: si el usuario tardó en el checkout de MP,
-    # borrar pendientes antes de sincronizar eliminaba la visita y rompía la asociación pago–turno.
+    # No llamar cancelar_visitas_mp_abandonadas aquí: si el usuario tardó en el checkout de MP,
+    # cancelar pendientes antes de sincronizar podría marcar CANCELADO y romper la asociación pago–turno.
 
     try:
         visita, err = crud_v.sincronizar_pago_mercadopago(db, body)
