@@ -3,6 +3,7 @@ from sqlalchemy import or_
 from typing import Optional, List, Dict, Tuple, Any
 from datetime import datetime, timedelta, time, date
 import decimal
+import hashlib
 import json
 import logging
 import os
@@ -172,6 +173,7 @@ def cancelar_visitas_mp_abandonadas(db: Session) -> int:
             db.query(Visita)
             .filter(Visita.estado == "PENDIENTE_CONFIRMACION_MP")
             .filter(or_(Visita.medio_pago == "mercadopago", Visita.medio_pago.is_(None)))
+            .filter(or_(Visita.estado_pago.is_(None), Visita.estado_pago == "PENDIENTE"))
             .filter(Visita.created_at.isnot(None))
             .filter(Visita.created_at <= cutoff)
             .update({Visita.estado: "CANCELADO"}, synchronize_session=False)
@@ -188,6 +190,220 @@ def cancelar_visitas_mp_abandonadas(db: Session) -> int:
         db.rollback()
         logger.warning("MP cleanup: error (no bloquea la petición): %s", e)
         return 0
+
+
+def _limite_sync_automatico_mp() -> int:
+    raw = os.getenv("MERCADOPAGO_AUTO_SYNC_LIMIT", "10").strip()
+    try:
+        n = int(raw)
+    except ValueError:
+        return 10
+    return max(1, min(n, 50))
+
+
+def _dias_sync_automatico_mp() -> int:
+    raw = os.getenv("MERCADOPAGO_AUTO_SYNC_DIAS", "2").strip()
+    try:
+        n = int(raw)
+    except ValueError:
+        return 2
+    return max(1, min(n, 30))
+
+
+def _visita_mp_vencida(visita: Visita) -> bool:
+    if not visita.created_at:
+        return False
+    cutoff = obtener_ahora_local() - timedelta(minutes=_minutos_expiracion_reserva_mp())
+    return visita.created_at <= cutoff
+
+
+def _marcar_pago_aprobado_requiere_accion_desde_auto_sync(
+    db: Session,
+    id_visita: int,
+    pay: dict,
+) -> Optional[Visita]:
+    """Registra un pago aprobado tardío sin confirmar el turno."""
+    from utils import mercadopago_api as mp_api
+
+    visita = (
+        db.query(Visita)
+        .options(joinedload(Visita.servicio), joinedload(Visita.cliente), joinedload(Visita.barbero))
+        .filter(Visita.id_visita == id_visita)
+        .with_for_update()
+        .first()
+    )
+    if not visita:
+        logger.warning("MP auto-sync: visita no encontrada para requiere_accion id=%s", id_visita)
+        return None
+
+    estado_u = str(visita.estado or "").upper()
+    vencida = _visita_mp_vencida(visita)
+    if estado_u == "PENDIENTE_CONFIRMACION_MP" and not vencida:
+        logger.info(
+            "MP auto-sync: pago aprobado visita=%s pero sigue pendiente dentro del plazo; no confirma sin webhook",
+            visita.id_visita,
+        )
+        return None
+    if estado_u != "CANCELADO" and not vencida:
+        logger.info(
+            "MP auto-sync: pago aprobado visita=%s estado=%s no requiere accion; no hace cambios",
+            visita.id_visita,
+            visita.estado,
+        )
+        return None
+
+    if not _pago_mercadopago_coincide_con_visita(visita, pay):
+        logger.warning("MP auto-sync: pago aprobado no coincide con visita=%s", visita.id_visita)
+        return None
+
+    pay_id_str = str(pay.get("id", "")).strip()
+    if not pay_id_str:
+        logger.warning("MP auto-sync: pago aprobado sin payment_id visita=%s", visita.id_visita)
+        return None
+
+    dup = (
+        db.query(Visita)
+        .filter(
+            Visita.mercadopago_payment_id == pay_id_str,
+            Visita.id_visita != visita.id_visita,
+        )
+        .first()
+    )
+    if dup:
+        logger.warning(
+            "MP auto-sync: payment_id aprobado ya asociado payment_id=%s visita=%s dup=%s",
+            pay_id_str,
+            visita.id_visita,
+            dup.id_visita,
+        )
+        return None
+
+    rec = mp_api.receipt_url_de_pago(pay)
+    if rec:
+        visita.mercadopago_receipt_url = rec
+    try:
+        act = mp_api.url_actividad_vendedor_desde_pago(pay)
+        if act:
+            visita.mercadopago_seller_activity_url = act
+    except Exception as e:
+        logger.warning("MP auto-sync: actividad vendedor no disponible visita=%s: %s", visita.id_visita, e)
+
+    visita.medio_pago = "mercadopago"
+    visita.mercadopago_payment_id = pay_id_str
+    visita.pago_tardio = True
+    visita.estado = "CANCELADO"
+    visita.estado_pago = "REQUIERE_ACCION"
+
+    db.add(visita)
+    db.commit()
+    db.refresh(visita)
+    logger.info(
+        "MP auto-sync: marcado REQUIERE_ACCION visita=%s payment_id=%s vencida=%s estado_anterior=%s",
+        visita.id_visita,
+        pay_id_str,
+        vencida,
+        estado_u,
+    )
+
+    try:
+        _enviar_aviso_conflicto_horario_ocupado_y_marcar(db, visita, pay_id_str)
+    except Exception as e:
+        logger.exception("MP auto-sync: falló aviso email requiere_accion visita=%s: %s", visita.id_visita, e)
+        db.rollback()
+    try:
+        _enviar_whatsapp_requiere_accion_y_marcar(db, visita)
+    except Exception as e:
+        logger.exception("MP auto-sync: falló WhatsApp requiere_accion visita=%s: %s", visita.id_visita, e)
+        db.rollback()
+
+    return get_visita_by_id(db, visita.id_visita) or visita
+
+
+def sincronizar_visitas_mp_automaticamente(db: Session) -> int:
+    """
+    Respaldo automático para observar pagos no aprobados sin confirmar turnos.
+
+    Busca en MP pagos asociados por external_reference para visitas MP pendientes o canceladas
+    que aún no tienen un pago aprobado/requiere_accion guardado. Si encuentra un pago aprobado,
+    solo lo loguea: la confirmación queda reservada al webhook.
+    """
+    from utils import mercadopago_api as mp_api
+
+    if not mp_api.mp_token_configurado():
+        return 0
+
+    desde = obtener_ahora_local() - timedelta(days=_dias_sync_automatico_mp())
+    candidatos = (
+        db.query(Visita.id_visita)
+        .filter(Visita.estado.in_(("PENDIENTE_CONFIRMACION_MP", "CANCELADO")))
+        .filter(or_(Visita.medio_pago == "mercadopago", Visita.medio_pago.is_(None)))
+        .filter(or_(Visita.estado_pago.is_(None), Visita.estado_pago == "PENDIENTE"))
+        .filter(Visita.created_at.isnot(None))
+        .filter(Visita.created_at >= desde)
+        .order_by(Visita.created_at.desc())
+        .limit(_limite_sync_automatico_mp())
+        .all()
+    )
+
+    sincronizadas = 0
+    for row in candidatos:
+        id_visita = int(row[0])
+        try:
+            pay = mp_api.buscar_ultimo_pago_por_external_reference(str(id_visita))
+            if not pay:
+                logger.debug("MP auto-sync: sin pago para visita=%s", id_visita)
+                continue
+            payment_id = str(pay.get("id", "")).strip()
+            logger.info(
+                "MP auto-sync: pago encontrado visita=%s payment_id=%s status=%s",
+                id_visita,
+                payment_id or None,
+                pay.get("status"),
+            )
+            if _pago_mp_aprobado(pay):
+                logger.warning(
+                    "MP auto-sync: pago aprobado detectado visita=%s payment_id=%s; evaluando requiere_accion sin confirmar",
+                    id_visita,
+                    payment_id or None,
+                )
+                visita = _marcar_pago_aprobado_requiere_accion_desde_auto_sync(db, id_visita, pay)
+                if visita:
+                    sincronizadas += 1
+                    logger.info(
+                        "MP auto-sync OK requiere_accion visita=%s payment_id=%s estado=%s estado_pago=%s",
+                        visita.id_visita,
+                        visita.mercadopago_payment_id,
+                        visita.estado,
+                        getattr(visita, "estado_pago", None),
+                    )
+                continue
+            visita, err = sincronizar_pago_mercadopago(
+                db,
+                MercadoPagoSyncIn(
+                    payment_id=payment_id or None,
+                    external_reference=str(id_visita),
+                ),
+                origen="auto_sync",
+            )
+            if visita:
+                sincronizadas += 1
+                logger.info(
+                    "MP auto-sync OK visita=%s payment_id=%s estado=%s estado_pago=%s",
+                    visita.id_visita,
+                    visita.mercadopago_payment_id,
+                    visita.estado,
+                    getattr(visita, "estado_pago", None),
+                )
+            elif err:
+                logger.warning("MP auto-sync: no se pudo sincronizar visita=%s (%s)", id_visita, err)
+        except Exception as e:
+            logger.exception("MP auto-sync: error visita=%s: %s", id_visita, e)
+            try:
+                db.rollback()
+            except Exception:
+                pass
+
+    return sincronizadas
 
 
 def marcar_visitas_completadas(db: Session) -> None:
@@ -277,6 +493,14 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
         if not visita_in.id_barbero: raise ValueError("No hay barberos disponibles")
 
     mp = getattr(visita_in, "medio_pago", None) == "mercadopago"
+    logger.info(
+        "crear_visita: creando visita medio_pago=%s estado_inicial=%s estado_pago_inicial=%s cliente=%s fecha_hora=%s",
+        "mercadopago" if mp else None,
+        "PENDIENTE_CONFIRMACION_MP" if mp else "CONFIRMADO",
+        "PENDIENTE" if mp else None,
+        visita_in.id_cliente,
+        visita_in.fecha_hora,
+    )
     visita = Visita(
         fecha_hora=visita_in.fecha_hora,
         id_cliente=visita_in.id_cliente,
@@ -285,6 +509,8 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
         precio_al_reservar=servicio.precio,
         estado="PENDIENTE_CONFIRMACION_MP" if mp else "CONFIRMADO",
         medio_pago="mercadopago" if mp else None,
+        estado_pago="PENDIENTE" if mp else None,
+        pago_tardio=False,
         token_seguimiento=secrets.token_urlsafe(16) if mp else None,
         # Misma hora Uruguay que usa cancelar_visitas_mp_abandonadas (no depender solo del default MySQL).
         created_at=obtener_ahora_local(),
@@ -543,12 +769,7 @@ def _mysql_columna_mp_opcional_falta(exc: Exception) -> bool:
 
 def _pago_mp_aprobado(pay: dict) -> bool:
     st = (pay.get("status") or "").strip().lower()
-    if st == "approved":
-        return True
-    # Algunas respuestas traen fecha de acreditación sin status normalizado
-    if pay.get("date_approved"):
-        return True
-    return False
+    return st == "approved"
 
 
 def _pago_mp_pendiente(pay: dict) -> bool:
@@ -571,6 +792,65 @@ def _enviar_aviso_conflicto_horario_ocupado_y_marcar(
     visita.mp_conflicto_aviso_enviado = True
     db.add(visita)
     db.commit()
+
+
+def _horas_expiracion_reagendar_mp() -> int:
+    raw = os.getenv("MERCADOPAGO_REAGENDAR_TOKEN_HORAS", "24").strip()
+    try:
+        n = int(raw)
+    except ValueError:
+        return 24
+    return max(1, min(n, 168))
+
+
+def _hash_token_reagendar(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _generar_token_reagendar(visita: Visita) -> str:
+    token = secrets.token_urlsafe(32)
+    visita.reagendar_token_hash = _hash_token_reagendar(token)
+    visita.reagendar_token_expires_at = obtener_ahora_local() + timedelta(hours=_horas_expiracion_reagendar_mp())
+    visita.reagendar_token_used_at = None
+    return token
+
+
+def _link_reagendar_mp(token: str) -> str:
+    from utils import mercadopago_api as mp_api
+
+    base = mp_api.frontend_base_url().rstrip("/")
+    path = os.getenv("MERCADOPAGO_REAGENDAR_PATH", "/reagendar").strip() or "/reagendar"
+    if not path.startswith("/"):
+        path = f"/{path}"
+    return f"{base}{path}?token={token}"
+
+
+def _enviar_whatsapp_requiere_accion_y_marcar(
+    db: Session,
+    visita: Visita,
+) -> None:
+    """Genera link one-time y avisa por WhatsApp que el pago tardío requiere re-agendar."""
+    if getattr(visita, "mp_reagendar_aviso_enviado", False):
+        logger.info("MP reagendar: WhatsApp ya enviado (omitido) visita=%s", visita.id_visita)
+        return
+    if not visita.cliente or not getattr(visita.cliente, "telefono", None):
+        logger.warning("MP reagendar: sin teléfono, no se envía WhatsApp visita=%s", visita.id_visita)
+        return
+
+    token = _generar_token_reagendar(visita)
+    link = _link_reagendar_mp(token)
+
+    from services.whatsapp import enviar_pago_tardio_reagendar_whatsapp
+
+    nombre = f"{visita.cliente.nombre or ''} {getattr(visita.cliente, 'apellido', None) or ''}".strip()
+    resp = enviar_pago_tardio_reagendar_whatsapp(visita.cliente.telefono, nombre, link)
+    if resp is None:
+        return
+
+    visita.mp_reagendar_aviso_enviado = True
+    db.add(visita)
+    db.commit()
+    logger.info("MP reagendar: WhatsApp enviado visita=%s", visita.id_visita)
 
 
 def _notificar_cancelados_mp_si_nuevo_turno_ocupa_slot(db: Session, visita_nueva: Visita) -> None:
@@ -639,9 +919,10 @@ def _volcar_estado_pago_mp_en_visita(
     visita: Visita,
     pay: dict,
     *,
+    db: Optional[Session] = None,
     skip_seller_activity_url: bool = False,
     skip_receipt_url: bool = False,
-) -> None:
+) -> str:
     from utils import mercadopago_api as mp_api
 
     pay_id_str = str(pay.get("id", ""))
@@ -663,17 +944,50 @@ def _volcar_estado_pago_mp_en_visita(
 
     if _pago_mp_aprobado(pay):
         visita.mercadopago_payment_id = pay_id_str
+        visita.estado_pago = "APROBADO"
         est_u = str(visita.estado or "").upper()
-        # PENDIENTE: flujo normal. CANCELADO: reactivación tras pago aprobado (slot libre, v. sincronizar/asociar).
-        if est_u in ("PENDIENTE_CONFIRMACION_MP", "CANCELADO"):
+        logger.info(
+            "MP volcar: pago aprobado payment_id=%s visita=%s estado_actual=%s",
+            pay_id_str,
+            visita.id_visita,
+            est_u,
+        )
+        if est_u == "PENDIENTE_CONFIRMACION_MP":
             visita.estado = "CONFIRMADO"
+            return "confirmado"
+        if est_u == "CANCELADO":
+            visita.pago_tardio = True
+            if db is None:
+                visita.estado_pago = "REQUIERE_ACCION"
+                return "requiere_accion"
+            dur_min = visita.servicio.duracion_min if visita.servicio else 30
+            if _hay_conflicto_turno_activo(db, visita.id_barbero, visita.fecha_hora, dur_min, visita.id_visita):
+                visita.estado_pago = "REQUIERE_ACCION"
+                try:
+                    _enviar_aviso_conflicto_horario_ocupado_y_marcar(db, visita, pay_id_str)
+                except Exception as e:
+                    logger.exception("MP conflicto: falló aviso por email visita=%s: %s", visita.id_visita, e)
+                try:
+                    _enviar_whatsapp_requiere_accion_y_marcar(db, visita)
+                except Exception as e:
+                    logger.exception("MP reagendar: falló WhatsApp visita=%s: %s", visita.id_visita, e)
+                return "requiere_accion"
+            visita.estado = "CONFIRMADO"
+            return "reactivado"
+        return "sin_cambios"
     elif _pago_mp_pendiente(pay):
         if not visita.mercadopago_payment_id:
             visita.mercadopago_payment_id = pay_id_str
+        visita.estado_pago = "PENDIENTE"
+        logger.info("MP volcar: pago pendiente payment_id=%s visita=%s", pay_id_str, visita.id_visita)
+        return "pendiente"
     else:
         if not visita.mercadopago_payment_id:
             visita.mercadopago_payment_id = pay_id_str
+        visita.estado_pago = "RECHAZADO"
         # Rechazado / cancelado / otros: id interno por si hace falta trazar; sin "referencia" de comprobante.
+        logger.info("MP volcar: pago rechazado/otro payment_id=%s visita=%s", pay_id_str, visita.id_visita)
+        return "rechazado"
 
 
 def _commit_visita_tras_volcar_mp(db: Session, visita: Visita, pay: dict) -> None:
@@ -697,7 +1011,7 @@ def _commit_visita_tras_volcar_mp(db: Session, visita: Visita, pay: dict) -> Non
         )
         if not visita:
             raise RuntimeError(f"visita {id_visita} no encontrada tras rollback") from e
-        _volcar_estado_pago_mp_en_visita(visita, pay, skip_seller_activity_url=True)
+        _volcar_estado_pago_mp_en_visita(visita, pay, db=db, skip_seller_activity_url=True)
         try:
             db.add(visita)
             db.commit()
@@ -718,7 +1032,7 @@ def _commit_visita_tras_volcar_mp(db: Session, visita: Visita, pay: dict) -> Non
             if not visita:
                 raise RuntimeError(f"visita {id_visita} no encontrada tras rollback") from e2
             _volcar_estado_pago_mp_en_visita(
-                visita, pay, skip_seller_activity_url=True, skip_receipt_url=True
+                visita, pay, db=db, skip_seller_activity_url=True, skip_receipt_url=True
             )
             db.add(visita)
             db.commit()
@@ -727,6 +1041,9 @@ def _commit_visita_tras_volcar_mp(db: Session, visita: Visita, pay: dict) -> Non
 def sincronizar_pago_mercadopago(
     db: Session,
     sync: MercadoPagoSyncIn,
+    *,
+    confirmar_aprobado: bool = False,
+    origen: str = "manual",
 ) -> Tuple[Optional[Visita], str]:
     from utils import mercadopago_api as mp_api
 
@@ -741,6 +1058,16 @@ def sincronizar_pago_mercadopago(
     ext_desde_pref: Optional[int] = None
     if pref_str:
         ext_desde_pref = mp_api.external_reference_desde_preferencia(pref_str)
+
+    logger.info(
+        "MP sincronizar: inicio origen=%s confirmar_aprobado=%s pid=%s external_reference=%s preference_id=%s ext_desde_pref=%s",
+        origen,
+        confirmar_aprobado,
+        pid or None,
+        ext_str or None,
+        pref_str or None,
+        ext_desde_pref,
+    )
 
     # #region agent log
     _agent_dbg_mp(
@@ -792,6 +1119,14 @@ def sincronizar_pago_mercadopago(
             "Mercado Pago no devolvió el pago (revisá payment_id o esperá unos segundos y reintentá).",
         )
 
+    logger.info(
+        "MP sincronizar: pago resuelto por=%s payment_id=%s status=%s external_reference=%s",
+        resolucion,
+        pay.get("id"),
+        pay.get("status"),
+        pay.get("external_reference"),
+    )
+
     # #region agent log
     _agent_dbg_mp(
         "H1-H5",
@@ -826,6 +1161,12 @@ def sincronizar_pago_mercadopago(
             "El pago no está vinculado al turno (external_reference). Pagá desde el checkout de la agenda.",
         )
 
+    logger.info(
+        "MP sincronizar: external_reference resuelto id_visita=%s payment_id=%s",
+        id_visita,
+        pay.get("id"),
+    )
+
     ref_en_pago = mp_api.external_reference_de_pago(pay)
     if ref_en_pago is not None and ref_en_pago != id_visita:
         return None, "Los datos del pago no coinciden con el turno (referencia distinta)."
@@ -834,36 +1175,32 @@ def sincronizar_pago_mercadopago(
         db.query(Visita)
         .options(joinedload(Visita.servicio), joinedload(Visita.cliente), joinedload(Visita.barbero))
         .filter(Visita.id_visita == id_visita)
+        .with_for_update()
         .first()
     )
     if not visita:
+        logger.warning("MP sincronizar: visita no encontrada id_visita=%s payment_id=%s", id_visita, pay.get("id"))
         return None, f"No existe el turno #{id_visita} en la base."
 
-    reactivar_cancelado_aprobado = False
+    logger.info(
+        "MP sincronizar: visita encontrada id_visita=%s estado=%s estado_pago=%s payment_actual=%s",
+        visita.id_visita,
+        visita.estado,
+        getattr(visita, "estado_pago", None),
+        getattr(visita, "mercadopago_payment_id", None),
+    )
+
     est_visita_u = str(visita.estado or "").upper()
     if est_visita_u == "CANCELADO":
         if not _pago_mp_aprobado(pay):
             return None, "Este turno fue cancelado por falta de confirmación de pago a tiempo."
-        dur_min = visita.servicio.duracion_min if visita.servicio else 30
-        if _hay_conflicto_turno_activo(db, visita.id_barbero, visita.fecha_hora, dur_min, visita.id_visita):
-            try:
-                _enviar_aviso_conflicto_horario_ocupado_y_marcar(
-                    db, visita, str(pay.get("id", "") if pay else "")
-                )
-            except Exception as e:
-                logger.exception("MP conflicto: falló aviso por email visita=%s: %s", visita.id_visita, e)
-            return (
-                None,
-                "El horario ya no está disponible: otra persona reservó ese turno mientras tanto. "
-                "Si Mercado Pago cobró el importe, comunicate con la barbería para coordinar o un reembolso.",
-            )
-        reactivar_cancelado_aprobado = True
 
     medio = (getattr(visita, "medio_pago", None) or "").strip()
     pendiente_mp = str(visita.estado or "").upper() == "PENDIENTE_CONFIRMACION_MP"
+    cancelado_aprobado = est_visita_u == "CANCELADO" and _pago_mp_aprobado(pay)
     if medio and medio != "mercadopago":
         return None, "Ese turno no fue registrado con Mercado Pago."
-    if not medio and not pendiente_mp and not reactivar_cancelado_aprobado:
+    if not medio and not pendiente_mp and not cancelado_aprobado:
         return None, "Ese turno no está pendiente de confirmación de pago."
 
     if not _pago_mercadopago_coincide_con_visita(visita, pay):
@@ -885,7 +1222,46 @@ def sincronizar_pago_mercadopago(
             f"El monto o moneda del pago no coincide con el servicio reservado (esperado ${esp}).",
         )
 
-    _volcar_estado_pago_mp_en_visita(visita, pay)
+    if _pago_mp_aprobado(pay) and not confirmar_aprobado:
+        logger.warning(
+            "MP sincronizar: pago aprobado ignorado por origen no autorizado origen=%s visita=%s payment_id=%s",
+            origen,
+            visita.id_visita,
+            pay.get("id"),
+        )
+        return (
+            None,
+            "Pago aprobado detectado, pero este origen no confirma turnos. Esperando webhook de Mercado Pago.",
+        )
+
+    pay_id_str = str(pay.get("id", ""))
+    if pay_id_str:
+        dup = (
+            db.query(Visita)
+            .filter(
+                Visita.mercadopago_payment_id == pay_id_str,
+                Visita.id_visita != visita.id_visita,
+            )
+            .first()
+        )
+        if dup:
+            logger.warning(
+                "MP sincronizar: payment_id duplicado payment_id=%s visita_actual=%s visita_dup=%s",
+                pay_id_str,
+                visita.id_visita,
+                dup.id_visita,
+            )
+            return None, "Este pago ya está asociado a otro turno."
+
+    resultado_mp = _volcar_estado_pago_mp_en_visita(visita, pay, db=db)
+    logger.info(
+        "MP sincronizar: antes de commit visita=%s payment_id=%s estado=%s estado_pago=%s resultado=%s",
+        visita.id_visita,
+        visita.mercadopago_payment_id,
+        visita.estado,
+        getattr(visita, "estado_pago", None),
+        resultado_mp,
+    )
 
     try:
         _commit_visita_tras_volcar_mp(db, visita, pay)
@@ -901,6 +1277,19 @@ def sincronizar_pago_mercadopago(
     )
     if not visita:
         return None, "Error interno al recargar el turno."
+    if resultado_mp == "requiere_accion":
+        logger.info(
+            "MP sincronizar OK requiere_accion visita=%s payment_id=%s estado=%s estado_pago=%s",
+            visita.id_visita,
+            visita.mercadopago_payment_id,
+            visita.estado,
+            getattr(visita, "estado_pago", None),
+        )
+        return (
+            visita,
+            "El pago fue aprobado, pero el horario ya no está disponible. "
+            "Quedó registrado como REQUIERE_ACCION para reagendar o devolver luego.",
+        )
     logger.info(
         "MP sincronizar OK visita=%s payment_id=%s estado=%s",
         visita.id_visita,
@@ -922,6 +1311,139 @@ def obtener_visita_por_token(db: Session, token: str) -> Optional[Visita]:
     )
 
 
+def _obtener_visita_reagendar_por_token(db: Session, token: str, *, lock: bool = False) -> Visita:
+    tok = (token or "").strip()
+    if len(tok) < 24 or len(tok) > 256:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token de re-agendado inválido.")
+
+    q = (
+        db.query(Visita)
+        .options(joinedload(Visita.servicio), joinedload(Visita.cliente), joinedload(Visita.barbero))
+        .filter(Visita.reagendar_token_hash == _hash_token_reagendar(tok))
+    )
+    if lock:
+        q = q.with_for_update()
+    visita = q.first()
+    if not visita:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Token de re-agendado inválido.")
+
+    if visita.reagendar_token_used_at is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este link ya fue utilizado.")
+    if not visita.reagendar_token_expires_at or visita.reagendar_token_expires_at <= obtener_ahora_local():
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="El link de re-agendado expiró.")
+    if str(visita.estado_pago or "").upper() != "REQUIERE_ACCION":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este pago ya no requiere re-agendado.")
+    if not visita.mercadopago_payment_id:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No hay un pago aprobado asociado.")
+    return visita
+
+
+def obtener_info_reagendar_mp(
+    db: Session,
+    token: str,
+    fecha: Optional[date] = None,
+    id_barbero: Optional[int] = None,
+) -> Dict[str, Any]:
+    visita = _obtener_visita_reagendar_por_token(db, token)
+    disponibilidad = None
+    if fecha:
+        disponibilidad = get_disponibilidad(
+            db,
+            fecha=fecha,
+            id_servicio=visita.id_servicio,
+            id_barbero=id_barbero or visita.id_barbero,
+        )
+
+    return {
+        "ok": True,
+        "visita_id": visita.id_visita,
+        "estado_pago": visita.estado_pago,
+        "pago_tardio": bool(visita.pago_tardio),
+        "payment_id": visita.mercadopago_payment_id,
+        "servicio": visita.servicio.nombre if visita.servicio else "",
+        "servicio_duracion": visita.servicio.duracion_min if visita.servicio else 0,
+        "cliente_nombre": visita.cliente.nombre if visita.cliente else "",
+        "barbero_actual_id": visita.id_barbero,
+        "fecha_hora_original": visita.fecha_hora,
+        "token_expires_at": visita.reagendar_token_expires_at,
+        "disponibilidad": disponibilidad,
+    }
+
+
+def reagendar_visita_mp_con_pago_existente(
+    db: Session,
+    token: str,
+    fecha_hora: datetime,
+    id_barbero: Optional[int] = None,
+) -> Visita:
+    visita = _obtener_visita_reagendar_por_token(db, token, lock=True)
+    barbero_id = id_barbero or visita.id_barbero
+    if not barbero_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Seleccioná un barbero.")
+
+    ahora = obtener_ahora_local()
+    if fecha_hora < ahora:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se puede re-agendar en el pasado.")
+
+    dur_min = visita.servicio.duracion_min if visita.servicio else 30
+    dia_semana = fecha_hora.date().isoweekday()
+    horarios = (
+        db.query(HorarioBarbero)
+        .filter(
+            HorarioBarbero.id_barbero == barbero_id,
+            HorarioBarbero.dia_semana == dia_semana,
+            HorarioBarbero.fecha_desde <= fecha_hora.date(),
+            HorarioBarbero.fecha_hasta >= fecha_hora.date(),
+        )
+        .all()
+    )
+    barbero = db.query(Barbero).get(barbero_id)
+    hora_solicitada = fecha_hora.strftime("%H:%M")
+    en_jornada = False
+    for horario in horarios:
+        slots = generar_slots(horario.hora_desde, horario.hora_hasta, dur_min)
+        if hora_solicitada not in [slot.strftime("%H:%M") for slot in slots]:
+            continue
+        if barbero and validar_conflicto_descanso(
+            fecha_hora,
+            dur_min,
+            barbero.descanso_inicio,
+            barbero.descanso_fin,
+        ):
+            continue
+        en_jornada = True
+        break
+    if not en_jornada:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ese horario no está disponible.")
+
+    if _hay_conflicto_turno_activo(db, barbero_id, fecha_hora, dur_min, visita.id_visita):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ese horario ya fue reservado.")
+
+    dup = (
+        db.query(Visita)
+        .filter(
+            Visita.mercadopago_payment_id == visita.mercadopago_payment_id,
+            Visita.id_visita != visita.id_visita,
+        )
+        .first()
+    )
+    if dup:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este pago ya está asociado a otro turno.")
+
+    visita.fecha_hora = fecha_hora
+    visita.id_barbero = barbero_id
+    visita.estado = "CONFIRMADO"
+    visita.estado_pago = "APROBADO"
+    visita.pago_tardio = True
+    visita.medio_pago = "mercadopago"
+    visita.reagendar_token_used_at = obtener_ahora_local()
+
+    db.add(visita)
+    db.commit()
+    db.refresh(visita)
+    return get_visita_by_id(db, visita.id_visita) or visita
+
+
 def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) -> Visita:
     from utils import mercadopago_api as mp_api
 
@@ -941,6 +1463,7 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
         db.query(Visita)
         .options(joinedload(Visita.servicio), joinedload(Visita.cliente), joinedload(Visita.barbero))
         .filter(Visita.token_seguimiento == tok)
+        .with_for_update()
         .first()
     )
     if not visita:
@@ -953,13 +1476,12 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Este turno no fue hecho con Mercado Pago.",
         )
-    if not medio_v and not pend_mp:
+    est_u = str(visita.estado or "").upper()
+    if not medio_v and not pend_mp and est_u != "CANCELADO":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Este turno no fue hecho con Mercado Pago.",
         )
-
-    est_u = str(visita.estado or "").upper()
 
     pay = None
     for intento in range(6):
@@ -980,19 +1502,6 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Este turno fue cancelado por falta de confirmación de pago a tiempo.",
             )
-        dur_min = visita.servicio.duracion_min if visita.servicio else 30
-        if _hay_conflicto_turno_activo(db, visita.id_barbero, visita.fecha_hora, dur_min, visita.id_visita):
-            try:
-                _enviar_aviso_conflicto_horario_ocupado_y_marcar(db, visita, str(pay.get("id", "")))
-            except Exception as e:
-                logger.exception("MP conflicto (asociar): falló aviso email visita=%s: %s", visita.id_visita, e)
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "El horario ya no está disponible: otra persona reservó ese turno mientras tanto. "
-                    "Si Mercado Pago cobró el importe, coordiná con el cliente un reembolso o otro turno."
-                ),
-            )
 
     ext = mp_api.external_reference_de_pago(pay)
     if ext is not None and ext != visita.id_visita:
@@ -1005,6 +1514,17 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El monto del pago no coincide con el servicio reservado.",
+        )
+
+    if _pago_mp_aprobado(pay):
+        logger.warning(
+            "MP asociar link: pago aprobado detectado por origen manual visita=%s payment_id=%s; esperando webhook",
+            visita.id_visita,
+            pay.get("id"),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Pago aprobado detectado, pero la confirmación del turno queda reservada al webhook de Mercado Pago.",
         )
 
     pay_id_str = str(pay.get("id", ""))
@@ -1022,7 +1542,7 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
             detail="Este pago ya está asociado a otro turno.",
         )
 
-    _volcar_estado_pago_mp_en_visita(visita, pay)
+    resultado_mp = _volcar_estado_pago_mp_en_visita(visita, pay, db=db)
     try:
         _commit_visita_tras_volcar_mp(db, visita, pay)
     except Exception as e:
@@ -1040,6 +1560,14 @@ def asociar_pago_link_mercadopago(db: Session, token: str, payment_id_raw: str) 
     )
     if not visita:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al guardar el turno.")
+    if resultado_mp == "requiere_accion":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "El pago fue aprobado, pero el horario ya no está disponible. "
+                "Quedó registrado para reagendar o devolver luego."
+            ),
+        )
     return visita
 
 
@@ -1056,6 +1584,13 @@ def checkout_mercadopago_para_visita(
 
     if (getattr(visita, "medio_pago", None) or "") != "mercadopago":
         return None, None, None
+
+    logger.info(
+        "MP checkout: creando preferencia visita=%s estado=%s estado_pago=%s",
+        visita.id_visita,
+        visita.estado,
+        getattr(visita, "estado_pago", None),
+    )
 
     init_point: Optional[str] = None
     pref_id: Optional[str] = None

@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -47,3 +48,11 @@ class MercadoPagoAsociarLinkIn(BaseModel):
         max_length=80,
         description="N° de operación / payment_id (solo dígitos o texto con el número).",
     )
+
+
+class MercadoPagoReagendarIn(BaseModel):
+    """Confirmar un nuevo horario reutilizando un pago tardío ya aprobado."""
+
+    token: str = Field(..., min_length=24, max_length=256)
+    fecha_hora: datetime.datetime
+    id_barbero: Optional[int] = None

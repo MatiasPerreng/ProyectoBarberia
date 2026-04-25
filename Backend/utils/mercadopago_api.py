@@ -150,6 +150,12 @@ def crear_preferencia_checkout_pro(
         q = f"?s={sec}" if sec else ""
         body["notification_url"] = f"{bpub}{path}{q}"
 
+    logger.info(
+        "MP preference: creando preferencia external_reference=%s notification_url_configurada=%s",
+        body["external_reference"],
+        bool(body.get("notification_url")),
+    )
+
     try:
         r = requests.post(
             f"{MP_API}/checkout/preferences",
@@ -247,6 +253,7 @@ def obtener_pago_por_id_o_merchant_order(raw_id: str) -> Optional[Dict[str, Any]
             mo = r.json()
         except json.JSONDecodeError:
             return None
+        mo_external_reference = mo.get("external_reference") if isinstance(mo, dict) else None
         payments = mo.get("payments") if isinstance(mo, dict) else None
         if not isinstance(payments, list):
             return None
@@ -258,6 +265,14 @@ def obtener_pago_por_id_o_merchant_order(raw_id: str) -> Optional[Dict[str, Any]
                 continue
             pay = obtener_pago(str(inner).strip())
             if pay:
+                if mo_external_reference and not pay.get("external_reference"):
+                    pay["external_reference"] = str(mo_external_reference)
+                    logger.info(
+                        "MP merchant_order fallback: usando external_reference=%s de merchant_order=%s para payment=%s",
+                        mo_external_reference,
+                        pid,
+                        inner,
+                    )
                 return pay
     except requests.RequestException as e:
         logger.warning("MP merchant_order fallback: %s", e)

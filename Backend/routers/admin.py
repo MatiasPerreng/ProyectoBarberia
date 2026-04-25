@@ -157,6 +157,8 @@ def admin_turnos(
             "barbero": t.barbero.nombre,
             "estado": t.estado.upper(),
             "medio_pago": t.medio_pago,
+            "estado_pago": getattr(t, "estado_pago", None),
+            "pago_tardio": bool(getattr(t, "pago_tardio", False)),
             "mercadopago_payment_id": t.mercadopago_payment_id,
             "mercadopago_receipt_url": getattr(t, "mercadopago_receipt_url", None),
             "mercadopago_seller_activity_url": getattr(t, "mercadopago_seller_activity_url", None),

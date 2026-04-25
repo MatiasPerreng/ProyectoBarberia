@@ -66,6 +66,8 @@ class VisitaOut(BaseModel):
     barbero_nombre: str = ""
 
     medio_pago: Optional[str] = None
+    estado_pago: Optional[str] = None
+    pago_tardio: bool = False
     mercadopago_payment_id: Optional[str] = None
     mercadopago_receipt_url: Optional[str] = None
     mercadopago_seller_activity_url: Optional[str] = None

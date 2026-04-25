@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
-    """Cancela visitas MP pendientes vencidas aunque no haya tráfico HTTP (polling cada N segundos)."""
+    """Sincroniza/cancela visitas MP aunque no haya retorno del front (polling cada N segundos)."""
 
     async def mp_cleanup_loop() -> None:
         raw = os.getenv("MERCADOPAGO_CLEANUP_INTERVAL_SEC", "45").strip()
@@ -32,13 +32,17 @@ async def _lifespan(app: FastAPI):
         while True:
             db = SessionLocal()
             try:
-                from crud.visita import cancelar_visitas_mp_abandonadas
+                from crud.visita import cancelar_visitas_mp_abandonadas, sincronizar_visitas_mp_automaticamente
 
-                n = cancelar_visitas_mp_abandonadas(db)
-                if n:
-                    logger.info("MP cleanup (background): canceladas %s visita(s) pendientes de pago", n)
+                synced = sincronizar_visitas_mp_automaticamente(db)
+                if synced:
+                    logger.info("MP auto-sync (background): sincronizadas %s visita(s)", synced)
+
+                canceled = cancelar_visitas_mp_abandonadas(db)
+                if canceled:
+                    logger.info("MP cleanup (background): canceladas %s visita(s) pendientes de pago", canceled)
             except Exception:
-                logger.exception("MP cleanup (background)")
+                logger.exception("MP background loop")
             finally:
                 db.close()
             await asyncio.sleep(interval)

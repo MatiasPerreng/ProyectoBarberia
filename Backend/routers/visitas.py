@@ -13,7 +13,7 @@ from models import Cliente, Visita # Importamos Cliente para buscar el teléfono
 
 # Importaciones directas de archivos para evitar círculos viciosos de inicialización
 from schemas.visita import VisitaCreate, VisitaOut, VisitaUpdate
-from schemas.mercadopago import MercadoPagoAsociarLinkIn, MercadoPagoSyncIn
+from schemas.mercadopago import MercadoPagoAsociarLinkIn, MercadoPagoReagendarIn, MercadoPagoSyncIn
 from core.dependencias import get_current_login_barbero, get_current_staff
 from core.email import enviar_email_confirmacion
 from core.email_templates import (
@@ -55,6 +55,8 @@ def visita_to_out(visita):
         servicio_precio = float(visita.servicio.precio)
 
     medio = getattr(visita, "medio_pago", None)
+    estado_pago = getattr(visita, "estado_pago", None)
+    pago_tardio = bool(getattr(visita, "pago_tardio", False))
     mp_pay = getattr(visita, "mercadopago_payment_id", None)
     mp_rec = getattr(visita, "mercadopago_receipt_url", None)
     mp_sell = getattr(visita, "mercadopago_seller_activity_url", None)
@@ -85,6 +87,8 @@ def visita_to_out(visita):
         "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
 
         "medio_pago": medio,
+        "estado_pago": estado_pago if mp_visible else None,
+        "pago_tardio": pago_tardio if mp_visible else False,
         "mercadopago_payment_id": mp_pay if mp_visible else None,
         "mercadopago_receipt_url": mp_rec if mp_visible else None,
         "mercadopago_seller_activity_url": mp_sell if mp_visible else None,
@@ -278,8 +282,9 @@ async def mercadopago_webhook(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Webhook no autorizado")
 
     payment_id = None
+    webhook_topic = request.query_params.get("topic") or request.query_params.get("type")
     if request.method == "GET":
-        if request.query_params.get("topic") == "payment":
+        if request.query_params.get("topic") in ("payment", "merchant_order"):
             payment_id = request.query_params.get("id")
     else:
         body = None
@@ -288,19 +293,37 @@ async def mercadopago_webhook(request: Request, db: Session = Depends(get_db)):
         except (json.JSONDecodeError, ValueError) as e:
             logger.info("Webhook MP: cuerpo no JSON (%s)", e)
         if isinstance(body, dict):
+            webhook_topic = str(body.get("type") or body.get("topic") or webhook_topic or "")
             data = body.get("data")
             if isinstance(data, dict) and data.get("id") is not None:
                 payment_id = str(data["id"])
             if not payment_id and body.get("id") is not None:
                 payment_id = str(body["id"])
 
+    logger.info(
+        "Webhook MP recibido method=%s topic=%s payment_or_order_id=%s",
+        request.method,
+        webhook_topic,
+        payment_id,
+    )
+
     if payment_id:
         try:
             _v, err = crud_v.sincronizar_pago_mercadopago(
                 db,
                 MercadoPagoSyncIn(payment_id=str(payment_id)),
+                confirmar_aprobado=True,
+                origen="webhook",
             )
-            if not _v and err:
+            if _v:
+                logger.info(
+                    "Webhook MP: visita sincronizada id_visita=%s payment_id=%s estado=%s estado_pago=%s",
+                    _v.id_visita,
+                    getattr(_v, "mercadopago_payment_id", None),
+                    getattr(_v, "estado", None),
+                    getattr(_v, "estado_pago", None),
+                )
+            elif err:
                 logger.warning("Webhook MP: no se actualizó visita (%s)", err)
         except Exception:
             logger.exception("Webhook MP: error al sincronizar payment_id=%s", payment_id)
@@ -308,6 +331,34 @@ async def mercadopago_webhook(request: Request, db: Session = Depends(get_db)):
         logger.debug("Webhook MP: sin payment_id (GET/POST)")
 
     return {"received": True}
+
+
+@router.get("/reagendar")
+def mercadopago_reagendar_info(
+    token: str,
+    fecha: Optional[date] = None,
+    id_barbero: Optional[int] = None,
+    db: Session = Depends(get_db),
+):
+    from crud import visita as crud_v
+
+    return crud_v.obtener_info_reagendar_mp(db, token, fecha=fecha, id_barbero=id_barbero)
+
+
+@router.post("/reagendar", response_model=VisitaOut)
+def mercadopago_reagendar_confirmar(
+    body: MercadoPagoReagendarIn,
+    db: Session = Depends(get_db),
+):
+    from crud import visita as crud_v
+
+    visita = crud_v.reagendar_visita_mp_con_pago_existente(
+        db,
+        token=body.token,
+        fecha_hora=body.fecha_hora,
+        id_barbero=body.id_barbero,
+    )
+    return visita_to_out(visita)
 
 
 @router.get("/seguimiento/{token}", response_model=VisitaOut)

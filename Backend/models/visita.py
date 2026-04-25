@@ -44,6 +44,11 @@ class Visita(Base):
         nullable=False,
         server_default=text("0"),
     )
+    mp_reagendar_aviso_enviado: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        server_default=text("0"),
+    )
 
     estado: Mapped[Optional[str]] = mapped_column(
         Enum(
@@ -56,10 +61,27 @@ class Visita(Base):
     )
 
     medio_pago: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    estado_pago: Mapped[Optional[str]] = mapped_column(
+        Enum(
+            "PENDIENTE",
+            "APROBADO",
+            "RECHAZADO",
+            "REQUIERE_ACCION",
+        ),
+        nullable=True,
+    )
+    pago_tardio: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        server_default=text("0"),
+    )
     mercadopago_payment_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     mercadopago_receipt_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     mercadopago_seller_activity_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     token_seguimiento: Mapped[Optional[str]] = mapped_column(String(48), nullable=True, unique=True)
+    reagendar_token_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, unique=True)
+    reagendar_token_expires_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    reagendar_token_used_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         TIMESTAMP,
         server_default=text('CURRENT_TIMESTAMP')
