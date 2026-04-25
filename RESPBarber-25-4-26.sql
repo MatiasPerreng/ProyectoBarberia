@@ -1,6 +1,9 @@
--- Respaldo depurado (King Barber). Tabla `visita`: columnas alineadas con Backend/models/visita.py
--- Se quitó UNIQUE (id_barbero, fecha_hora): con turnos CANCELADO la fila conserva esa fecha_hora y
--- ese índice impedía reservar de nuevo el mismo horario.
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Versión del servidor:         8.0.45 - MySQL Community Server - GPL
+-- SO del servidor:              Win64
+-- HeidiSQL Versión:             11.0.0.5919
+-- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
@@ -8,9 +11,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+
+-- Volcando estructura de base de datos para barber
 CREATE DATABASE IF NOT EXISTS `barber` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `barber`;
 
+-- Volcando estructura para tabla barber.barbero
 CREATE TABLE IF NOT EXISTS `barbero` (
   `id_barbero` int unsigned NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -22,12 +28,14 @@ CREATE TABLE IF NOT EXISTS `barbero` (
   PRIMARY KEY (`id_barbero`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.barbero: ~2 rows (aproximadamente)
 /*!40000 ALTER TABLE `barbero` DISABLE KEYS */;
 INSERT INTO `barbero` (`id_barbero`, `nombre`, `created_at`, `foto_url`, `activo`, `descanso_inicio`, `descanso_fin`) VALUES
 	(1, 'Nacho', '2026-01-04 21:35:34', 'barbero_1_1774571813.jpg', 1, '12:20', '13:20'),
 	(3, 'Amilkar ', '2026-01-12 19:11:48', 'barbero_3_1776613405.png', 0, NULL, NULL);
 /*!40000 ALTER TABLE `barbero` ENABLE KEYS */;
 
+-- Volcando estructura para tabla barber.barberos
 CREATE TABLE IF NOT EXISTS `barberos` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -42,11 +50,13 @@ CREATE TABLE IF NOT EXISTS `barberos` (
   CONSTRAINT `fk_barberos_barbero` FOREIGN KEY (`barbero_id`) REFERENCES `barbero` (`id_barbero`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.barberos: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `barberos` DISABLE KEYS */;
 INSERT INTO `barberos` (`id`, `nombre`, `email`, `password_hash`, `role`, `is_active`, `barbero_id`) VALUES
 	(1, 'Nacho', 'nacho@kingbarber.com', '$2b$12$WixmxQGqBKFCmK8REva6EuRLrP1QellMHs5PhU6e8KPd.QSmFg5Jm', 'admin', 1, 1);
 /*!40000 ALTER TABLE `barberos` ENABLE KEYS */;
 
+-- Volcando estructura para tabla barber.blacklist
 CREATE TABLE IF NOT EXISTS `blacklist` (
   `id` int NOT NULL AUTO_INCREMENT,
   `telefono` varchar(20) NOT NULL,
@@ -56,11 +66,13 @@ CREATE TABLE IF NOT EXISTS `blacklist` (
   UNIQUE KEY `telefono_unico` (`telefono`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.blacklist: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `blacklist` DISABLE KEYS */;
 INSERT INTO `blacklist` (`id`, `telefono`, `motivo`, `created_at`) VALUES
 	(3, '099611465', 'Sin turno disponible ', '2026-03-16 02:37:58');
 /*!40000 ALTER TABLE `blacklist` ENABLE KEYS */;
 
+-- Volcando estructura para tabla barber.cliente
 CREATE TABLE IF NOT EXISTS `cliente` (
   `id_cliente` int unsigned NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -72,6 +84,7 @@ CREATE TABLE IF NOT EXISTS `cliente` (
   UNIQUE KEY `uq_cliente_telefono` (`telefono`)
 ) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.cliente: ~159 rows (aproximadamente)
 /*!40000 ALTER TABLE `cliente` DISABLE KEYS */;
 INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, `created_at`) VALUES
 	(1, 'Matias', 'MonTh', '095064060', 'csmatiperreng@gmail.com', '2026-01-12 19:09:39'),
@@ -153,7 +166,7 @@ INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, 
 	(80, 'Ignacio ', 'Saravia', '099611466', NULL, '2026-02-20 14:14:41'),
 	(81, 'Ismael ', 'Luzardo ', '092453046', 'ismmael1111@gmail.com', '2026-02-20 17:33:21'),
 	(82, 'Prueba', 'Barber', '093910963', 'matiperreng2019@gmail.com', '2026-02-20 20:17:30'),
-	(83, 'Matias', 'MonTh', '095064061', 'admin@infocore.com', '2026-02-20 20:48:13'),
+	(83, 'Matias', 'MonTh', '095064061', 'csmatiperreng@gmail.com', '2026-02-20 20:48:13'),
 	(84, 'Lucas', 'Morales', '094404221', 'lucasmoralesen@gmail.com', '2026-02-20 21:47:33'),
 	(85, 'Ezequiel', 'Montero', '092802119', 'monte24ro@icloud.com', '2026-02-24 08:57:33'),
 	(86, 'Joaco ', 'Cerro', '094153688', 'joacoemma1922@gmail.com', '2026-02-24 09:25:08'),
@@ -235,6 +248,7 @@ INSERT INTO `cliente` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, 
 	(162, 'Matias', 'MonTh', '095064063', 'admin@infocore.com', '2026-04-19 12:49:14');
 /*!40000 ALTER TABLE `cliente` ENABLE KEYS */;
 
+-- Volcando estructura para tabla barber.horario_barbero
 CREATE TABLE IF NOT EXISTS `horario_barbero` (
   `id_horario` int unsigned NOT NULL AUTO_INCREMENT,
   `id_barbero` int unsigned NOT NULL,
@@ -249,6 +263,7 @@ CREATE TABLE IF NOT EXISTS `horario_barbero` (
   CONSTRAINT `chk_hora_valida` CHECK ((`hora_desde` < `hora_hasta`))
 ) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.horario_barbero: ~8 rows (aproximadamente)
 /*!40000 ALTER TABLE `horario_barbero` DISABLE KEYS */;
 INSERT INTO `horario_barbero` (`id_horario`, `id_barbero`, `dia_semana`, `hora_desde`, `hora_hasta`, `fecha_desde`, `fecha_hasta`) VALUES
 	(13, 1, 6, '15:00:00', '20:20:00', '2026-02-07', '2026-02-15'),
@@ -261,6 +276,7 @@ INSERT INTO `horario_barbero` (`id_horario`, `id_barbero`, `dia_semana`, `hora_d
 	(38, 1, 2, '10:00:00', '19:00:00', '2026-03-03', '2026-12-03');
 /*!40000 ALTER TABLE `horario_barbero` ENABLE KEYS */;
 
+-- Volcando estructura para tabla barber.horario_excepcion
 CREATE TABLE IF NOT EXISTS `horario_excepcion` (
   `id_excepcion` int NOT NULL AUTO_INCREMENT,
   `id_barbero` int unsigned NOT NULL,
@@ -273,6 +289,11 @@ CREATE TABLE IF NOT EXISTS `horario_excepcion` (
   CONSTRAINT `horario_excepcion_ibfk_1` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.horario_excepcion: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `horario_excepcion` DISABLE KEYS */;
+/*!40000 ALTER TABLE `horario_excepcion` ENABLE KEYS */;
+
+-- Volcando estructura para tabla barber.servicio
 CREATE TABLE IF NOT EXISTS `servicio` (
   `id_servicio` int unsigned NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -283,6 +304,7 @@ CREATE TABLE IF NOT EXISTS `servicio` (
   PRIMARY KEY (`id_servicio`)
 ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.servicio: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `servicio` DISABLE KEYS */;
 INSERT INTO `servicio` (`id_servicio`, `nombre`, `duracion_min`, `precio`, `activo`, `imagen`) VALUES
 	(1, 'Corte y cejas gratis', 45, 1.00, 1, '0a646127-ed2b-4f25-9c4e-cfe4975c22f0.jpg'),
@@ -290,6 +312,7 @@ INSERT INTO `servicio` (`id_servicio`, `nombre`, `duracion_min`, `precio`, `acti
 	(3, 'Corte + Barba', 45, 400.00, 1, '636eff8a-e9c7-4f02-b9d0-11db74483127.jpg');
 /*!40000 ALTER TABLE `servicio` ENABLE KEYS */;
 
+-- Volcando estructura para tabla barber.visita
 CREATE TABLE IF NOT EXISTS `visita` (
   `id_visita` int unsigned NOT NULL AUTO_INCREMENT,
   `fecha_hora` datetime NOT NULL,
@@ -298,32 +321,36 @@ CREATE TABLE IF NOT EXISTS `visita` (
   `id_servicio` int unsigned NOT NULL,
   `precio_al_reservar` decimal(10,2) DEFAULT NULL,
   `notificado_wsp` tinyint(1) NOT NULL DEFAULT '0',
+  `mp_conflicto_aviso_enviado` tinyint(1) NOT NULL DEFAULT '0',
+  `mp_reagendar_aviso_enviado` tinyint(1) NOT NULL DEFAULT '0',
   `estado` enum('CONFIRMADO','PENDIENTE_CONFIRMACION_MP','CANCELADO','COMPLETADO') NOT NULL DEFAULT 'CONFIRMADO',
   `medio_pago` varchar(32) DEFAULT NULL,
+  `estado_pago` enum('PENDIENTE','APROBADO','RECHAZADO','REQUIERE_ACCION') DEFAULT NULL,
+  `pago_tardio` tinyint(1) NOT NULL DEFAULT '0',
   `mercadopago_payment_id` varchar(64) DEFAULT NULL,
   `mercadopago_receipt_url` varchar(512) DEFAULT NULL,
   `mercadopago_seller_activity_url` varchar(512) DEFAULT NULL,
   `token_seguimiento` varchar(48) DEFAULT NULL,
+  `reagendar_token_hash` varchar(64) DEFAULT NULL,
+  `reagendar_token_expires_at` datetime DEFAULT NULL,
+  `reagendar_token_used_at` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_visita`),
   UNIQUE KEY `uq_visita_token_seguimiento` (`token_seguimiento`),
+  UNIQUE KEY `uq_visita_reagendar_token_hash` (`reagendar_token_hash`),
   KEY `fk_visita_cliente` (`id_cliente`),
   KEY `fk_visita_barbero` (`id_barbero`),
   KEY `fk_visita_servicio` (`id_servicio`),
   CONSTRAINT `fk_visita_barbero` FOREIGN KEY (`id_barbero`) REFERENCES `barbero` (`id_barbero`),
   CONSTRAINT `fk_visita_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `cliente` (`id_cliente`),
   CONSTRAINT `fk_visita_servicio` FOREIGN KEY (`id_servicio`) REFERENCES `servicio` (`id_servicio`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Volcando datos para la tabla barber.visita: ~2 rows (aproximadamente)
 /*!40000 ALTER TABLE `visita` DISABLE KEYS */;
-INSERT INTO `visita` (
-  `id_visita`, `fecha_hora`, `id_cliente`, `id_barbero`, `id_servicio`, `precio_al_reservar`, `notificado_wsp`,
-  `estado`, `medio_pago`, `mercadopago_payment_id`, `mercadopago_receipt_url`, `mercadopago_seller_activity_url`,
-  `token_seguimiento`, `created_at`
-) VALUES
-	(1, '2026-04-29 16:45:00', 1, 1, 1, 1.00, 0, 'CONFIRMADO', 'mercadopago', '154749631049', NULL, 'https://www.mercadopago.com.uy/activities/detail/checkout_merchant_order-40125112422', 'tzx8g7qD-jVNoZHMuS2S6A', '2026-04-19 13:12:43'),
-	(2, '2026-04-30 16:45:00', 1, 1, 1, 1.00, 0, 'CONFIRMADO', 'mercadopago', '155837905046', NULL, 'https://www.mercadopago.com.uy/activities/detail/checkout_merchant_order-40161380981', 'UJeWHnVVLf7WW51sn2j7hw', '2026-04-21 19:19:53'),
-	(15, '2026-04-30 18:15:00', 1, 1, 1, 1.00, 0, 'CONFIRMADO', 'mercadopago', '155086026675', NULL, 'https://www.mercadopago.com.uy/activities/detail/checkout_merchant_order-40162297163', '_hQ3pfKFGmyy-UPUf1K6uA', '2026-04-21 19:48:45');
+INSERT INTO `visita` (`id_visita`, `fecha_hora`, `id_cliente`, `id_barbero`, `id_servicio`, `precio_al_reservar`, `notificado_wsp`, `mp_conflicto_aviso_enviado`, `mp_reagendar_aviso_enviado`, `estado`, `medio_pago`, `estado_pago`, `pago_tardio`, `mercadopago_payment_id`, `mercadopago_receipt_url`, `mercadopago_seller_activity_url`, `token_seguimiento`, `reagendar_token_hash`, `reagendar_token_expires_at`, `reagendar_token_used_at`, `created_at`) VALUES
+	(1, '2026-04-30 18:15:00', 1, 1, 1, 1.00, 0, 1, 1, 'CANCELADO', 'mercadopago', 'REQUIERE_ACCION', 1, '156396543922', NULL, 'https://www.mercadopago.com.uy/activities/detail/checkout_merchant_order-40297911252', 'HxgiUvEObenq55WvlT86Lg', 'f0c63509c3148152cfcdc1dabc07603422e4c44cb1a9d5c83935a296475c407c', '2026-04-26 13:48:30', NULL, '2026-04-25 13:47:41'),
+	(2, '2026-04-30 18:15:00', 83, 1, 1, 1.00, 0, 0, 0, 'CONFIRMADO', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-25 13:48:00');
 /*!40000 ALTER TABLE `visita` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
