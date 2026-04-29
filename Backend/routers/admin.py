@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 from typing import List
 from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
@@ -69,29 +68,6 @@ def admin_dashboard(
         "turnos_cancelados": turnos_cancelados
     }
 
-
-@router.get("/mercadopago/visitas-pendientes-sync")
-def admin_mercadopago_visitas_pendientes_sync(
-    admin=Depends(get_current_admin),
-    db: Session = Depends(get_db),
-):
-    """
-    IDs de visitas con MP pendiente de confirmar y sin n° de operación guardado.
-    El front hace polling (como Burgers/Admin) y llama a /visitas/mercadopago/sincronizar por cada id.
-    """
-    rows = (
-        db.query(Visita.id_visita)
-        .filter(
-            Visita.estado.ilike("pendiente_confirmacion_mp"),
-            or_(Visita.medio_pago.is_(None), Visita.medio_pago == "mercadopago"),
-            Visita.mercadopago_payment_id.is_(None),
-        )
-        .order_by(Visita.id_visita.asc())
-        .all()
-    )
-    return {"ids": [r[0] for r in rows]}
-
-
 # =====================================================================================
 # DASHBOARD - LISTADO DE TURNOS (CON FILTROS)
 # =====================================================================================
@@ -119,24 +95,11 @@ def admin_turnos(
         query = query.filter(Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
     else:
         if filtro == "pendientes":
-            query = query.filter(
-                Visita.fecha_hora > ahora,
-                or_(
-                    Visita.estado.ilike("confirmado"),
-                    Visita.estado.ilike("pendiente_confirmacion_mp"),
-                ),
-            )
+            query = query.filter(Visita.estado.ilike("confirmado"), Visita.fecha_hora > ahora)
         elif filtro == "hoy":
             inicio = datetime.combine(hoy, time.min)
             fin = datetime.combine(hoy, time.max)
-            query = query.filter(
-                Visita.fecha_hora >= inicio,
-                Visita.fecha_hora <= fin,
-                or_(
-                    Visita.estado.ilike("confirmado"),
-                    Visita.estado.ilike("pendiente_confirmacion_mp"),
-                ),
-            )
+            query = query.filter(Visita.estado.ilike("confirmado"), Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
         elif filtro == "cancelados":
             query = query.filter(Visita.estado.ilike("cancelado"))
 
@@ -155,13 +118,7 @@ def admin_turnos(
             "servicio": t.servicio.nombre,
             "servicio_duracion": t.servicio.duracion_min,
             "barbero": t.barbero.nombre,
-            "estado": t.estado.upper(),
-            "medio_pago": t.medio_pago,
-            "estado_pago": getattr(t, "estado_pago", None),
-            "pago_tardio": bool(getattr(t, "pago_tardio", False)),
-            "mercadopago_payment_id": t.mercadopago_payment_id,
-            "mercadopago_receipt_url": getattr(t, "mercadopago_receipt_url", None),
-            "mercadopago_seller_activity_url": getattr(t, "mercadopago_seller_activity_url", None),
+            "estado": t.estado.upper()
         }
         for t in turnos
     ]

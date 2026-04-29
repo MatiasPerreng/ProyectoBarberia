@@ -4,7 +4,7 @@ import SuccessModal from "../../SuccessModal/SuccessModal";
 import DuplicateBookingModal from "../../DuplicateBookingModal/DuplicateBookingModal";
 import "./AgendaForm.css";
 
-const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
+const AgendaForm = ({ onSubmit, onVolver }) => {
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
@@ -12,7 +12,6 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
     telefono: "",
   });
 
-  const [pagoMercadoPago, setPagoMercadoPago] = useState(false);
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDuplicate, setShowDuplicate] = useState(false);
@@ -35,11 +34,8 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
     // Validación Apellido
     if (!form.apellido.trim()) newErrors.apellido = "El apellido es obligatorio";
     
-    if (!form.email.trim()) {
-      newErrors.email = "El email es obligatorio";
-    } else if (!validarEmail(form.email)) {
-      newErrors.email = "Email inválido";
-    }
+    // Validación Email (Opcional pero debe ser válido si se escribe)
+    if (form.email.trim() && !validarEmail(form.email)) newErrors.email = "Email inválido";
     
     // 🔥 Validación Teléfono OBLIGATORIO
     if (!form.telefono.trim()) {
@@ -64,13 +60,11 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
     setLoading(true);
 
     try {
-      const submitResult = await onSubmit({
+      await onSubmit({
         ...form,
-        email: form.email.trim(),
-        telefono: form.telefono.trim(),
-        pagoMercadoPago,
+        email: form.email.trim() || null,
+        telefono: form.telefono.trim(), // Ya no enviamos null porque es obligatorio
       });
-      if (submitResult === false) return;
       setShowSuccess(true);
     } catch (err) {
       const rawMessage = err?.response?.data?.detail || err?.message || "";
@@ -98,10 +92,7 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
         setShowDuplicate(true);
       } 
       else {
-        const msg =
-          (rawMessage && String(rawMessage).trim()) ||
-          "Ocurrió un error inesperado. Reintentá o contactanos si persiste.";
-        alert("Ocurrió un error: " + msg);
+        alert("Ocurrió un error: " + rawMessage);
       }
     } finally {
       setLoading(false);
@@ -153,13 +144,11 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
 
             <form className="af-form-grid" onSubmit={handleSubmit} noValidate>
               <div className="af-form-group">
-                <label>Email *</label>
+                <label>Email</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="ejemplo@correo.com"
-                  required
-                  autoComplete="email"
                   value={form.email}
                   onChange={handleChange}
                   className={errors.email ? "af-input-error" : ""}
@@ -205,44 +194,9 @@ const AgendaForm = ({ onSubmit, onVolver, servicioNombre, servicioPrecio }) => {
                 {errors.apellido && <small className="af-error">{errors.apellido}</small>}
               </div>
 
-              <div className="af-mp-option">
-                <label className="af-mp-option__label">
-                  <input
-                    type="checkbox"
-                    checked={pagoMercadoPago}
-                    onChange={(e) => setPagoMercadoPago(e.target.checked)}
-                  />
-                  <img
-                    className="af-mp-option__logo"
-                    src="/img/mercadopago-logo.png"
-                    alt="Mercado Pago"
-                    width={110}
-                    height={28}
-                    loading="lazy"
-                  />
-                  <span className="af-mp-option__text">Pagar anticipado con Mercado Pago</span>
-                </label>
-                {servicioNombre != null && servicioPrecio != null && servicioPrecio !== "" && (
-                  <p className="af-mp-option__hint">
-                    Monto a pagar: <strong>${Number(servicioPrecio).toFixed(0)}</strong> · {servicioNombre}
-                  </p>
-                )}
-                {pagoMercadoPago && (
-                  <p className="af-mp-option__note">
-                    Te llevamos a Mercado Pago para completar el pago. Al volver, tu turno quedará confirmado.
-                  </p>
-                )}
-              </div>
-
               <div className="af-form-actions">
                 <button type="submit" className="af-btn-confirmar" disabled={loading}>
-                  {loading
-                    ? pagoMercadoPago
-                      ? "Preparando pago..."
-                      : "Agendando..."
-                    : pagoMercadoPago
-                      ? "Continuar al pago"
-                      : "Confirmar turno"}
+                  {loading ? "Agendando..." : "Confirmar turno"}
                 </button>
               </div>
             </form>

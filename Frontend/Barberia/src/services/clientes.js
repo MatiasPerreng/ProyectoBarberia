@@ -1,26 +1,19 @@
 import API_URL from "./api";
-import { formatFastApiDetail, networkFailureMessage } from "../utils/apiError";
 
 export async function crearCliente(datos) {
-  let response;
-  try {
-    response = await fetch(`${API_URL}/clientes/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(datos),
-    });
-  } catch (e) {
-    throw new Error(networkFailureMessage(e));
-  }
+  const response = await fetch(`${API_URL}/clientes/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(datos),
+  });
 
-  const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const msg = formatFastApiDetail(body) || "Error al crear cliente";
-    console.error("Error backend /clientes:", body);
-    throw new Error(msg);
+    const error = await response.json();
+    console.error("Error backend /clientes:", error);
+    throw new Error(error.detail || "Error al crear cliente");
   }
 
-  return body;
+  return await response.json();
 }

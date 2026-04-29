@@ -57,14 +57,6 @@ const AdminDashboard = () => {
     return () => clearInterval(id);
   }, [location.pathname, refreshStats]);
 
-  /* MP polling vive en AdminLayout; al asociar un pago refrescamos métricas si estamos en Dashboard. */
-  useEffect(() => {
-    if (location.pathname !== "/admin") return;
-    const onMpSync = () => refreshStats(true);
-    window.addEventListener("kb-admin-dashboard-refresh", onMpSync);
-    return () => window.removeEventListener("kb-admin-dashboard-refresh", onMpSync);
-  }, [location.pathname, refreshStats]);
-
   /* Al volver a la pestaña */
   useEffect(() => {
     if (location.pathname !== "/admin") return;

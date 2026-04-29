@@ -45,7 +45,7 @@ def agenda_estado_tv(db: Session = Depends(get_db)):
         )
         .filter(
             Visita.fecha_hora >= inicio_dia,
-            Visita.estado == "CONFIRMADO",
+            Visita.estado != "cancelado",
         )
         .order_by(Visita.fecha_hora.asc())
         .all()

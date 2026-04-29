@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import MercadoPagoReturnRecovery from "../components/MercadoPagoReturnRecovery/MercadoPagoReturnRecovery";
 
 
 /* =====================
@@ -13,7 +12,6 @@ import TvTurnoPage from "../pages/tv/TvTurnoPage";
 ===================== */
 import HomePage from "../pages/Public/Homepage/Homepage";
 import AgendaPage from "../pages/Public/AgendaPage";
-import AgendaPagoResultado from "../pages/Public/AgendaPagoResultado";
 import LoginBarbero from "../pages/Public/Homepage/LoginBarbero/LoginBarbero";
 
 /* =====================
@@ -48,15 +46,12 @@ import ProtectedRoute from "../router/ProtectedRoute";
 
 export default function AppRouter() {
   return (
-    <>
-      <MercadoPagoReturnRecovery />
     <Routes>
       {/* =====================
           PUBLIC
       ===================== */}
       <Route path="/" element={<HomePage />} />
       <Route path="/agenda" element={<AgendaPage />} />
-      <Route path="/agenda/pago-resultado" element={<AgendaPagoResultado />} />
       <Route path="/login-barbero" element={<LoginBarbero />} />
 
       {/* =====================
@@ -233,6 +228,5 @@ export default function AppRouter() {
 
       <Route path="/tv" element={<TvTurnoPage />} />
     </Routes>
-    </>
   );
 }

@@ -1,61 +1,10 @@
-import asyncio
-import logging
 import os
-from contextlib import asynccontextmanager
 from pathlib import Path
 
-# Cargar Backend/.env con override antes que core/email u otros (evita MERCADOPAGO_* heredados del sistema).
-import database  # noqa: F401
-from database import SessionLocal
-
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.exceptions import RequestValidationError, ResponseValidationError
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
 # Path base del backend (donde está main.py)
 BASE_DIR = Path(__file__).resolve().parent
-
-logger = logging.getLogger(__name__)
-
-
-@asynccontextmanager
-async def _lifespan(app: FastAPI):
-    """Sincroniza/cancela visitas MP aunque no haya retorno del front (polling cada N segundos)."""
-
-    async def mp_cleanup_loop() -> None:
-        raw = os.getenv("MERCADOPAGO_CLEANUP_INTERVAL_SEC", "45").strip()
-        try:
-            interval = max(15, int(raw))
-        except ValueError:
-            interval = 45
-        await asyncio.sleep(3)
-        while True:
-            db = SessionLocal()
-            try:
-                from crud.visita import cancelar_visitas_mp_abandonadas, sincronizar_visitas_mp_automaticamente
-
-                synced = sincronizar_visitas_mp_automaticamente(db)
-                if synced:
-                    logger.info("MP auto-sync (background): sincronizadas %s visita(s)", synced)
-
-                canceled = cancelar_visitas_mp_abandonadas(db)
-                if canceled:
-                    logger.info("MP cleanup (background): canceladas %s visita(s) pendientes de pago", canceled)
-            except Exception:
-                logger.exception("MP background loop")
-            finally:
-                db.close()
-            await asyncio.sleep(interval)
-
-    task = asyncio.create_task(mp_cleanup_loop())
-    yield
-    task.cancel()
-    try:
-        await task
-    except asyncio.CancelledError:
-        pass
-
-
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -78,28 +27,7 @@ from routers import (
 app = FastAPI(
     title="API Barbería",
     version="1.0.0",
-    lifespan=_lifespan,
 )
-
-
-@app.middleware("http")
-async def catch_unhandled_server_errors(request: Request, call_next):
-    """Evita respuestas HTML genéricas ante fallos no previstos; deja pasar HTTPException y validación."""
-    try:
-        return await call_next(request)
-    except HTTPException:
-        raise
-    except RequestValidationError:
-        raise
-    except ResponseValidationError:
-        raise
-    except Exception:
-        logger.exception("Error no controlado en %s %s", request.method, request.url.path)
-        return JSONResponse(
-            status_code=500,
-            content={"detail": "Error interno del servidor. Reintentá más tarde."},
-        )
-
 
 # =======================
 # TEST EMAIL (solo si ENABLE_TEST_EMAIL=true en .env)
@@ -146,27 +74,17 @@ app.mount(
 )
 
 # =======================
-# CORS (mismo criterio que ProyectoBurgers: CORS_ORIGINS + opcional CORS_ORIGIN_REGEX)
-# Si el front abre desde otro host (dominio, IP LAN, túnel), el POST a /visitas/mercadopago/sincronizar
-# falla en el navegador y la BD nunca se actualiza.
+# CORS
 # =======================
-
-_default_cors = (
-    "http://localhost:5173,http://127.0.0.1:5173,"
-    "http://localhost:4173,http://127.0.0.1:4173,"
-    "http://192.168.1.62:5173,http://167.62.53.159:5173,"
-    "http://167.62.232.17:5173,http://186.53.205.51:5173,http://179.27.203.212:5173,"
-    "https://kingbarber.webhop.net,http://kingbarber.webhop.net"
-)
-_cors_raw = os.getenv("CORS_ORIGINS", _default_cors)
-_cors_origins = [o.strip() for o in _cors_raw.split(",") if o.strip()]
-_cors_regex_raw = os.getenv("CORS_ORIGIN_REGEX", "").strip()
-_cors_origin_regex = _cors_regex_raw if _cors_regex_raw else None
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_cors_origins,
-    allow_origin_regex=_cors_origin_regex,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://192.168.1.62:5173",
+        "http://167.62.53.159:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

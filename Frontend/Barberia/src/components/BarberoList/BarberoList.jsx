@@ -2,45 +2,24 @@ import { useEffect, useState } from "react";
 import Footer from "../Footer/Footer";
 import "./BarberoList.css";
 import API_URL from "../../services/api";
-import { formatFastApiDetail, networkFailureMessage } from "../../utils/apiError";
 
 const BarberosList = ({ onSelectBarbero, onVolver }) => {
   const [barberos, setBarberos] = useState([]);
   const [barberoSeleccionado, setBarberoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
-    let cancelled = false;
     setLoading(true);
-    setLoadError(null);
-
     fetch(`${API_URL}/barberos/activos`)
-      .then(async (res) => {
-        const body = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(formatFastApiDetail(body) || "Error al cargar el personal");
-        }
-        return Array.isArray(body) ? body : [];
-      })
+      .then((res) => res.json())
       .then((data) => {
-        if (!cancelled) {
-          setBarberos(data);
-          setLoading(false);
-        }
+        setBarberos(data);
+        setLoading(false);
       })
       .catch((err) => {
         console.error("Error cargando barberos:", err);
-        if (!cancelled) {
-          setLoadError(err.message || networkFailureMessage(err));
-          setBarberos([]);
-          setLoading(false);
-        }
+        setLoading(false);
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   const handleSelect = (barbero) => {
@@ -100,16 +79,6 @@ const BarberosList = ({ onSelectBarbero, onVolver }) => {
             {loading ? (
               <div className="bl-message-container">
                 <p>Cargando personal...</p>
-              </div>
-            ) : loadError ? (
-              <div className="bl-message-container bl-empty-state">
-                <div className="bl-icon-warning">⚠️</div>
-                <p>{loadError}</p>
-                <small>
-                  <button type="button" className="bl-btn-volver" onClick={() => window.location.reload()}>
-                    Reintentar
-                  </button>
-                </small>
               </div>
             ) : barberos.length > 0 ? (
               <div className="bl-grid">

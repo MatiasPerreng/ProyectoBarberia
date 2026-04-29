@@ -232,61 +232,6 @@
 }
 
 /* =======================================================
-   MERCADO PAGO
-======================================================= */
-
-.af-mp-option {
-  grid-column: 1 / -1;
-  padding: 14px 16px;
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  margin-top: 4px;
-}
-
-.af-mp-option__label {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 12px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.af-mp-option__label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #009ee3;
-}
-
-.af-mp-option__logo {
-  display: block;
-  height: 24px;
-  width: auto;
-}
-
-.af-mp-option__text {
-  flex: 1;
-  min-width: 140px;
-  letter-spacing: 0.02em;
-}
-
-.af-mp-option__hint {
-  margin: 10px 0 0;
-  font-size: 12px;
-  color: #666;
-}
-
-.af-mp-option__note {
-  margin: 10px 0 0;
-  font-size: 11px;
-  color: #888;
-  line-height: 1.4;
-}
-
-/* =======================================================
    BOTÓN CONFIRMAR
 ======================================================= */
 

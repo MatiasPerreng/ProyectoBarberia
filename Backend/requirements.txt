@@ -44,9 +44,3 @@ requests==2.31.0
 # TIMEZONE (Linux/Docker)
 # =========================
 tzdata>=2024.1
-
-# =========================
-# ASYNC TASKS (CELERY)
-# =========================
-celery==5.6.3
-redis==7.4.0

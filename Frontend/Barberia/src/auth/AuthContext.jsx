@@ -42,11 +42,7 @@ export const AuthProvider = ({ children }) => {
         setUser(buildUserFromPerfil(token, perfil, payload));
       } catch (err) {
         console.error("❌ Sesión inválida", err);
-        const network =
-          err instanceof TypeError && String(err.message || "").includes("fetch");
-        if (!network) {
-          localStorage.removeItem("token");
-        }
+        localStorage.removeItem("token");
         setUser(null);
       } finally {
         setLoading(false);

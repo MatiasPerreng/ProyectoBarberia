@@ -41,11 +41,6 @@ from .visita import (
     VisitaOut
 )
 
-from .mercadopago import (
-    MercadoPagoAsociarLinkIn,
-    MercadoPagoSyncIn,
-)
-
 # AGENDA / DISPONIBILIDAD
 from .agenda import AgendaBarberoOut
 from .disponibilidad import *

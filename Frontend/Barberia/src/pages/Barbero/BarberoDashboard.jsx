@@ -44,11 +44,6 @@ const BarberoDashboard = () => {
           estado: v.estado || "CONFIRMADO",
           precio: v.servicio_precio ?? v.precio ?? 0,
           servicio_precio: v.servicio_precio ?? v.precio ?? 0,
-
-          medio_pago: v.medio_pago,
-          mercadopago_payment_id: v.mercadopago_payment_id,
-          mercadopago_receipt_url: v.mercadopago_receipt_url,
-          mercadopago_seller_activity_url: v.mercadopago_seller_activity_url,
         }));
 
         setTurnos(normalizados);
