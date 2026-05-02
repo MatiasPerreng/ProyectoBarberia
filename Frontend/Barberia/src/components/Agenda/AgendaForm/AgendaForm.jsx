@@ -212,8 +212,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                     <div className="af-mp-celeste__mid">
                       <span className="af-mp-celeste__nombre">Mercado Pago</span>
                       <span className="af-mp-celeste__sub">
-                        Opcional: si lo marcás, pagás en el sitio de Mercado Pago. Si no, reservás
-                        como siempre y pagás en el local.
+                        Ahora podés realizar el pago anticipado de tu turno con Mercado Pago.
                       </span>
                     </div>
                     <label className="af-mp-celeste__check">

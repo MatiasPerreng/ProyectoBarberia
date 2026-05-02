@@ -449,6 +449,31 @@
     margin-top: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
+
+  /*
+   * Solo /admin/mi-agenda (clase en BarberoDashboard): misma fila que el estado,
+   * comprobante MP a la izquierda (debajo del bloque cliente/servicio y chips).
+   */
+  .barbero-dashboard--admin-mi-agenda .barbero-agenda-item .agenda-estado-col {
+    align-self: stretch;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .barbero-dashboard--admin-mi-agenda .barbero-agenda-item .agenda-mp-slot {
+    order: -1;
+    flex: 0 1 auto;
+    max-width: none;
+    min-height: 0;
+    justify-content: flex-start;
+  }
+
+  .barbero-dashboard--admin-mi-agenda .barbero-agenda-item .estado {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
 }
 
 /* EXTRA SMALL — texto "WhatsApp" siempre visible (no solo el ícono) */

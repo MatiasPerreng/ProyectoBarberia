@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import BarberoDaySummary from "../../components/Barbero/BarberoDaySummary";
 import BarberoAgendaList from "../../components/Barbero/BarberoAgendaList/BarberoAgendaList";
 import BarberoTurnoModal from "../../components/Barbero/BarberoTurnoModal";
@@ -40,6 +41,9 @@ const normalizarTurnosApi = (data) =>
   }));
 
 const BarberoDashboard = () => {
+  const { pathname } = useLocation();
+  const adminMiAgenda = pathname.includes("/admin/mi-agenda");
+
   const [fecha, setFecha] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -126,7 +130,9 @@ const BarberoDashboard = () => {
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="barbero-dashboard">
+    <div
+      className={`barbero-dashboard${adminMiAgenda ? " barbero-dashboard--admin-mi-agenda" : ""}`}
+    >
       <h1>Mi agenda</h1>
 
       <BarberoDaySummary
