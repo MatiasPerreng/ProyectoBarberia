@@ -8,12 +8,35 @@ Mercado Pago (2025) rechaza HTTP en back_urls y notification_url: usá HTTPS
 from __future__ import annotations
 
 import os
+from datetime import datetime, timedelta
 from typing import Any, Optional
 from urllib.parse import urlencode
+from zoneinfo import ZoneInfo
 
 import requests
 
 _MP_BASE = "https://api.mercadopago.com"
+_UY_TZ = ZoneInfo("America/Montevideo")
+
+
+def preference_expiration_minutes() -> int:
+    """Minutos de validez del checkout (preferencia MP + cancelación pendiente en BD)."""
+    try:
+        v = int((os.getenv("MERCADOPAGO_PREFERENCE_EXPIRATION_MINUTES") or "10").strip())
+        return max(1, min(v, 120))
+    except ValueError:
+        return 10
+
+
+def _preference_expiration_fields(minutes: int) -> dict[str, Any]:
+    """Campos oficiales de vigencia de preferencia (Checkout Pro)."""
+    now = datetime.now(_UY_TZ)
+    end = now + timedelta(minutes=max(1, minutes))
+    return {
+        "expires": True,
+        "expiration_date_from": now.isoformat(timespec="milliseconds"),
+        "expiration_date_to": end.isoformat(timespec="milliseconds"),
+    }
 
 
 def _token() -> str:
@@ -48,6 +71,7 @@ def create_checkout_preference(
     unit_price: float,
     payer_email: Optional[str],
     token_seguimiento: str,
+    expiration_minutes: Optional[int] = None,
 ) -> dict[str, Any]:
     public_raw = (os.getenv("PUBLIC_FRONTEND_URL") or "").strip().rstrip("/")
     backend_raw = (os.getenv("BACKEND_PUBLIC_URL") or "").strip().rstrip("/")
@@ -86,6 +110,9 @@ def create_checkout_preference(
         "auto_return": "approved",
     }
 
+    exp_min = expiration_minutes if expiration_minutes is not None else preference_expiration_minutes()
+    payload.update(_preference_expiration_fields(exp_min))
+
     if backend_raw.lower().startswith("https://"):
         payload["notification_url"] = f"{backend_raw}/visitas/mercadopago/webhook"
 
@@ -110,6 +137,22 @@ def create_checkout_preference(
     if not init_point:
         raise RuntimeError("Mercado Pago no devolvió init_point")
     return {"id": data["id"], "init_point": init_point, "raw": data}
+
+
+def get_merchant_order(order_id: str) -> dict[str, Any]:
+    """Detalle de orden comercial Checkout Pro (notificaciones topic merchant_order)."""
+    r = requests.get(
+        f"{_MP_BASE}/merchant_orders/{order_id}",
+        headers={"Authorization": f"Bearer {_token()}"},
+        timeout=45,
+    )
+    if not r.ok:
+        try:
+            detail = r.json()
+        except Exception:
+            detail = r.text
+        raise RuntimeError(f"Mercado Pago merchant_orders HTTP {r.status_code}: {detail}")
+    return r.json()
 
 
 def get_payment(payment_id: str) -> dict[str, Any]:

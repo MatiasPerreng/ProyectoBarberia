@@ -156,14 +156,10 @@ const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
                     href={t.comprobante_mp_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="admin-turno-comp-link"
+                    className="kb-mp-comprobante"
                   >
-                    <img
-                      className="admin-turno-comp-link__mp"
-                      src="/mercadopago.png"
-                      alt=""
-                    />
-                    ver comprobante
+                    <img className="kb-mp-comprobante__logo" src="/mercadopago.png" alt="" />
+                    <span className="kb-mp-comprobante__text">ver comprobante</span>
                   </a>
                 </div>
               )}

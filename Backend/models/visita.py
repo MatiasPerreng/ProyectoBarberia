@@ -10,6 +10,10 @@ from .base import Base
 
 
 class Visita(Base):
+    """
+    Unicidad de slot (mismo barbero + fecha_hora) en BD: ver `Database/visita_slot_unique_activo.sql`
+    (columna generada `uq_slot_activo` NULL si estado = CANCELADO).
+    """
     __tablename__ = 'visita'
     __table_args__ = (
         ForeignKeyConstraint(['id_barbero'], ['barbero.id_barbero'], name='fk_visita_barbero'),

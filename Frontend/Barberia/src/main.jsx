@@ -8,6 +8,7 @@ import "./styles/layoutPageTitles.css";
 import "./styles/adminSurfaces.css";
 import "./components/SuccessModal/SuccessModal.css";
 import "./styles/modalsShared.css";
+import "./styles/mpComprobanteBtn.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

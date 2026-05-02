@@ -1,0 +1,55 @@
+/**
+ * Link "ver comprobante" Mercado Pago — misma UI en:
+ * /barbero/mi-agenda, /admin/mi-agenda, resultado de pago público, lista admin turnos.
+ * Fondo celeste opaco: se ve igual sobre card claro u oscuro; multiply funde el blanco del PNG.
+ */
+.kb-mp-comprobante {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #009ee3;
+  text-decoration: none;
+  padding: 4px 10px 4px 8px;
+  border-radius: 10px;
+  background-color: #e0f2fe;
+  border: 1px solid rgba(0, 158, 227, 0.28);
+  line-height: 1;
+  max-width: 100%;
+  box-sizing: border-box;
+  isolation: isolate;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.kb-mp-comprobante:hover {
+  background-color: #bae6fd;
+  border-color: rgba(0, 158, 227, 0.38);
+  color: #007eb5;
+  text-decoration: underline;
+}
+
+.kb-mp-comprobante__logo {
+  display: block;
+  width: auto;
+  height: 26px;
+  max-height: 26px;
+  max-width: min(88px, 36vw);
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+  mix-blend-mode: multiply;
+  opacity: 0.97;
+}
+
+.kb-mp-comprobante__text {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.kb-mp-comprobante--vpr {
+  margin: 0 auto 20px;
+}

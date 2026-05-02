@@ -284,46 +284,27 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
   justify-self: end;
   align-self: start;
   margin-top: 2px;
   min-width: 0;
 }
 
-.barbero-agenda-item .agenda-mp-comp {
-  display: inline-flex;
+/**
+ * Altura fija para que todas las cards midan igual: con o sin link MP.
+ * El enlace vive dentro y centra el logo grande sin sumar otra fila.
+ */
+.barbero-agenda-item .agenda-mp-slot {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  font-family: "Inter", system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #009ee3;
-  text-decoration: none;
-  padding: 6px 12px 6px 10px;
-  border-radius: 10px;
-  background: rgba(0, 158, 227, 0.08);
-  border: 1px solid rgba(0, 158, 227, 0.22);
-  transition: background 0.15s ease, color 0.15s ease;
+  justify-content: flex-end;
+  min-height: 40px;
+  width: 100%;
+  max-width: 220px;
 }
 
-.barbero-agenda-item .agenda-mp-comp:hover {
-  background: rgba(0, 158, 227, 0.14);
-  color: #007eb5;
-  text-decoration: underline;
-}
-
-.barbero-agenda-item .agenda-mp-comp__logo {
-  width: 38px;
-  height: 38px;
-  max-width: min(38px, 22vw);
-  object-fit: contain;
-  object-position: left center;
-  flex-shrink: 0;
-  mix-blend-mode: multiply;
-  opacity: 0.98;
-}
+/* Estilos del link MP: styles/mpComprobanteBtn.css (.kb-mp-comprobante) */
 
 .barbero-agenda-item .estado {
   font-size: 10px;
@@ -453,6 +434,13 @@
     margin-top: 6px;
     padding-top: 8px;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .barbero-agenda-item .agenda-mp-slot {
+    flex: 1 1 100%;
+    max-width: none;
+    justify-content: flex-end;
+    min-height: 40px;
   }
 
   .barbero-agenda-item .estado {

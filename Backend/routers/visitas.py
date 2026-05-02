@@ -3,7 +3,7 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Tuple
 from datetime import date, datetime, time, timedelta
 from calendar import monthrange
 
@@ -173,6 +173,7 @@ def sincronizar_pago_seguimiento(
         raise HTTPException(status_code=502, detail=str(e)) from e
 
     try:
+        # Si estaba CANCELADO por timeout pero MP acreditó igual, aplicar_pago puede reactivar a CONFIRMADO.
         enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
@@ -198,56 +199,103 @@ def obtener_visita_por_token_seguimiento(token: str, db: Session = Depends(get_d
     return visita_to_out(visita)
 
 
-@router.post("/mercadopago/webhook")
+def _parse_mp_notification_ids(request: Request, body: Any) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Devuelve (payment_id, merchant_order_id) desde webhook JSON o IPN GET (?topic=&id=).
+    """
+    qp = request.query_params
+    topic = (qp.get("topic") or qp.get("type") or "").lower()
+    qid = qp.get("id")
+
+    payment_id: Optional[str] = None
+    merchant_order_id: Optional[str] = None
+
+    if topic == "merchant_order" and qid:
+        merchant_order_id = str(qid)
+    elif topic == "payment" and qid:
+        payment_id = str(qid)
+
+    if isinstance(body, dict):
+        b_type = (body.get("type") or body.get("topic") or "").lower()
+        data = body.get("data")
+        did: Optional[str] = None
+        if isinstance(data, dict) and data.get("id") is not None:
+            did = str(data.get("id"))
+        if did:
+            if "merchant_order" in b_type:
+                merchant_order_id = did
+            elif "payment" in b_type or "payment" in (body.get("action") or "").lower():
+                payment_id = did
+            elif not b_type:
+                payment_id = did
+        resource = body.get("resource")
+        if isinstance(resource, str):
+            if "/merchant_orders/" in resource:
+                merchant_order_id = resource.rstrip("/").split("/")[-1].split("?")[0]
+            elif "/payments/" in resource and not payment_id:
+                payment_id = resource.rstrip("/").split("/")[-1].split("?")[0]
+
+    if not payment_id and not merchant_order_id:
+        payment_id = qp.get("data.id") or qp.get("id")
+
+    return payment_id, merchant_order_id
+
+
+@router.api_route("/mercadopago/webhook", methods=["GET", "POST"])
 async def mercadopago_webhook(
     request: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """IPN Mercado Pago (payment). Responder 200 rápido; MP reintenta si falla."""
+    """IPN/Webhook MP: pagos y merchant_order (preferencia vencida / cierre sin pago). Responder 200 rápido."""
     from crud import visita as crud_v
     from utils import mercadopago_api as mp
 
-    payment_id: Optional[str] = None
-    try:
-        body: Any = await request.json()
-    except Exception:
-        body = {}
+    body: Any = {}
+    if request.method == "POST":
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
 
-    if isinstance(body, dict):
-        data = body.get("data")
-        if isinstance(data, dict) and data.get("id") is not None:
-            payment_id = str(data.get("id"))
-        if not payment_id and isinstance(body.get("resource"), str):
-            res = body["resource"]
-            if "/payments/" in res:
-                payment_id = res.rstrip("/").split("/")[-1]
+    payment_id, merchant_order_id = _parse_mp_notification_ids(request, body)
 
-    if not payment_id:
-        payment_id = request.query_params.get("data.id") or request.query_params.get("id")
-
-    if not payment_id:
+    if not payment_id and not merchant_order_id:
         return {"ok": True, "ignored": True}
 
     try:
-        pdata = mp.get_payment(payment_id)
-        vid = pdata.get("external_reference")
-        if not vid:
-            return {"ok": True}
-        visita = crud_v.get_visita_by_id(db, int(vid))
-        if not visita:
-            return {"ok": True}
-        enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
-        visita = crud_v.get_visita_by_id(db, visita.id_visita)
-        if enviar_mail and visita and visita.cliente and visita.cliente.email:
-            background_tasks.add_task(
-                enviar_email_confirmacion,
-                visita.cliente.email,
-                "✅ Turno confirmado - King Barber",
-                generar_email_confirmacion(visita),
-            )
+        crud_v.cancelar_visitas_mp_expiradas(db)
+
+        if merchant_order_id:
+            try:
+                order = mp.get_merchant_order(merchant_order_id)
+                crud_v.procesar_merchant_order_mp(db, order)
+            except Exception:
+                logger.exception("Webhook MP merchant_order id=%s", merchant_order_id)
+
+        if payment_id:
+            pdata = mp.get_payment(payment_id)
+            vid = pdata.get("external_reference")
+            if not vid:
+                return {"ok": True}
+            visita = crud_v.get_visita_by_id(db, int(vid))
+            if not visita:
+                return {"ok": True}
+            enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
+            visita = crud_v.get_visita_by_id(db, visita.id_visita)
+            if enviar_mail and visita and visita.cliente and visita.cliente.email:
+                background_tasks.add_task(
+                    enviar_email_confirmacion,
+                    visita.cliente.email,
+                    "✅ Turno confirmado - King Barber",
+                    generar_email_confirmacion(visita),
+                )
     except Exception:
-        logger.exception("Webhook MP no procesado payment_id=%s", payment_id)
+        logger.exception(
+            "Webhook MP no procesado payment_id=%s merchant_order_id=%s",
+            payment_id,
+            merchant_order_id,
+        )
     return {"ok": True}
 
 

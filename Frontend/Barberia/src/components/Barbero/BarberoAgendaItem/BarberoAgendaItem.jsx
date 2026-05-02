@@ -85,17 +85,19 @@ const BarberoAgendaItem = ({ turno }) => {
 
       <div className="agenda-estado-col">
         <span className="estado">{turno.estado}</span>
-        {turno.comprobante_mp_url && (
-          <a
-            href={turno.comprobante_mp_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="agenda-mp-comp"
-          >
-            <img className="agenda-mp-comp__logo" src="/mercadopago.png" alt="" />
-            ver comprobante
-          </a>
-        )}
+        <div className="agenda-mp-slot">
+          {turno.comprobante_mp_url ? (
+            <a
+              href={turno.comprobante_mp_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="kb-mp-comprobante"
+            >
+              <img className="kb-mp-comprobante__logo" src="/mercadopago.png" alt="" />
+              <span className="kb-mp-comprobante__text">ver comprobante</span>
+            </a>
+          ) : null}
+        </div>
       </div>
     </div>
   );

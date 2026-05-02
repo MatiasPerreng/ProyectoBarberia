@@ -1,8 +1,13 @@
-from sqlalchemy.orm import Session, joinedload
-from typing import Optional, List, Tuple, Any
-from datetime import datetime, timedelta, time, date
+import logging
 import random
 import secrets
+from datetime import datetime, timedelta, time, date
+from typing import Any, List, Optional, Tuple
+
+from sqlalchemy import text
+from sqlalchemy.orm import Session, joinedload
+
+logger = logging.getLogger(__name__)
 
 from models import Visita, Servicio, HorarioBarbero, Barbero, Cliente
 from schemas import VisitaCreate
@@ -58,7 +63,92 @@ def generar_slots(hora_desde: time, hora_hasta: time, duracion_min: int):
 # 🔥 LÓGICA DE NEGOCIO: AUTO-COMPLETAR Y ANTI-SPAM
 # ======================================================================================
 
+def cancelar_visitas_mp_expiradas(db: Session) -> int:
+    """
+    Pasa a CANCELADO las visitas PENDIENTE_CONFIRMACION_MP cuyo created_at en MySQL
+    es anterior a NOW() - N minutos (MERCADOPAGO_PREFERENCE_EXPIRATION_MINUTES, default 10).
+
+    La comparación usa DATE_SUB(NOW(), ...) (mismo reloj que la columna).
+    El INTERVAL va con minutos literales (entero acotado): algunos drivers no enlazan bien :m dentro de INTERVAL.
+    Siempre se hace commit tras el UPDATE: en casos raros rowcount llega 0 aunque hubo cambios y sin commit el close() de la sesión hacía rollback.
+    """
+    from utils.mercadopago_api import preference_expiration_minutes
+
+    minutes = int(preference_expiration_minutes())
+    if minutes < 1 or minutes > 120:
+        minutes = 10
+
+    where_sql = (
+        "estado = 'PENDIENTE_CONFIRMACION_MP' "
+        "AND created_at IS NOT NULL "
+        f"AND created_at < DATE_SUB(NOW(), INTERVAL {minutes} MINUTE)"
+    )
+
+    r = db.execute(text(f"UPDATE visita SET estado = 'CANCELADO' WHERE {where_sql}"))
+    n = r.rowcount
+    if n is None or n < 0:
+        n = 0
+
+    db.commit()
+    db.expire_all()
+    return int(n)
+
+
+def check_payment_timeout(db: Session) -> int:
+    """Alias de la regla de negocio de expiración MP (~10 min)."""
+    return cancelar_visitas_mp_expiradas(db)
+
+
+def _merchant_order_implica_fin_sin_pago(order: dict[str, Any]) -> bool:
+    """True si MP informa orden vencida/cerrada sin pago acreditado."""
+    order_status = (order.get("order_status") or "").lower()
+    status = (order.get("status") or "").lower()
+    payments = order.get("payments") or []
+    approved = any(
+        isinstance(p, dict) and (p.get("status") or "").lower() in ("approved", "authorized")
+        for p in payments
+    )
+    if approved or order_status == "paid":
+        return False
+    if order_status in ("expired",) or status in ("expired",):
+        return True
+    if order_status in ("cancelled", "canceled") or status in ("cancelled", "canceled"):
+        return True
+    if status == "closed" and not approved:
+        paid = float(order.get("paid_amount") or 0)
+        if paid <= 0:
+            return True
+    return False
+
+
+def procesar_merchant_order_mp(db: Session, order: dict[str, Any]) -> bool:
+    """
+    Cancela visita PENDIENTE ligada por mp_preference_id cuando la merchant_order
+    indica vencimiento o cierre sin pago (notificación MP).
+    """
+    if not _merchant_order_implica_fin_sin_pago(order):
+        return False
+    pref = order.get("preference_id")
+    if not pref:
+        return False
+    visita = (
+        db.query(Visita)
+        .filter(
+            Visita.mp_preference_id == str(pref),
+            Visita.estado == "PENDIENTE_CONFIRMACION_MP",
+        )
+        .first()
+    )
+    if not visita:
+        return False
+    visita.estado = "CANCELADO"
+    visita.mp_status = str(order.get("order_status") or order.get("status") or "expired")[:64]
+    db.commit()
+    return True
+
+
 def marcar_visitas_completadas(db: Session) -> None:
+    cancelar_visitas_mp_expiradas(db)
     ahora = obtener_ahora_local()
     visitas = db.query(Visita).options(joinedload(Visita.servicio)).filter(Visita.estado == "CONFIRMADO").all()
     for v in visitas:
@@ -108,6 +198,7 @@ def asignar_barbero_automatico(db: Session, fecha_hora: datetime, duracion_min: 
     return random.choice(menos_cargados)
 
 def create_visita(db: Session, visita_in: VisitaCreate) -> Tuple[Visita, Optional[str]]:
+    cancelar_visitas_mp_expiradas(db)
     servicio = db.query(Servicio).filter(Servicio.id_servicio == visita_in.id_servicio).first()
     if not servicio:
         raise ValueError("Servicio no existe")
@@ -171,6 +262,7 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Tuple[Visita, Optiona
             unit_price=precio,
             payer_email=payer_email or None,
             token_seguimiento=token_seg or "",
+            expiration_minutes=mp.preference_expiration_minutes(),
         )
         visita.mp_preference_id = pref["id"]
         init_point = pref["init_point"]
@@ -180,7 +272,34 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Tuple[Visita, Optiona
     return visita, init_point
 
 
+def _otro_turno_activo_solapa(db: Session, visita: Visita) -> bool:
+    """True si ya hay otra visita (no cancelada) del mismo barbero que solapa en el tiempo con esta."""
+    if visita.id_barbero is None or visita.fecha_hora is None:
+        return False
+    inicio = visita.fecha_hora
+    dur = visita.servicio.duracion_min if visita.servicio else 45
+    fin = inicio + timedelta(minutes=dur)
+    otros = (
+        db.query(Visita)
+        .options(joinedload(Visita.servicio))
+        .filter(
+            Visita.id_barbero == visita.id_barbero,
+            Visita.id_visita != visita.id_visita,
+            Visita.estado.in_(("CONFIRMADO", "PENDIENTE_CONFIRMACION_MP")),
+        )
+        .all()
+    )
+    for o in otros:
+        od = o.servicio.duracion_min if o.servicio else 45
+        o_fin = o.fecha_hora + timedelta(minutes=od)
+        if overlaps(inicio, fin, o.fecha_hora, o_fin):
+            return True
+    return False
+
+
 def get_visita_por_token(db: Session, token: str) -> Optional[Visita]:
+    cancelar_visitas_mp_expiradas(db)
+    db.expire_all()
     return (
         db.query(Visita)
         .options(joinedload(Visita.cliente), joinedload(Visita.servicio), joinedload(Visita.barbero))
@@ -192,7 +311,7 @@ def get_visita_por_token(db: Session, token: str) -> Optional[Visita]:
 def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str, Any]) -> bool:
     """
     Actualiza la visita según el pago de MP.
-    Devuelve True si en esta llamada pasó de PENDIENTE a CONFIRMADO (para disparar email).
+    Devuelve True si conviene enviar email de confirmación (pasó a CONFIRMADO desde pendiente o reactivación tras timeout).
     """
     ext = payment_data.get("external_reference")
     if ext is not None and str(ext) != str(visita.id_visita):
@@ -200,21 +319,36 @@ def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str
 
     prev = visita.estado
     status = (payment_data.get("status") or "").lower()
+    detail = (payment_data.get("status_detail") or "").lower()
     pid = payment_data.get("id")
     pid_str = str(pid) if pid is not None else None
 
     if status in ("approved", "authorized"):
         if visita.estado == "PENDIENTE_CONFIRMACION_MP":
             visita.estado = "CONFIRMADO"
+        elif (
+            visita.estado == "CANCELADO"
+            and (visita.medio_pago or "").upper() == "MERCADOPAGO"
+        ):
+            # Pago acreditado después de cancelar por tiempo de MP: reactivar si el hueco sigue libre
+            if not _otro_turno_activo_solapa(db, visita):
+                visita.estado = "CONFIRMADO"
+            else:
+                logger.warning(
+                    "MP pago approved pero visita %s sigue CANCELADO: slot ocupado por otro turno; revisar manualmente.",
+                    visita.id_visita,
+                )
         if pid_str:
             visita.mp_payment_id = pid_str
         visita.mp_status = status
-    elif status in ("rejected", "cancelled", "refunded", "charged_back"):
+    elif status in ("rejected", "cancelled", "canceled", "refunded", "charged_back", "expired") or (
+        "expired" in detail
+    ):
         if visita.estado == "PENDIENTE_CONFIRMACION_MP":
             visita.estado = "CANCELADO"
         if pid_str:
             visita.mp_payment_id = pid_str
-        visita.mp_status = status
+        visita.mp_status = status or (detail[:64] if detail else visita.mp_status)
     else:
         if pid_str:
             visita.mp_payment_id = pid_str
@@ -222,7 +356,7 @@ def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str
 
     db.commit()
     db.refresh(visita)
-    return prev == "PENDIENTE_CONFIRMACION_MP" and visita.estado == "CONFIRMADO"
+    return visita.estado == "CONFIRMADO" and prev in ("PENDIENTE_CONFIRMACION_MP", "CANCELADO")
 
 def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visita:
     visita = db.query(Visita).get(visita_id)
@@ -283,6 +417,7 @@ def get_visitas_completadas_por_barbero(db: Session, barbero_id: int, fecha: Opt
     return query.order_by(Visita.fecha_hora.desc()).all()
 
 def get_disponibilidad(db: Session, fecha: date, id_servicio: Optional[int], id_barbero: Optional[int] = None, duracion_override: Optional[int] = None):
+    cancelar_visitas_mp_expiradas(db)
     if duracion_override:
         duracion = duracion_override
     else:
