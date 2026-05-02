@@ -76,19 +76,24 @@ app.mount(
 # =======================
 # CORS
 # =======================
+_base_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "https://localhost:5174",
+    "https://127.0.0.1:5174",
+    "http://192.168.1.62:5173",
+    "http://167.62.53.159:5173",
+]
+_extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+_cors_origins = list(dict.fromkeys(_base_origins + _extra_origins))
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-        "https://localhost:5174",
-        "https://127.0.0.1:5174",
-        "http://192.168.1.62:5173",
-        "http://167.62.53.159:5173",
-    ],
+    allow_origins=_cors_origins,
+    # Vite por IP/LAN/dominio en 5173 o 5174 (sin listar cada IP)
+    allow_origin_regex=r"^https?://[^/]+:(5173|5174)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -9,15 +9,8 @@ export default defineConfig({
   server: {
     host: true,
     port: 5174,
-    // Incluir IP pública/LAN para acceder desde otro dispositivo o por red
-    allowedHosts: [
-      "kingbarber.webhop.net",
-      "167.62.232.17",
-      "186.53.205.51",
-      "179.27.203.212",
-      "localhost",
-      "127.0.0.1",
-    ],
+    // Cualquier host (IP pública, LAN, DDNS) para abrir el dev server por URL externa
+    allowedHosts: true,
     proxy: {
       "/api": {
         target: "http://127.0.0.1:8000",
