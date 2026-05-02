@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+import os
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import date, datetime, time, timedelta
 from calendar import monthrange
 
 from database import get_db
+from utils.mercadopago_api import comprobante_url_public
 # Importaciones de modelos para la lógica de validación
 from models.blacklist import Blacklist
 from models import Cliente, Visita # Importamos Cliente para buscar el teléfono
@@ -20,6 +24,8 @@ from core.email_templates import (
 
 # Servicios de WhatsApp
 from services.whatsapp import enviar_recordatorio_whatsapp, enviar_cancelacion_whatsapp
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/visitas",
@@ -49,6 +55,14 @@ def visita_to_out(visita):
     elif visita.servicio and visita.servicio.precio is not None:
         servicio_precio = float(visita.servicio.precio)
 
+    medio = getattr(visita, "medio_pago", None) or "EFECTIVO"
+    mpid = getattr(visita, "mp_payment_id", None)
+    comp_url = (
+        comprobante_url_public(str(mpid))
+        if medio == "MERCADOPAGO" and mpid
+        else None
+    )
+
     return {
         "id_visita": visita.id_visita,
         "fecha_hora": visita.fecha_hora,
@@ -64,6 +78,11 @@ def visita_to_out(visita):
 
         "barbero_id": visita.barbero.id_barbero if visita.barbero else None,
         "barbero_nombre": visita.barbero.nombre if visita.barbero else "",
+        "medio_pago": medio,
+        "mp_payment_id": mpid,
+        "comprobante_mp_url": comp_url,
+        "init_point": None,
+        "public_key": None,
     }
 
 # ======================================================================================
@@ -128,6 +147,110 @@ def disponibilidad_mes(mes: int, anio: int, id_servicio: int, id_barbero: int, d
         resultado.append({"fecha": fecha_dia.isoformat(), "estado": estado})
     return resultado
 
+
+# ======================================================================================
+# MERCADO PAGO — seguimiento público (sin JWT; el token es el secreto compartido)
+# ======================================================================================
+
+@router.get("/seguimiento/sincronizar", response_model=VisitaOut)
+def sincronizar_pago_seguimiento(
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    token: str = Query(..., min_length=8),
+    payment_id: str = Query(..., min_length=1),
+):
+    from crud import visita as crud_v
+    from utils import mercadopago_api as mp
+
+    visita = crud_v.get_visita_por_token(db, token)
+    if not visita:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada")
+
+    try:
+        pdata = mp.get_payment(str(payment_id))
+    except Exception as e:
+        logger.exception("MP get_payment falló")
+        raise HTTPException(status_code=502, detail=str(e)) from e
+
+    try:
+        enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    visita = crud_v.get_visita_by_id(db, visita.id_visita)
+    if enviar_mail and visita and visita.cliente and visita.cliente.email:
+        background_tasks.add_task(
+            enviar_email_confirmacion,
+            visita.cliente.email,
+            "✅ Turno confirmado - King Barber",
+            generar_email_confirmacion(visita),
+        )
+    return visita_to_out(visita)
+
+
+@router.get("/seguimiento/{token}", response_model=VisitaOut)
+def obtener_visita_por_token_seguimiento(token: str, db: Session = Depends(get_db)):
+    from crud import visita as crud_v
+
+    visita = crud_v.get_visita_por_token(db, token)
+    if not visita:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada")
+    return visita_to_out(visita)
+
+
+@router.post("/mercadopago/webhook")
+async def mercadopago_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    """IPN Mercado Pago (payment). Responder 200 rápido; MP reintenta si falla."""
+    from crud import visita as crud_v
+    from utils import mercadopago_api as mp
+
+    payment_id: Optional[str] = None
+    try:
+        body: Any = await request.json()
+    except Exception:
+        body = {}
+
+    if isinstance(body, dict):
+        data = body.get("data")
+        if isinstance(data, dict) and data.get("id") is not None:
+            payment_id = str(data.get("id"))
+        if not payment_id and isinstance(body.get("resource"), str):
+            res = body["resource"]
+            if "/payments/" in res:
+                payment_id = res.rstrip("/").split("/")[-1]
+
+    if not payment_id:
+        payment_id = request.query_params.get("data.id") or request.query_params.get("id")
+
+    if not payment_id:
+        return {"ok": True, "ignored": True}
+
+    try:
+        pdata = mp.get_payment(payment_id)
+        vid = pdata.get("external_reference")
+        if not vid:
+            return {"ok": True}
+        visita = crud_v.get_visita_by_id(db, int(vid))
+        if not visita:
+            return {"ok": True}
+        enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
+        visita = crud_v.get_visita_by_id(db, visita.id_visita)
+        if enviar_mail and visita and visita.cliente and visita.cliente.email:
+            background_tasks.add_task(
+                enviar_email_confirmacion,
+                visita.cliente.email,
+                "✅ Turno confirmado - King Barber",
+                generar_email_confirmacion(visita),
+            )
+    except Exception:
+        logger.exception("Webhook MP no procesado payment_id=%s", payment_id)
+    return {"ok": True}
+
+
 # ======================================================================================
 # CREAR VISITA (CORREGIDO PARA EVITAR EL ATTRIBUTE ERROR)
 # ======================================================================================
@@ -157,19 +280,22 @@ def crear_visita(
                     detail="Lo sentimos, no es posible realizar la reserva con este número."
                 )
 
-        # 3. CREAR VISITA
-        visita = crud_v.create_visita(db, visita_in)
+        # 3. CREAR VISITA (efectivo confirmado al instante; MP queda pendiente hasta el pago)
+        visita, init_point = crud_v.create_visita(db, visita_in)
 
-        # 4. EMAIL DE CONFIRMACIÓN
-        if visita.cliente and visita.cliente.email:
+        out = visita_to_out(visita)
+        if init_point:
+            out["init_point"] = init_point
+            out["public_key"] = os.getenv("MERCADOPAGO_PUBLIC_KEY", "").strip()
+        elif visita.estado == "CONFIRMADO" and visita.cliente and visita.cliente.email:
             background_tasks.add_task(
                 enviar_email_confirmacion,
                 visita.cliente.email,
                 "✅ Turno confirmado - King Barber",
-                generar_email_confirmacion(visita)
+                generar_email_confirmacion(visita),
             )
 
-        return visita_to_out(visita)
+        return out
 
     except HTTPException as he:
         raise he

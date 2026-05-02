@@ -1,0 +1,9 @@
+# Entorno local (no subir secretos ni venv)
+Backend/.env
+Backend/venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class

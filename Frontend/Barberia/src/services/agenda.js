@@ -3,6 +3,15 @@ import API_URL from "./api";
 /* =========================
    CREAR VISITA
 ========================= */
+function detalleErrorApi(err) {
+  const d = err?.detail;
+  if (Array.isArray(d)) {
+    return d.map((x) => x.msg || JSON.stringify(x)).join("; ");
+  }
+  if (typeof d === "string") return d;
+  return err?.message || "Error al crear visita";
+}
+
 export async function crearVisita(data) {
   const res = await fetch(`${API_URL}/visitas/`, {
     method: "POST",
@@ -12,12 +21,33 @@ export async function crearVisita(data) {
     body: JSON.stringify(data),
   });
 
+  const body = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Error al crear visita");
+    throw new Error(detalleErrorApi(body));
   }
 
-  return await res.json();
+  return body;
+}
+
+export async function sincronizarVisitaPagoMP(token, paymentId) {
+  const q = new URLSearchParams({ token, payment_id: String(paymentId) });
+  const res = await fetch(`${API_URL}/visitas/seguimiento/sincronizar?${q.toString()}`, {
+    method: "GET",
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(detalleErrorApi(body));
+  }
+  return body;
+}
+
+export async function getVisitaSeguimiento(token) {
+  const res = await fetch(`${API_URL}/visitas/seguimiento/${encodeURIComponent(token)}`);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(detalleErrorApi(body));
+  }
+  return body;
 }
 
 /* =========================

@@ -7,7 +7,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://barber:KingBarber2026!@localhost/barber"
+    "mysql+pymysql://root:1234@localhost/barber"
 )
 
 engine = create_engine(DATABASE_URL, pool_recycle=3600, pool_pre_ping=True)

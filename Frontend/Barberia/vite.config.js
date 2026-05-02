@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
-// https://vite.dev/config/
+// HTTPS local: Mercado Pago exige back_urls en https (desde ~2025).
+// Abrí https://localhost:5174 (el navegador avisará certificado de prueba → continuar).
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), basicSsl()],
   server: {
     host: true,
-    port: 5173,
+    port: 5174,
     // Incluir IP pública/LAN para acceder desde otro dispositivo o por red
     allowedHosts: [
       "kingbarber.webhop.net",

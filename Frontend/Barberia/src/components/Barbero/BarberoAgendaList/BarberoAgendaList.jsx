@@ -23,6 +23,9 @@ const normalizarTurno = (t) => {
     duracion: t.duracion ?? t.servicio_duracion ?? 0,
     telefono: t.telefono || t.cliente_telefono,
     hora,
+    comprobante_mp_url: t.comprobante_mp_url,
+    medio_pago: t.medio_pago,
+    mp_payment_id: t.mp_payment_id,
   };
 };
 

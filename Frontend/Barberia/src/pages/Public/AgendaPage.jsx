@@ -79,16 +79,23 @@ export default function AgendaPage() {
   // ----------------------------
 
   const handleSubmitTurno = async (datosCliente) => {
-    const cliente = await crearCliente(datosCliente);
+    const restCliente = { ...datosCliente };
+    const medio_pago = restCliente.medio_pago ?? "efectivo";
+    delete restCliente.medio_pago;
+    const cliente = await crearCliente(restCliente);
 
-    await crearVisita({
+    const visita = await crearVisita({
       id_cliente: cliente.id_cliente,
       id_barbero: barberoSeleccionado?.id_barbero ?? null,
       id_servicio: servicioSeleccionado.id_servicio,
       fecha_hora: fechaHoraSeleccionada,
+      medio_pago,
     });
 
-    return true;
+    if (visita?.init_point) {
+      return { skipSuccess: true, init_point: visita.init_point };
+    }
+    return { skipSuccess: false };
   };
 
   // ----------------------------

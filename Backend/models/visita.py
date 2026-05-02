@@ -2,7 +2,7 @@ from typing import Optional
 import datetime
 import decimal
 
-from sqlalchemy import DateTime, DECIMAL, Enum, ForeignKeyConstraint, Index, TIMESTAMP, text, Boolean
+from sqlalchemy import DateTime, DECIMAL, Enum, ForeignKeyConstraint, Index, TIMESTAMP, text, Boolean, String
 from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,12 +26,12 @@ class Visita(Base):
     id_barbero: Mapped[int] = mapped_column(INTEGER, nullable=False)
     id_servicio: Mapped[int] = mapped_column(INTEGER, nullable=False)
 
-    # Precio del servicio al momento de la reserva (estadÌsticas no cambian si se edita el servicio)
+    # Precio del servicio al momento de la reserva (estad?sticas no cambian si se edita el servicio)
     precio_al_reservar: Mapped[Optional[decimal.Decimal]] = mapped_column(
         DECIMAL(10, 2), nullable=True
     )
     
-    # Campo para controlar el envùo de WhatsApp
+    # Campo para controlar el env?o de WhatsApp
     notificado_wsp: Mapped[bool] = mapped_column(
         Boolean, 
         nullable=False, 
@@ -39,9 +39,23 @@ class Visita(Base):
     )
 
     estado: Mapped[Optional[str]] = mapped_column(
-        Enum('CONFIRMADO', 'CANCELADO', 'COMPLETADO'),
+        Enum(
+            'CONFIRMADO',
+            'CANCELADO',
+            'COMPLETADO',
+            'PENDIENTE_CONFIRMACION_MP',
+        ),
         server_default=text("'CONFIRMADO'")
     )
+
+    medio_pago: Mapped[str] = mapped_column(
+        String(24), nullable=False, server_default=text("'EFECTIVO'")
+    )
+    mp_preference_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    mp_payment_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    mp_status: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    token_seguimiento: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, unique=True)
+
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         TIMESTAMP,
         server_default=text('CURRENT_TIMESTAMP')

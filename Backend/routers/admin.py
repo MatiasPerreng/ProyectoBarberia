@@ -1,9 +1,10 @@
+import os
+import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
-import logging
 
 from database import get_db
 from models import Visita, Barbero, Cliente, Servicio
@@ -15,6 +16,7 @@ from schemas.blacklist import BlacklistCreate, BlacklistOut
 
 # Importamos el servicio para disparar el mensaje a Meta
 from services.whatsapp import enviar_cancelacion_whatsapp
+from utils.mercadopago_api import comprobante_url_public
 
 # Configuración de logs
 logger = logging.getLogger(__name__)
@@ -23,6 +25,7 @@ router = APIRouter(
     prefix="/admin",
     tags=["Admin"]
 )
+
 
 # --- CONFIGURACIÓN DE HORA URUGUAY ---
 def get_now_uy():
@@ -47,18 +50,18 @@ def admin_dashboard(
     barberos_activos = db.query(Barbero).filter(Barbero.activo == True).count()
 
     turnos_hoy = db.query(Visita).filter(
-        Visita.estado.ilike("confirmado"),
+        Visita.estado == "CONFIRMADO",
         Visita.fecha_hora >= inicio_hoy,
         Visita.fecha_hora <= fin_hoy
     ).count()
 
     turnos_pendientes = db.query(Visita).filter(
-        Visita.estado.ilike("confirmado"),
+        Visita.estado == "CONFIRMADO",
         Visita.fecha_hora > ahora
     ).count()
 
     turnos_cancelados = db.query(Visita).filter(
-        Visita.estado.ilike("cancelado")
+        Visita.estado == "CANCELADO"
     ).count()
 
     return {
@@ -95,21 +98,24 @@ def admin_turnos(
         query = query.filter(Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
     else:
         if filtro == "pendientes":
-            query = query.filter(Visita.estado.ilike("confirmado"), Visita.fecha_hora > ahora)
+            query = query.filter(Visita.estado == "CONFIRMADO", Visita.fecha_hora > ahora)
         elif filtro == "hoy":
             inicio = datetime.combine(hoy, time.min)
             fin = datetime.combine(hoy, time.max)
-            query = query.filter(Visita.estado.ilike("confirmado"), Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
+            query = query.filter(Visita.estado == "CONFIRMADO", Visita.fecha_hora >= inicio, Visita.fecha_hora <= fin)
         elif filtro == "cancelados":
-            query = query.filter(Visita.estado.ilike("cancelado"))
+            query = query.filter(Visita.estado == "CANCELADO")
 
     if filtro == "pendientes":
         turnos = query.order_by(Visita.fecha_hora.asc()).all()
     else:
         turnos = query.order_by(Visita.fecha_hora.desc()).all()
 
-    return [
-        {
+    out = []
+    for t in turnos:
+        mp_id = getattr(t, "mp_payment_id", None)
+        medio = getattr(t, "medio_pago", None) or "EFECTIVO"
+        row = {
             "id_visita": t.id_visita,
             "fecha_hora": t.fecha_hora.strftime("%Y-%m-%d %H:%M"),
             "cliente_nombre": t.cliente.nombre,
@@ -118,10 +124,16 @@ def admin_turnos(
             "servicio": t.servicio.nombre,
             "servicio_duracion": t.servicio.duracion_min,
             "barbero": t.barbero.nombre,
-            "estado": t.estado.upper()
+            "estado": t.estado.upper(),
+            "medio_pago": medio,
+            "mp_payment_id": mp_id,
         }
-        for t in turnos
-    ]
+        if medio == "MERCADOPAGO" and mp_id:
+            row["comprobante_mp_url"] = comprobante_url_public(str(mp_id))
+        else:
+            row["comprobante_mp_url"] = None
+        out.append(row)
+    return out
 
 # =====================================================================================
 # GESTIÓN DE TURNOS - ACCIONES

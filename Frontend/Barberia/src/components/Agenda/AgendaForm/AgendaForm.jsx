@@ -18,6 +18,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   const [loading, setLoading] = useState(false);
   
   const [duplicateMessage, setDuplicateMessage] = useState("");
+  const [pagarConMP, setPagarConMP] = useState(false);
 
   const validarEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -60,11 +61,16 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
     setLoading(true);
 
     try {
-      await onSubmit({
+      const resultado = await onSubmit({
         ...form,
         email: form.email.trim() || null,
-        telefono: form.telefono.trim(), // Ya no enviamos null porque es obligatorio
+        telefono: form.telefono.trim(),
+        medio_pago: pagarConMP ? "mercadopago" : "efectivo",
       });
+      if (resultado?.skipSuccess && resultado?.init_point) {
+        window.location.href = resultado.init_point;
+        return;
+      }
       setShowSuccess(true);
     } catch (err) {
       const rawMessage = err?.response?.data?.detail || err?.message || "";
@@ -194,9 +200,41 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                 {errors.apellido && <small className="af-error">{errors.apellido}</small>}
               </div>
 
+              <div className="af-form-group af-mp-bloque">
+                <label className="af-mp-bloque__titulo">Pago</label>
+                <div className="af-mp-celeste">
+                  <div className="af-mp-celeste__inner">
+                    <img
+                      className="af-mp-celeste__logo"
+                      src="/mercadopago.png"
+                      alt="Mercado Pago"
+                    />
+                    <div className="af-mp-celeste__mid">
+                      <span className="af-mp-celeste__nombre">Mercado Pago</span>
+                      <span className="af-mp-celeste__sub">
+                        Opcional: si lo marcás, pagás en el sitio de Mercado Pago. Si no, reservás
+                        como siempre y pagás en el local.
+                      </span>
+                    </div>
+                    <label className="af-mp-celeste__check">
+                      <input
+                        type="checkbox"
+                        checked={pagarConMP}
+                        onChange={(e) => setPagarConMP(e.target.checked)}
+                      />
+                      <span>Pagar con Mercado Pago</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <div className="af-form-actions">
                 <button type="submit" className="af-btn-confirmar" disabled={loading}>
-                  {loading ? "Agendando..." : "Confirmar turno"}
+                  {loading
+                    ? "Agendando..."
+                    : pagarConMP
+                      ? "Continuar al pago"
+                      : "Confirmar turno"}
                 </button>
               </div>
             </form>

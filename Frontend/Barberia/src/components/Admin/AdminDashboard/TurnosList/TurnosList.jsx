@@ -150,6 +150,23 @@ const TurnosList = ({ filtro, onStatsNeedRefresh }) => {
                 <span className="admin-turno-kicker">Barbero</span>
                 <p className="admin-turno-barbero">{t.barbero || "—"}</p>
               </div>
+              {t.comprobante_mp_url && (
+                <div className="admin-turno-col admin-turno-col--full admin-turno-comp-wrap">
+                  <a
+                    href={t.comprobante_mp_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="admin-turno-comp-link"
+                  >
+                    <img
+                      className="admin-turno-comp-link__mp"
+                      src="/mercadopago.png"
+                      alt=""
+                    />
+                    ver comprobante
+                  </a>
+                </div>
+              )}
             </div>
             {showActions && (
               <TurnoActions turno={t} onCancelSuccess={handleCancelSuccess} />

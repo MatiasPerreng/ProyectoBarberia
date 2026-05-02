@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session, joinedload
-from typing import Optional, List
+from typing import Optional, List, Tuple, Any
 from datetime import datetime, timedelta, time, date
 import random
+import secrets
 
-from models import Visita, Servicio, HorarioBarbero, Barbero
+from models import Visita, Servicio, HorarioBarbero, Barbero, Cliente
 from schemas import VisitaCreate
 
 # ======================================================================================
@@ -75,7 +76,7 @@ def cliente_tiene_limite_turnos(db: Session, cliente_id: int, fecha: date) -> bo
         Visita.id_cliente == cliente_id,
         Visita.fecha_hora >= inicio,
         Visita.fecha_hora <= fin,
-        Visita.estado == "CONFIRMADO"
+        Visita.estado.in_(("CONFIRMADO", "PENDIENTE_CONFIRMACION_MP")),
     ).count()
     return cantidad >= 2
 
@@ -97,7 +98,7 @@ def asignar_barbero_automatico(db: Session, fecha_hora: datetime, duracion_min: 
             Visita.id_barbero == barbero.id_barbero,
             Visita.fecha_hora >= inicio,
             Visita.fecha_hora <= fin,
-            Visita.estado == "CONFIRMADO"
+            Visita.estado.in_(("CONFIRMADO", "PENDIENTE_CONFIRMACION_MP")),
         ).count()
         candidatos.append((barbero.id_barbero, turnos))
 
@@ -106,34 +107,43 @@ def asignar_barbero_automatico(db: Session, fecha_hora: datetime, duracion_min: 
     menos_cargados = [idb for idb, t in candidatos if t == min_turnos]
     return random.choice(menos_cargados)
 
-def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
+def create_visita(db: Session, visita_in: VisitaCreate) -> Tuple[Visita, Optional[str]]:
     servicio = db.query(Servicio).filter(Servicio.id_servicio == visita_in.id_servicio).first()
-    if not servicio: raise ValueError("Servicio no existe")
+    if not servicio:
+        raise ValueError("Servicio no existe")
 
-    # 🔥 VALIDACIÓN: No reservar en el pasado
     ahora_local = obtener_ahora_local()
     if visita_in.fecha_hora < ahora_local:
         raise ValueError("No se pueden reservar turnos en el pasado.")
 
-    # 🔥 VALIDACIÓN: Máximo 2 agendas por día
     if cliente_tiene_limite_turnos(db, visita_in.id_cliente, visita_in.fecha_hora.date()):
         raise ValueError("Ya tenés 2 turnos reservados para hoy.")
 
-    # 🔥 VALIDACIÓN DE ÚLTIMO SEGUNDO: Verificar disponibilidad real antes de insertar
     disponibilidad_actual = get_disponibilidad(
-        db, 
-        visita_in.fecha_hora.date(), 
-        visita_in.id_servicio, 
-        visita_in.id_barbero
+        db,
+        visita_in.fecha_hora.date(),
+        visita_in.id_servicio,
+        visita_in.id_barbero,
     )
     hora_solicitada = visita_in.fecha_hora.strftime("%H:%M")
-    
+
     if hora_solicitada not in disponibilidad_actual["turnos"]:
         raise ValueError("Lo sentimos, alguien se agendó ese turno segundos antes que vos.")
 
     if visita_in.id_barbero is None:
         visita_in.id_barbero = asignar_barbero_automatico(db, visita_in.fecha_hora, servicio.duracion_min)
-        if not visita_in.id_barbero: raise ValueError("No hay barberos disponibles")
+        if not visita_in.id_barbero:
+            raise ValueError("No hay barberos disponibles")
+
+    medio = (visita_in.medio_pago or "efectivo").lower()
+    if medio == "mercadopago":
+        estado = "PENDIENTE_CONFIRMACION_MP"
+        medio_col = "MERCADOPAGO"
+        token_seg = secrets.token_urlsafe(32)
+    else:
+        estado = "CONFIRMADO"
+        medio_col = "EFECTIVO"
+        token_seg = None
 
     visita = Visita(
         fecha_hora=visita_in.fecha_hora,
@@ -141,12 +151,78 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Visita:
         id_barbero=visita_in.id_barbero,
         id_servicio=visita_in.id_servicio,
         precio_al_reservar=servicio.precio,
-        estado="CONFIRMADO"
+        estado=estado,
+        medio_pago=medio_col,
+        token_seguimiento=token_seg,
     )
     db.add(visita)
+    init_point: Optional[str] = None
+
+    if estado == "PENDIENTE_CONFIRMACION_MP":
+        db.flush()
+        cliente = db.query(Cliente).filter(Cliente.id_cliente == visita_in.id_cliente).first()
+        payer_email = (cliente.email or "").strip() if cliente and cliente.email else None
+        precio = float(servicio.precio) if servicio.precio is not None else 0.0
+        from utils import mercadopago_api as mp
+
+        pref = mp.create_checkout_preference(
+            id_visita=visita.id_visita,
+            title=f"Turno — {servicio.nombre}",
+            unit_price=precio,
+            payer_email=payer_email or None,
+            token_seguimiento=token_seg or "",
+        )
+        visita.mp_preference_id = pref["id"]
+        init_point = pref["init_point"]
+
     db.commit()
     db.refresh(visita)
-    return visita
+    return visita, init_point
+
+
+def get_visita_por_token(db: Session, token: str) -> Optional[Visita]:
+    return (
+        db.query(Visita)
+        .options(joinedload(Visita.cliente), joinedload(Visita.servicio), joinedload(Visita.barbero))
+        .filter(Visita.token_seguimiento == token)
+        .first()
+    )
+
+
+def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str, Any]) -> bool:
+    """
+    Actualiza la visita según el pago de MP.
+    Devuelve True si en esta llamada pasó de PENDIENTE a CONFIRMADO (para disparar email).
+    """
+    ext = payment_data.get("external_reference")
+    if ext is not None and str(ext) != str(visita.id_visita):
+        raise ValueError("external_reference no coincide con la visita")
+
+    prev = visita.estado
+    status = (payment_data.get("status") or "").lower()
+    pid = payment_data.get("id")
+    pid_str = str(pid) if pid is not None else None
+
+    if status in ("approved", "authorized"):
+        if visita.estado == "PENDIENTE_CONFIRMACION_MP":
+            visita.estado = "CONFIRMADO"
+        if pid_str:
+            visita.mp_payment_id = pid_str
+        visita.mp_status = status
+    elif status in ("rejected", "cancelled", "refunded", "charged_back"):
+        if visita.estado == "PENDIENTE_CONFIRMACION_MP":
+            visita.estado = "CANCELADO"
+        if pid_str:
+            visita.mp_payment_id = pid_str
+        visita.mp_status = status
+    else:
+        if pid_str:
+            visita.mp_payment_id = pid_str
+        visita.mp_status = status or visita.mp_status
+
+    db.commit()
+    db.refresh(visita)
+    return prev == "PENDIENTE_CONFIRMACION_MP" and visita.estado == "CONFIRMADO"
 
 def update_estado_visita(db: Session, visita_id: int, nuevo_estado: str) -> Visita:
     visita = db.query(Visita).get(visita_id)
