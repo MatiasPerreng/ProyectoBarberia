@@ -672,6 +672,7 @@
    FOOTER
 ======================================================= */
 
+/* Contenedor página TV; la franja visual vive en InfocoreFooterStrip.css */
 .tv-footer {
   margin-top: auto;
   padding-top: clamp(14px, 2vh, 24px);
@@ -679,54 +680,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-}
-
-.tv-footer-line {
-  width: min(160px, 42vw);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.06),
-    rgba(212, 180, 74, 0.35),
-    rgba(255, 255, 255, 0.08),
-    transparent
-  );
-}
-
-.tv-footer-inner {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 20px;
-  border-radius: 100px;
-  font-size: clamp(0.65rem, 0.78vw, 0.76rem);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.tv-footer-credit {
-  font-weight: 600;
-}
-
-.tv-footer-dot {
-  flex-shrink: 0;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(212, 180, 74, 0.6);
-  box-shadow: 0 0 10px rgba(212, 180, 74, 0.4);
-}
-
-.tv-footer-name {
-  font-weight: 700;
-  color: rgba(232, 200, 100, 0.88);
-  letter-spacing: 0.11em;
 }
 
 /* =======================================================

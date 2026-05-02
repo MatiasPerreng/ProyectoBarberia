@@ -247,9 +247,10 @@ async def mercadopago_webhook(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """IPN/Webhook MP: pagos y merchant_order (preferencia vencida / cierre sin pago). Responder 200 rápido."""
+    """IPN/Webhook MP: pagos y merchant_order. Firma con `MERCADOPAGO_WEBHOOK_SECRET` si está definido; 401 si falla; 500 si error interno (MP reintenta)."""
     from crud import visita as crud_v
     from utils import mercadopago_api as mp
+    from utils import mercadopago_webhook_sig as mwsig
 
     body: Any = {}
     if request.method == "POST":
@@ -263,15 +264,45 @@ async def mercadopago_webhook(
     if not payment_id and not merchant_order_id:
         return {"ok": True, "ignored": True}
 
+    body_dict: dict[str, Any] = body if isinstance(body, dict) else {}
+    strict_webhook = os.getenv("MERCADOPAGO_WEBHOOK_STRICT", "").lower() in ("true", "1", "yes")
+    secret = os.getenv("MERCADOPAGO_WEBHOOK_SECRET", "").strip()
+    if strict_webhook and not secret:
+        logger.error(
+            "MERCADOPAGO_WEBHOOK_STRICT activo pero MERCADOPAGO_WEBHOOK_SECRET vacío"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Webhook MP mal configurado (STRICT sin secret)",
+        )
+    if secret:
+        mid = mwsig.notification_manifest_data_id(
+            request,
+            body_dict,
+            payment_id=payment_id,
+            merchant_order_id=merchant_order_id,
+        )
+        if not mwsig.verify_mercadopago_webhook_signature(
+            request,
+            body_dict,
+            manifest_data_id=mid,
+            secret=secret,
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Firma de webhook inválida",
+            )
+    else:
+        logger.debug(
+            "MP webhook: MERCADOPAGO_WEBHOOK_SECRET vacío; no se validó firma (solo desarrollo)"
+        )
+
     try:
         crud_v.cancelar_visitas_mp_expiradas(db)
 
         if merchant_order_id:
-            try:
-                order = mp.get_merchant_order(merchant_order_id)
-                crud_v.procesar_merchant_order_mp(db, order)
-            except Exception:
-                logger.exception("Webhook MP merchant_order id=%s", merchant_order_id)
+            order = mp.get_merchant_order(merchant_order_id)
+            crud_v.procesar_merchant_order_mp(db, order)
 
         if payment_id:
             pdata = mp.get_payment(payment_id)
@@ -290,13 +321,22 @@ async def mercadopago_webhook(
                     "✅ Turno confirmado - King Barber",
                     generar_email_confirmacion(visita),
                 )
-    except Exception:
+        return {"ok": True}
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.warning("Webhook MP validación de datos: %s", e)
+        return {"ok": True}
+    except Exception as e:
         logger.exception(
             "Webhook MP no procesado payment_id=%s merchant_order_id=%s",
             payment_id,
             merchant_order_id,
         )
-    return {"ok": True}
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error al procesar webhook MP",
+        ) from e
 
 
 # ======================================================================================

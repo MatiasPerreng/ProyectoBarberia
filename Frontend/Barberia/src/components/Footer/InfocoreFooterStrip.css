@@ -1,0 +1,133 @@
+/* Franja INFOCORE (compartida: sitio + /tv). Antes .tv-footer-* en TvTurnoPage.css */
+
+.ifs-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.ifs-rights {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(0.62rem, 1.6vw, 0.72rem);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.ifs-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ifs-line {
+  width: min(160px, 42vw);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    rgba(212, 180, 74, 0.35),
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+}
+
+.ifs-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 12px;
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: clamp(0.65rem, 0.78vw, 0.76rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ifs-label {
+  font-weight: 600;
+}
+
+.ifs-dot {
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(212, 180, 74, 0.6);
+  box-shadow: 0 0 10px rgba(212, 180, 74, 0.4);
+}
+
+.ifs-name {
+  font-weight: 700;
+  color: rgba(232, 200, 100, 0.88);
+  letter-spacing: 0.11em;
+}
+
+.ifs-site {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: none;
+  transition: opacity 0.2s ease, text-shadow 0.2s ease;
+}
+
+.ifs-site:hover {
+  opacity: 0.95;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ifs-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  transition: color 0.2s ease;
+}
+
+.ifs-wa:hover {
+  color: #ffffff;
+}
+
+.ifs-wa:hover .ifs-wa__text {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Logo WA en blanco (contraste sobre footer oscuro) */
+.ifs-wa__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
+.ifs-wa:hover .ifs-wa__icon {
+  opacity: 1;
+}
+
+@media (max-width: 420px) {
+  .ifs-pill {
+    padding: 8px 14px;
+    font-size: 0.62rem;
+    gap: 8px 10px;
+  }
+}

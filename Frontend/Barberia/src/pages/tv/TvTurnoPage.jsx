@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import "./TvTurnoPage.css";
 import API_URL from "../../services/api";
+import InfocoreFooterStrip from "../../components/Footer/InfocoreFooterStrip";
 
 
 export default function TvAgendaPage() {
@@ -176,14 +177,9 @@ export default function TvAgendaPage() {
         </section>
       </main>
 
-      {/* ===================== FOOTER ===================== */}
+      {/* ===================== FOOTER (misma franja que layouts + sitio) ===================== */}
       <footer className="tv-footer">
-        <span className="tv-footer-line" />
-        <div className="tv-footer-inner">
-          <span className="tv-footer-credit">Desarrollo</span>
-          <span className="tv-footer-dot" aria-hidden="true" />
-          <span className="tv-footer-name">Matias Perreng</span>
-        </div>
+        <InfocoreFooterStrip />
       </footer>
     </div>
   );

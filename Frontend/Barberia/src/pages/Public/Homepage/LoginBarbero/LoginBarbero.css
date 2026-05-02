@@ -270,23 +270,13 @@
   background: linear-gradient(180deg, #0d0d0d 0%, #030303 100%);
 }
 
-.kb-login-footer-slot .footer-inner {
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  row-gap: 6px;
-  column-gap: 12px;
+.kb-login-footer-slot .ifs-pill {
   font-size: clamp(0.72rem, 2.8vw, 0.84rem);
   letter-spacing: 0.1em;
-  font-weight: 400;
 }
 
-.kb-login-footer-slot .footer-brand {
-  font-weight: 500;
-}
-
-.kb-login-footer-slot .footer-dev strong {
-  font-weight: 600;
+.kb-login-footer-slot .ifs-name {
+  font-weight: 700;
 }
 
 @media (max-width: 360px) {
@@ -302,15 +292,9 @@
     padding: 14px 14px 16px;
   }
 
-  .kb-login-footer-slot .footer-inner {
-    flex-direction: column;
-    gap: 5px;
+  .kb-login-footer-slot .ifs-pill {
     font-size: clamp(0.7rem, 3vw, 0.8rem);
     letter-spacing: 0.08em;
-  }
-
-  .kb-login-footer-slot .footer-separator {
-    display: none;
   }
 }
 

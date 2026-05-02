@@ -67,8 +67,10 @@ Referencia comentada en **`Backend/.env.example`**. Variables relevantes MP:
 | **`BACKEND_PUBLIC_URL`** | Si es **HTTPS**, se setea `notification_url` en la preferencia apuntando a **`{BACKEND_PUBLIC_URL}/visitas/mercadopago/webhook`**. Si no es HTTPS, **no se envía webhook** (solo sync al volver + posibles IPN si configurás manual). |
 | **`MERCADOPAGO_PREFERENCE_EXPIRATION_MINUTES`** | Opcional (default **10**). Alineado con la cancelación automática de pendientes en BD (`preference_expiration_minutes()`). |
 | **`MERCADOPAGO_COMPROBANTE_URL`** | Plantilla del recibo público; `{payment_id}` se reemplaza en `comprobante_url_public()` (default `.uy`). |
+| **`MERCADOPAGO_WEBHOOK_SECRET`** | Clave del panel MP (Webhooks). Si está definida, **`/visitas/mercadopago/webhook`** valida **`x-signature`** (HMAC-SHA256 del manifest oficial) con **`x-request-id`** y tolerancia de **`ts`**. Fallo → **401**. |
+| **`MERCADOPAGO_WEBHOOK_STRICT`** | `true` / `1` / `yes`: exige que **`MERCADOPAGO_WEBHOOK_SECRET`** esté configurado; si falta → **500**. |
 
-**Gap documentado:** en `.env.example` aparece **`MERCADOPAGO_WEBHOOK_SECRET`**; en el código **no hay verificación de firma/x-signature** del webhook. Es solo reserva para un futuro hardening.
+Implementación de firma: **`Backend/utils/mercadopago_webhook_sig.py`**. Secret vacío → no se verifica (solo razonable en desarrollo); en producción usá secret + STRICT.
 
 ### 3.2 HTTPS local (front)
 
@@ -135,19 +137,19 @@ Prefijo del router: **`/visitas`** (`visitas.py`).
 
 Si no hay ningún id → **`{"ok": true, "ignored": true}`** (200, sin trabajo).
 
-### 6.2 Procesamiento (orden real)
+### 6.2 Firma (antes de tocar la BD)
+
+Si **`MERCADOPAGO_WEBHOOK_SECRET`** tiene valor, se resuelve **`manifest_data_id`** (query `data.id` / `id`, JSON `data.id`, o ids parseados) y se valida **`x-signature`** + **`x-request-id`**. Si falla → **401** (MP no debe reintentar con la misma petición inválida).
+
+Si **`MERCADOPAGO_WEBHOOK_STRICT`** es verdadero y el secret está vacío → **500** (configuración inválida).
+
+### 6.3 Procesamiento (orden real)
 
 1. **`cancelar_visitas_mp_expiradas(db)`** — libera pendientes viejos antes de aplicar pagos (evita estados incoherentes).
-2. Si hay **`merchant_order_id`:** `get_merchant_order` → **`procesar_merchant_order_mp`** (cancela visita pendiente si la orden indica **expired / cancelado / closed sin pago**, matcheando por **`mp_preference_id`**).
+2. Si hay **`merchant_order_id`:** `get_merchant_order` → **`procesar_merchant_order_mp`** (cancela visita pendiente si la orden indica **expired / cancelado / closed sin pago**, matcheando por **`mp_preference_id`**). Fallo de API u excepción no controlada → **500** (MP puede reintentar).
 3. Si hay **`payment_id`:** `get_payment` → `external_reference` debe ser **`id_visita`** → **`aplicar_pago_mercadopago`** → email en background si corresponde.
 
-Todo el bloque está envuelto en **`try/except`** con log; **siempre** termina en **`return {"ok": True}`** para que MP no reintente por error 5xx en fallos internos puntuales.
-
-**Gaps / estabilidad:**
-
-- **200 siempre al final:** prioridad “no pelear con MP”; errores → logs + investigación.
-- **Sin validación de firma:** cualquiera que conozca la URL podría POSTear; mitigación típica sería secret en header o firma MP + `MERCADOPAGO_WEBHOOK_SECRET` (pendiente).
-- **Idempotencia de negocio:** `aplicar_pago_mercadopago` actualiza según `status`; el email solo si **`aplicar_pago_mercadopago` devuelve `True`** (transición a `CONFIRMADO` desde `PENDIENTE_CONFIRMACION_MP` o reactivación desde `CANCELADO` — ver crud).
+**Códigos HTTP:** **200** `{"ok": true}` en éxito; **`ValueError`** de negocio (p. ej. `external_reference` inconsistente) → log + **200** (no reintentar por dato inválido). **Excepción no prevista** en el procesamiento → **500** + log (reintentos MP). **401** solo por firma inválida cuando hay secret configurado.
 
 ---
 
@@ -159,6 +161,8 @@ Todo el bloque está envuelto en **`try/except`** con log; **siempre** termina e
 
 - Valida **`external_reference`** == `id_visita` (si no, **`ValueError`**).
 - **`approved` / `authorized`:**  
+  - **Idempotencia:** si ya está **`CONFIRMADO`** con el mismo **`mp_payment_id`** que el pago → log informativo y **`return False`** (sin doble email).
+  - **Monto y moneda:** debe ser **`UYU`** y **`transaction_amount`** coherente con la reserva (misma regla que la preferencia: precio redondeado a 2 decimales; si el precio es 0 se espera **1.0**). Si no coincide → log de error, se persisten **`mp_payment_id`** / **`mp_status`** si aplica, **no** se pasa a **`CONFIRMADO`**, **`return False`**.
   - Pendiente → **`CONFIRMADO`**.  
   - **`CANCELADO`** (p. ej. timeout local) + medio MP → **reactiva a `CONFIRMADO`** solo si **`_otro_turno_activo_solapa`** es falso; si el hueco fue tomado, deja cancelado y loguea warning.
 - Estados finales negativos (`rejected`, `cancelled`, `refunded`, … o `expired` en `status_detail`): si estaba pendiente → **`CANCELADO`**.
@@ -227,15 +231,15 @@ Todo el bloque está envuelto en **`try/except`** con log; **siempre** termina e
 
 ---
 
-## 13. Nota final: webhook, 200 OK y duplicados
+## 13. Nota final: webhook, códigos HTTP y duplicados
 
-**Prestá especial atención a cómo quedó configurado el endpoint del webhook** (`/visitas/mercadopago/webhook`, GET y POST):
+**Endpoint** (`/visitas/mercadopago/webhook`, GET y POST):
 
-- Responde **200** con **`{"ok": true}`** incluso tras errores internos logueados, para reducir reintentos agresivos de MP por 5xx.
-- **No hay verificación criptográfica de notificaciones** en esta versión; la coherencia depende de **`get_payment`** / **`get_merchant_order`** con token de servidor y de **`external_reference`**.
-- Los **duplicados de notificación** MP suelen ser idempotentes a nivel negocio: re-aplicar **`approved`** sobre una visita ya **`CONFIRMADO`** no dispara otro email salvo la condición explícita del `return` en **`aplicar_pago_mercadopago`** (transición desde pendiente o cancelado-reactivación).
-
-Para endurecer en producción: validar firma de webhook (documentación MP), usar **`MERCADOPAGO_WEBHOOK_SECRET`**, y/o registrar **`payment_id`** ya procesados.
+- Con **`MERCADOPAGO_WEBHOOK_SECRET`** definido: validación criptográfica de **`x-signature`**; fallo → **401**.
+- **200** `{"ok": true}` en procesamiento correcto o en **`ValueError`** de datos (evita reintentos infinitos por payload inválido).
+- **500** en fallos internos o API MP durante el handler (MP puede reintentar).
+- Coherencia de negocio: **`get_payment`** / **`get_merchant_order`** con token de servidor, **`external_reference`**, y comprobación de **monto/moneda** antes de confirmar turno.
+- **Duplicados:** mismo **`payment_id`** y visita ya **`CONFIRMADO`** → idempotente, sin segundo email.
 
 ---
 

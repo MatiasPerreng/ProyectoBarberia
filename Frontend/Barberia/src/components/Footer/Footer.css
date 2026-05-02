@@ -1,6 +1,4 @@
-/* =======================================================
-   FOOTER - DISEÑO PRO Y FLUIDO (CORREGIDO)
-======================================================= */
+/* Sitio: contenedor + brillo superior. Franja INFOCORE: InfocoreFooterStrip.css */
 
 .site-footer {
   background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
@@ -11,7 +9,6 @@
   transition: all 0.4s ease;
 }
 
-/* EFECTO 1: Borde superior con destello de luz (Shimmer) */
 .site-footer::before {
   content: "";
   position: absolute;
@@ -31,104 +28,19 @@
 }
 
 @keyframes footerShimmer {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
-}
-
-.footer-inner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  font-size: 0.85rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-  font-weight: 300;
-}
-
-/* Marca / año - MEJORADO PARA RESALTAR */
-.footer-brand {
-  color: #fff; /* Blanco más brillante */
-  font-weight: 400;
-  /* Resplandor suave dorado en el año */
-  text-shadow: 0 0 10px rgba(230, 199, 123, 0.3);
-}
-
-/* Separador */
-.footer-separator {
-  color: #e6c77b;
-  opacity: 0.2;
-  font-weight: 100;
-}
-
-/* Autor */
-.footer-dev {
-  color: rgba(255, 255, 255, 0.5);
-  text-decoration: none;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.footer-dev strong {
-  font-weight: 600;
-  color: #e6c77b;
-  letter-spacing: 0.15em;
-  position: relative;
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-
-/* EFECTO 2: Subrayado animado "Pro" */
-.footer-dev strong::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 1px;
-  bottom: -4px;
-  left: 0;
-  background-color: #e6c77b;
-  transform: scaleX(0);
-  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  transform-origin: right;
-  opacity: 0.5;
-}
-
-/* Hover efectos en autor */
-@media (hover: hover) {
-  .footer-dev:hover {
-    color: #fff;
+  0% {
+    left: -100%;
   }
-  
-  .footer-dev:hover strong {
-    text-shadow: 0 0 10px rgba(230, 199, 123, 0.5);
+  50% {
+    left: 100%;
   }
-  
-  .footer-dev:hover strong::after {
-    transform: scaleX(1);
-    transform-origin: left;
-    opacity: 1;
+  100% {
+    left: 100%;
   }
 }
-
-/* =======================================================
-   MOBILE
-======================================================= */
 
 @media (max-width: 576px) {
   .site-footer {
     padding: 22px 12px;
-  }
-  
-  .footer-inner {
-    flex-direction: column;
-    gap: 8px;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-  }
-
-  .footer-separator {
-    display: none;
   }
 }

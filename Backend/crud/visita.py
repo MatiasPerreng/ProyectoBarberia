@@ -308,6 +308,33 @@ def get_visita_por_token(db: Session, token: str) -> Optional[Visita]:
     )
 
 
+def _mp_precio_esperado_uyu(visita: Visita) -> float:
+    """Mismo criterio que al crear la preferencia (MP exige mínimo 1.0 si el servicio es gratis)."""
+    if visita.precio_al_reservar is not None:
+        base = float(visita.precio_al_reservar)
+    elif visita.servicio is not None and visita.servicio.precio is not None:
+        base = float(visita.servicio.precio)
+    else:
+        base = 0.0
+    rounded = round(base, 2)
+    return rounded if rounded > 0 else 1.0
+
+
+def _mp_transaction_amount_currency_ok(payment_data: dict[str, Any], esperado_uyu: float) -> bool:
+    """Exige UYU y |transaction_amount - esperado| <= tolerancia (no confiar solo en status)."""
+    cur = (payment_data.get("currency_id") or "").upper()
+    if cur != "UYU":
+        return False
+    amt = payment_data.get("transaction_amount")
+    if amt is None:
+        return False
+    try:
+        got = round(float(amt), 2)
+    except (TypeError, ValueError):
+        return False
+    return abs(got - esperado_uyu) <= 0.02
+
+
 def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str, Any]) -> bool:
     """
     Actualiza la visita según el pago de MP.
@@ -324,6 +351,48 @@ def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str
     pid_str = str(pid) if pid is not None else None
 
     if status in ("approved", "authorized"):
+        # Idempotencia: mismo payment_id y ya confirmado (doble IPN / reintentos MP)
+        if (
+            pid_str
+            and visita.mp_payment_id == pid_str
+            and visita.estado == "CONFIRMADO"
+        ):
+            logger.info(
+                "MP idempotente: visita=%s payment_id=%s status=%s (sin cambios)",
+                visita.id_visita,
+                pid_str,
+                status,
+            )
+            return False
+
+        esperado = _mp_precio_esperado_uyu(visita)
+        if not _mp_transaction_amount_currency_ok(payment_data, esperado):
+            logger.error(
+                "MP pago %s pero monto/moneda no coincide con la reserva: visita=%s "
+                "esperado_uyu=%.2f mp_transaction_amount=%s mp_currency_id=%s payment_id=%s",
+                status,
+                visita.id_visita,
+                esperado,
+                payment_data.get("transaction_amount"),
+                payment_data.get("currency_id"),
+                pid_str,
+            )
+            if pid_str:
+                visita.mp_payment_id = pid_str
+            visita.mp_status = status[:64] if status else visita.mp_status
+            db.commit()
+            db.refresh(visita)
+            return False
+
+        logger.info(
+            "MP pago acreditado visita=%s payment_id=%s esperado_uyu=%.2f tx_amount=%s estado_prev=%s",
+            visita.id_visita,
+            pid_str,
+            esperado,
+            payment_data.get("transaction_amount"),
+            prev,
+        )
+
         if visita.estado == "PENDIENTE_CONFIRMACION_MP":
             visita.estado = "CONFIRMADO"
         elif (
