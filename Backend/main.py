@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI
+from dotenv import load_dotenv
 
 # Path base del backend (donde está main.py)
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
+
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -83,9 +86,8 @@ _base_origins = [
     "http://127.0.0.1:5174",
     "https://localhost:5174",
     "https://127.0.0.1:5174",
-    "http://192.168.1.62:5173",
-    "http://167.62.53.159:5173",
 ]
+# Producción / LAN: lista separada por comas, ej. https://app.midominio.com,https://www.midominio.com
 _extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 _cors_origins = list(dict.fromkeys(_base_origins + _extra_origins))
 

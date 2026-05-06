@@ -1,13 +1,16 @@
-import os
+import asyncio
+import json
 import logging
+import os
 
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from typing import List, Optional, Any, Tuple
+from typing import List, Optional, Any, Tuple, Dict
 from datetime import date, datetime, time, timedelta
 from calendar import monthrange
 
-from database import get_db
+from database import get_db, SessionLocal
 from utils.mercadopago_api import comprobante_url_public
 # Importaciones de modelos para la lógica de validación
 from models.blacklist import Blacklist
@@ -159,6 +162,10 @@ def sincronizar_pago_seguimiento(
     token: str = Query(..., min_length=8),
     payment_id: str = Query(..., min_length=1),
 ):
+    """
+    Respaldo frente al webhook: mismo aplicar_pago_mercadopago cuando el usuario vuelve por back_url
+    con payment_id (idempotente si el IPN ya confirmó la visita).
+    """
     from crud import visita as crud_v
     from utils import mercadopago_api as mp
 
@@ -199,11 +206,10 @@ def obtener_visita_por_token_seguimiento(token: str, db: Session = Depends(get_d
     return visita_to_out(visita)
 
 
-def _parse_mp_notification_ids(request: Request, body: Any) -> Tuple[Optional[str], Optional[str]]:
+def _parse_mp_notification_ids_parts(qp: Dict[str, str], body: Any) -> Tuple[Optional[str], Optional[str]]:
     """
-    Devuelve (payment_id, merchant_order_id) desde webhook JSON o IPN GET (?topic=&id=).
+    Devuelve (payment_id, merchant_order_id) desde query dict (IPN GET) y/o body JSON (POST).
     """
-    qp = request.query_params
     topic = (qp.get("topic") or qp.get("type") or "").lower()
     qid = qp.get("id")
 
@@ -241,102 +247,252 @@ def _parse_mp_notification_ids(request: Request, body: Any) -> Tuple[Optional[st
     return payment_id, merchant_order_id
 
 
-@router.api_route("/mercadopago/webhook", methods=["GET", "POST"])
-async def mercadopago_webhook(
-    request: Request,
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
-):
-    """IPN/Webhook MP: pagos y merchant_order. Firma con `MERCADOPAGO_WEBHOOK_SECRET` si está definido; 401 si falla; 500 si error interno (MP reintenta)."""
+def _parse_mp_notification_ids(request: Request, body: Any) -> Tuple[Optional[str], Optional[str]]:
+    return _parse_mp_notification_ids_parts(dict(request.query_params), body)
+
+
+def _payment_ids_from_merchant_order(order: Dict[str, Any]) -> List[str]:
+    """IDs de pago embebidos en merchant_orders (Checkout Pro notifica a veces solo este tópico)."""
+    seen: set[str] = set()
+    out: List[str] = []
+    for p in order.get("payments") or []:
+        pid: Any = None
+        if isinstance(p, dict):
+            pid = p.get("id")
+        elif isinstance(p, (int, float, str)):
+            pid = p
+        if pid is None:
+            continue
+        s = str(int(pid)) if isinstance(pid, float) and pid == int(pid) else str(pid).strip()
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+    return out
+
+
+def _apply_mp_payment_notification(
+    db: Session,
+    background_tasks: Optional[BackgroundTasks],
+    payment_id: str,
+) -> None:
+    """Obtiene el pago en MP, valida external_reference y aplica a la visita (idempotente)."""
+    from crud import visita as crud_v
+    from utils import mercadopago_api as mp
+
+    pdata = mp.get_payment(payment_id)
+    vid = pdata.get("external_reference")
+    logger.info(
+        "MP webhook get_payment payment_id=%s external_reference=%r status=%s",
+        payment_id,
+        vid,
+        pdata.get("status"),
+    )
+    if not vid:
+        logger.warning(
+            "MP webhook: pago %s sin external_reference en respuesta MP; no se actualiza ninguna visita",
+            payment_id,
+        )
+        return
+    try:
+        vid_int = int(vid)
+    except (TypeError, ValueError):
+        logger.warning("MP webhook: external_reference no es id numérico de visita: %r", vid)
+        return
+
+    visita = crud_v.get_visita_by_id(db, vid_int)
+    if not visita:
+        logger.warning("MP webhook: no existe visita id=%s (external_reference)", vid_int)
+        return
+
+    try:
+        enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
+    except ValueError as e:
+        logger.warning("MP webhook aplicar_pago_mercadopago: %s", e)
+        return
+
+    visita = crud_v.get_visita_by_id(db, visita.id_visita)
+    if enviar_mail and visita and visita.cliente and visita.cliente.email:
+        if background_tasks is not None:
+            background_tasks.add_task(
+                enviar_email_confirmacion,
+                visita.cliente.email,
+                "✅ Turno confirmado - King Barber",
+                generar_email_confirmacion(visita),
+            )
+        else:
+            try:
+                asyncio.run(
+                    enviar_email_confirmacion(
+                        visita.cliente.email,
+                        "✅ Turno confirmado - King Barber",
+                        generar_email_confirmacion(visita),
+                    )
+                )
+            except RuntimeError as re:
+                logger.warning("MP webhook email (asyncio.run): %s", re)
+
+
+class _HeadersShim:
+    """Cabeceras copiadas (claves en minúsculas) para validar x-signature en el worker."""
+
+    def __init__(self, lower_map: Dict[str, str]):
+        self._d = lower_map
+
+    def get(self, key: str, default=None):
+        return self._d.get(str(key).lower(), default)
+
+
+class _FakeRequestForSig:
+    """Solo query_params + headers para verificación HMAC si MERCADOPAGO_WEBHOOK_ENFORCE_SIGNATURE=true."""
+
+    def __init__(self, qp: Dict[str, str], headers_lower: Dict[str, str]):
+        self.query_params = qp
+        self.headers = _HeadersShim(headers_lower)
+
+
+def _mercadopago_webhook_worker(
+    qp: Dict[str, str],
+    raw_body: bytes,
+    headers_lower: Dict[str, str],
+) -> None:
+    """
+    Camino principal de acreditación MP: sesión de BD propia (SessionLocal), no la del request.
+    Resuelve visita vía external_reference en get_payment + aplicar_pago_mercadopago.
+    """
     from crud import visita as crud_v
     from utils import mercadopago_api as mp
     from utils import mercadopago_webhook_sig as mwsig
 
-    body: Any = {}
-    if request.method == "POST":
+    body_obj: Any = {}
+    if raw_body.strip():
         try:
-            body = await request.json()
-        except Exception:
-            body = {}
+            body_obj = json.loads(raw_body.decode("utf-8"))
+        except json.JSONDecodeError:
+            body_obj = {
+                "_webhook_non_json": raw_body.decode("utf-8", errors="replace")[:20000],
+            }
 
-    payment_id, merchant_order_id = _parse_mp_notification_ids(request, body)
+    payment_id, merchant_order_id = _parse_mp_notification_ids_parts(qp, body_obj)
+    logger.info(
+        "MP webhook worker ids payment_id=%r merchant_order_id=%r",
+        payment_id,
+        merchant_order_id,
+    )
 
-    if not payment_id and not merchant_order_id:
-        return {"ok": True, "ignored": True}
-
-    body_dict: dict[str, Any] = body if isinstance(body, dict) else {}
-    strict_webhook = os.getenv("MERCADOPAGO_WEBHOOK_STRICT", "").lower() in ("true", "1", "yes")
     secret = os.getenv("MERCADOPAGO_WEBHOOK_SECRET", "").strip()
-    if strict_webhook and not secret:
-        logger.error(
-            "MERCADOPAGO_WEBHOOK_STRICT activo pero MERCADOPAGO_WEBHOOK_SECRET vacío"
-        )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Webhook MP mal configurado (STRICT sin secret)",
-        )
-    if secret:
+    raw_enforce = (os.getenv("MERCADOPAGO_WEBHOOK_ENFORCE_SIGNATURE") or "").strip().lower()
+    if raw_enforce in ("false", "0", "no"):
+        enforce_sig = False
+    elif raw_enforce in ("true", "1", "yes"):
+        enforce_sig = True
+    else:
+        # Producción: con secret configurado, validar firma salvo que se fuerce lo contrario.
+        enforce_sig = bool(secret)
+
+    if enforce_sig and secret:
+        body_dict: dict[str, Any] = body_obj if isinstance(body_obj, dict) else {}
+        fake_req = _FakeRequestForSig(qp, headers_lower)
         mid = mwsig.notification_manifest_data_id(
-            request,
+            fake_req,
             body_dict,
             payment_id=payment_id,
             merchant_order_id=merchant_order_id,
         )
         if not mwsig.verify_mercadopago_webhook_signature(
-            request,
+            fake_req,
             body_dict,
             manifest_data_id=mid,
             secret=secret,
         ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Firma de webhook inválida",
+            logger.error(
+                "MP webhook worker: firma inválida (manifest_data_id=%r); no se aplica pago. "
+                "Desactivá MERCADOPAGO_WEBHOOK_ENFORCE_SIGNATURE en diagnóstico.",
+                mid,
             )
-    else:
-        logger.debug(
-            "MP webhook: MERCADOPAGO_WEBHOOK_SECRET vacío; no se validó firma (solo desarrollo)"
+            return
+    elif secret and not enforce_sig:
+        logger.warning(
+            "MP webhook worker: firma desactivada (MERCADOPAGO_WEBHOOK_ENFORCE_SIGNATURE=false); no usar en producción"
         )
 
+    db = SessionLocal()
     try:
         crud_v.cancelar_visitas_mp_expiradas(db)
 
         if merchant_order_id:
             order = mp.get_merchant_order(merchant_order_id)
+            logger.info(
+                "MP webhook worker merchant_order id=%s preference_id=%s payments_count=%s",
+                merchant_order_id,
+                order.get("preference_id"),
+                len(order.get("payments") or []),
+            )
+            for pid in _payment_ids_from_merchant_order(order):
+                _apply_mp_payment_notification(db, None, pid)
             crud_v.procesar_merchant_order_mp(db, order)
 
         if payment_id:
-            pdata = mp.get_payment(payment_id)
-            vid = pdata.get("external_reference")
-            if not vid:
-                return {"ok": True}
-            visita = crud_v.get_visita_by_id(db, int(vid))
-            if not visita:
-                return {"ok": True}
-            enviar_mail = crud_v.aplicar_pago_mercadopago(db, visita, pdata)
-            visita = crud_v.get_visita_by_id(db, visita.id_visita)
-            if enviar_mail and visita and visita.cliente and visita.cliente.email:
-                background_tasks.add_task(
-                    enviar_email_confirmacion,
-                    visita.cliente.email,
-                    "✅ Turno confirmado - King Barber",
-                    generar_email_confirmacion(visita),
-                )
-        return {"ok": True}
-    except HTTPException:
-        raise
+            _apply_mp_payment_notification(db, None, str(payment_id))
     except ValueError as e:
-        logger.warning("Webhook MP validación de datos: %s", e)
-        return {"ok": True}
-    except Exception as e:
-        logger.exception(
-            "Webhook MP no procesado payment_id=%s merchant_order_id=%s",
-            payment_id,
-            merchant_order_id,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al procesar webhook MP",
-        ) from e
+        logger.warning("MP webhook worker validación: %s", e)
+    except Exception:
+        logger.exception("MP webhook worker error")
+    finally:
+        db.close()
+
+
+@router.api_route("/mercadopago/webhook", methods=["GET", "POST"])
+async def mercadopago_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+):
+    """
+    IPN/Webhook MP. Tras leer el body (rápido), responde 200 y JSON vacío sin esperar a MP/DB;
+    el trabajo pesado corre en segundo plano (SessionLocal propia).
+    """
+    raw_body = await request.body()
+    qp = dict(request.query_params)
+    headers_dict = {k: v for k, v in request.headers.items()}
+    headers_lower = {str(k).lower(): v for k, v in request.headers.items()}
+
+    body_for_print: Any = {}
+    if raw_body.strip():
+        try:
+            body_for_print = json.loads(raw_body.decode("utf-8"))
+        except json.JSONDecodeError:
+            body_for_print = raw_body.decode("utf-8", errors="replace")[:20000]
+
+    sig = headers_lower.get("x-signature") or headers_dict.get("x-signature") or "(ausente)"
+    ua = headers_lower.get("user-agent") or "(ausente)"
+    _console_diag = os.getenv("MERCADOPAGO_WEBHOOK_CONSOLE_DIAG", "true").lower() in ("true", "1", "yes")
+    if _console_diag:
+        print("=== MERCADO PAGO WEBHOOK DIAG ===", flush=True)
+        try:
+            print("HEADERS:", json.dumps(headers_dict, ensure_ascii=False, default=str), flush=True)
+        except Exception:
+            print("HEADERS:", repr(headers_dict), flush=True)
+        if isinstance(body_for_print, dict):
+            try:
+                print("BODY:", json.dumps(body_for_print, ensure_ascii=False, default=str), flush=True)
+            except Exception:
+                print("BODY:", repr(body_for_print), flush=True)
+        else:
+            print("BODY:", body_for_print, flush=True)
+        print("x-signature:", sig, flush=True)
+        print("user-agent:", ua, flush=True)
+        print("=== FIN DIAG ===", flush=True)
+
+    logger.info(
+        "MP webhook diag method=%s x-signature=%r user-agent=%r query_keys=%s",
+        request.method,
+        sig,
+        ua,
+        list(qp.keys()),
+    )
+
+    background_tasks.add_task(_mercadopago_webhook_worker, qp, raw_body, headers_lower)
+    return JSONResponse(content={}, status_code=200)
 
 
 # ======================================================================================

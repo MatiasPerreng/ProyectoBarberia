@@ -351,17 +351,12 @@ def aplicar_pago_mercadopago(db: Session, visita: Visita, payment_data: dict[str
     pid_str = str(pid) if pid is not None else None
 
     if status in ("approved", "authorized"):
-        # Idempotencia: mismo payment_id y ya confirmado (doble IPN / reintentos MP)
-        if (
-            pid_str
-            and visita.mp_payment_id == pid_str
-            and visita.estado == "CONFIRMADO"
-        ):
+        # Idempotencia: webhook + back_url (sincronizar) en paralelo o reintentos MP
+        if visita.estado == "CONFIRMADO":
             logger.info(
-                "MP idempotente: visita=%s payment_id=%s status=%s (sin cambios)",
+                "MP idempotente: visita=%s ya CONFIRMADO (reintento IPN/sync ignorado, payment_id=%s)",
                 visita.id_visita,
                 pid_str,
-                status,
             )
             return False
 
