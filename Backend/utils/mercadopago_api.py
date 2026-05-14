@@ -72,6 +72,11 @@ def _token() -> str:
     return t
 
 
+def _access_token_is_test() -> bool:
+    """Credenciales de prueba suelen usar prefijo TEST-; no mezclar con payer.email real."""
+    return _token().upper().startswith("TEST-")
+
+
 def public_key() -> str:
     return os.getenv("MERCADOPAGO_PUBLIC_KEY", "").strip()
 
@@ -205,7 +210,13 @@ def create_checkout_preference(
         )
 
     if payer_email:
-        payload["payer"] = {"email": payer_email.strip()}
+        if _access_token_is_test():
+            logger.info(
+                "Mercado Pago: token TEST-; no se envía payer.email (email del cliente real en "
+                "sandbox suele chocar con login TESTUSER y dispara 'una de las partes es de prueba')."
+            )
+        else:
+            payload["payer"] = {"email": payer_email.strip()}
 
     r = requests.post(
         f"{_MP_BASE}/checkout/preferences",
@@ -249,7 +260,13 @@ def create_checkout_preference(
             raise RuntimeError(f"Mercado Pago preferences HTTP {r.status_code}: {detail}")
 
     data = r.json()
-    init_point = data.get("init_point") or data.get("sandbox_init_point")
+    # MP puede devolver ambas URLs. En test usamos sandbox; en prod hay que usar init_point
+    # para no enviar usuarios/tarjetas reales al checkout sandbox.
+    init_point = (
+        data.get("sandbox_init_point") or data.get("init_point")
+        if _access_token_is_test()
+        else data.get("init_point") or data.get("sandbox_init_point")
+    )
     if not init_point:
         raise RuntimeError("Mercado Pago no devolvió init_point")
     return {"id": data["id"], "init_point": init_point, "raw": data}
