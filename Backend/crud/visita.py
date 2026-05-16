@@ -253,13 +253,17 @@ def create_visita(db: Session, visita_in: VisitaCreate) -> Tuple[Visita, Optiona
         db.flush()
         cliente = db.query(Cliente).filter(Cliente.id_cliente == visita_in.id_cliente).first()
         payer_email = (cliente.email or "").strip() if cliente and cliente.email else None
-        precio = float(servicio.precio) if servicio.precio is not None else 0.0
+        precio_neto = float(servicio.precio) if servicio.precio is not None else 0.0
         from utils import mercadopago_api as mp
+        from utils.mercadopago_pricing import calcular_precio_mercadopago
+
+        mp_precio = calcular_precio_mercadopago(precio_neto)
+        unit_price = mp_precio.precio_final if mp_precio.precio_final > 0 else 1.0
 
         pref = mp.create_checkout_preference(
             id_visita=visita.id_visita,
             title=f"Turno — {servicio.nombre}",
-            unit_price=precio,
+            unit_price=unit_price,
             payer_email=payer_email or None,
             token_seguimiento=token_seg or "",
             expiration_minutes=mp.preference_expiration_minutes(),
@@ -309,15 +313,17 @@ def get_visita_por_token(db: Session, token: str) -> Optional[Visita]:
 
 
 def _mp_precio_esperado_uyu(visita: Visita) -> float:
-    """Mismo criterio que al crear la preferencia (MP exige mínimo 1.0 si el servicio es gratis)."""
+    """Mismo criterio que al crear la preferencia (bruto MP; mínimo 1.0 si el servicio es gratis)."""
+    from utils.mercadopago_pricing import calcular_precio_mercadopago
+
     if visita.precio_al_reservar is not None:
-        base = float(visita.precio_al_reservar)
+        neto = float(visita.precio_al_reservar)
     elif visita.servicio is not None and visita.servicio.precio is not None:
-        base = float(visita.servicio.precio)
+        neto = float(visita.servicio.precio)
     else:
-        base = 0.0
-    rounded = round(base, 2)
-    return rounded if rounded > 0 else 1.0
+        neto = 0.0
+    bruto = calcular_precio_mercadopago(neto).precio_final
+    return bruto if bruto > 0 else 1.0
 
 
 def _mp_transaction_amount_currency_ok(payment_data: dict[str, Any], esperado_uyu: float) -> bool:

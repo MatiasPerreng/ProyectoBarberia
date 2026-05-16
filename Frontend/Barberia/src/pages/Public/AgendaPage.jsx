@@ -128,6 +128,7 @@ export default function AgendaPage() {
         <AgendaForm
           onSubmit={handleSubmitTurno}
           onVolver={handleVolverDesdeForm}
+          precioNeto={servicioSeleccionado?.precio}
         />
       )}
     </>

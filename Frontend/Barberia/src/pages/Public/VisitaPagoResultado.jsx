@@ -21,6 +21,47 @@ const titulos = {
   error: "No pudimos completar",
 };
 
+/** Convierte errores técnicos del API/MP en texto claro para el cliente. */
+function mensajeErrorPagoParaCliente(raw) {
+  const s = String(raw || "").toLowerCase();
+  if (!s.trim()) {
+    return "No pudimos confirmar tu pago. Intentá reservar de nuevo o escribinos si necesitás ayuda.";
+  }
+  if (
+    s.includes("404") ||
+    s.includes("resource not found") ||
+    s.includes("recurso no encontrado") ||
+    s.includes("not found")
+  ) {
+    return (
+      "No encontramos ese pago en Mercado Pago. El checkout puede haber vencido o no haberse completado. " +
+      "Si ya te cobraron, escribinos por WhatsApp con tu nombre y el comprobante y revisamos tu turno."
+    );
+  }
+  if (
+    s.includes("502") ||
+    s.includes("503") ||
+    s.includes("timeout") ||
+    s.includes("connect") ||
+    s.includes("conexión")
+  ) {
+    return (
+      "No pudimos consultar Mercado Pago en este momento. Esperá unos minutos y volvé a abrir este enlace; " +
+      "si el débito ya está hecho, contactanos por WhatsApp."
+    );
+  }
+  if (s.includes("mercado pago") || s.includes("mercadopago")) {
+    return (
+      "Hubo un problema al confirmar el pago con Mercado Pago. Tu reserva puede seguir pendiente: " +
+      "intentá de nuevo desde la agenda o escribinos por WhatsApp si ya pagaste."
+    );
+  }
+  if (s.includes("reserva no encontrada") || s.includes("token")) {
+    return "No encontramos tu reserva. Volvé a la agenda y completá el proceso de nuevo, o contactanos si creés que ya pagaste.";
+  }
+  return "No pudimos confirmar tu pago. Intentá reservar de nuevo o escribinos por WhatsApp si necesitás ayuda.";
+}
+
 function IconOk() {
   return (
     <svg className="vpr-icon-svg" viewBox="0 0 48 48" aria-hidden>
@@ -129,7 +170,9 @@ export default function VisitaPagoResultado() {
 
     if (!token) {
       setEstado("error");
-      setMensaje("Falta el token de seguimiento en la URL.");
+      setMensaje(
+        "El enlace no es válido o está incompleto. Volvé a la agenda para reservar de nuevo o contactanos si creés que ya pagaste."
+      );
       return;
     }
 
@@ -162,7 +205,7 @@ export default function VisitaPagoResultado() {
         }
       } catch (e) {
         setEstado("error");
-        setMensaje(e?.message || "No se pudo actualizar el estado del pago.");
+        setMensaje(mensajeErrorPagoParaCliente(e?.message));
       }
     })();
   }, [params]);
@@ -242,6 +285,21 @@ export default function VisitaPagoResultado() {
                   className="vpr-fallo-link vpr-fallo-link--mp"
                 >
                   Solicitar reembolso
+                </a>
+              </div>
+            </div>
+          ) : estado === "error" ? (
+            <div className="vpr-msg vpr-msg--fallo">
+              <p className="vpr-msg--fallo__lead">{textoPrincipal}</p>
+              <div className="vpr-msg--fallo__acciones">
+                <a
+                  href={WA_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vpr-fallo-link vpr-fallo-link--wa"
+                >
+                  <IconWhatsApp className="vpr-fallo-wa-ico" />
+                  <span>{WA_TEL_LABEL}</span>
                 </a>
               </div>
             </div>

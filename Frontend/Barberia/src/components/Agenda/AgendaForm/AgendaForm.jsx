@@ -1,10 +1,36 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Footer from "../../Footer/Footer";
 import SuccessModal from "../../SuccessModal/SuccessModal";
 import DuplicateBookingModal from "../../DuplicateBookingModal/DuplicateBookingModal";
+import {
+  calcularPrecioMercadoPago,
+  formatearPesosUY,
+} from "../../../../utils/mercadopagoPricing";
 import "./AgendaForm.css";
 
-const AgendaForm = ({ onSubmit, onVolver }) => {
+const MERCADO_PAGO_ENABLED = true;
+
+const MpLockIcon = () => (
+  <svg
+    className="af-mp-total__icon"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.75" />
+    <path
+      d="M8 11V8a4 4 0 0 1 8 0v3"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const AgendaForm = ({ onSubmit, onVolver, precioNeto = 0 }) => {
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
@@ -19,6 +45,19 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
   
   const [duplicateMessage, setDuplicateMessage] = useState("");
   const [pagarConMP, setPagarConMP] = useState(false);
+
+  const precioMp = useMemo(() => {
+    const neto = Number(precioNeto);
+    if (!neto || neto <= 0) return null;
+    try {
+      return calcularPrecioMercadoPago(neto);
+    } catch {
+      return null;
+    }
+  }, [precioNeto]);
+
+  const mostrarTotalMp =
+    MERCADO_PAGO_ENABLED && pagarConMP && precioMp && precioMp.precioFinal > 0;
 
   const validarEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -65,7 +104,7 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
         ...form,
         email: form.email.trim() || null,
         telefono: form.telefono.trim(),
-        medio_pago: pagarConMP ? "mercadopago" : "efectivo",
+        medio_pago: MERCADO_PAGO_ENABLED && pagarConMP ? "mercadopago" : "efectivo",
       });
       if (resultado?.skipSuccess && resultado?.init_point) {
         window.location.href = resultado.init_point;
@@ -200,38 +239,59 @@ const AgendaForm = ({ onSubmit, onVolver }) => {
                 {errors.apellido && <small className="af-error">{errors.apellido}</small>}
               </div>
 
-              <div className="af-form-group af-mp-bloque">
-                <label className="af-mp-bloque__titulo">Pago</label>
-                <div className="af-mp-celeste">
-                  <div className="af-mp-celeste__inner">
-                    <img
-                      className="af-mp-celeste__logo"
-                      src="/mercadopago.png"
-                      alt="Mercado Pago"
-                    />
-                    <div className="af-mp-celeste__mid">
-                      <span className="af-mp-celeste__nombre">Mercado Pago</span>
-                      <span className="af-mp-celeste__sub">
-                        Ahora podés realizar el pago anticipado de tu turno con Mercado Pago.
-                      </span>
-                    </div>
-                    <label className="af-mp-celeste__check">
-                      <input
-                        type="checkbox"
-                        checked={pagarConMP}
-                        onChange={(e) => setPagarConMP(e.target.checked)}
+              {MERCADO_PAGO_ENABLED && (
+                <div className="af-form-group af-mp-bloque">
+                  <label className="af-mp-bloque__titulo">Pago</label>
+                  <div className="af-mp-celeste">
+                    <div className="af-mp-celeste__inner">
+                      <img
+                        className="af-mp-celeste__logo"
+                        src="/mercadopago.png"
+                        alt="Mercado Pago"
                       />
-                      <span>Pagar con Mercado Pago</span>
-                    </label>
+                      <div className="af-mp-celeste__mid">
+                        <span className="af-mp-celeste__nombre">Mercado Pago</span>
+                        <span className="af-mp-celeste__sub">
+                          Ahora podés realizar el pago anticipado de tu turno con Mercado Pago.
+                        </span>
+                      </div>
+                      <label className="af-mp-celeste__check">
+                        <input
+                          type="checkbox"
+                          checked={pagarConMP}
+                          onChange={(e) => setPagarConMP(e.target.checked)}
+                        />
+                        <span>Pagar con Mercado Pago</span>
+                      </label>
+                    </div>
                   </div>
+
+                  {mostrarTotalMp && (
+                    <div className="af-mp-total">
+                      <div className="af-mp-total__row">
+                        <span className="af-mp-total__label">Total a pagar</span>
+                        <span className="af-mp-total__monto">
+                          $ {formatearPesosUY(precioMp.precioFinal)}
+                        </span>
+                      </div>
+                      <p className="af-mp-total__aviso">
+                        <MpLockIcon />
+                        <span>
+                          El total incluye un costo de gestión online de{" "}
+                          <strong>$ {formatearPesosUY(precioMp.montoExtra)}</strong> para
+                          garantizar la reserva y procesar tu pago de forma segura.
+                        </span>
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               <div className="af-form-actions">
                 <button type="submit" className="af-btn-confirmar" disabled={loading}>
                   {loading
                     ? "Agendando..."
-                    : pagarConMP
+                    : MERCADO_PAGO_ENABLED && pagarConMP
                       ? "Continuar al pago"
                       : "Confirmar turno"}
                 </button>

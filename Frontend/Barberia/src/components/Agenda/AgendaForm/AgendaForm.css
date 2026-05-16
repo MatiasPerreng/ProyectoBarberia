@@ -350,6 +350,62 @@
   }
 }
 
+/* Total MP + aviso de gestión online */
+.af-mp-total {
+  margin-top: 12px;
+  padding: 11px 14px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.af-mp-total__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.af-mp-total__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.af-mp-total__monto {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.af-mp-total__aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #4b5563;
+  font-weight: 400;
+}
+
+.af-mp-total__aviso strong {
+  font-weight: 600;
+  color: #334155;
+}
+
+.af-mp-total__icon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #64748b;
+}
+
 /* Mercado Pago — card celeste plana (sin degradé a blanco) */
 .af-mp-bloque__titulo {
   font-size: 11px;
@@ -431,13 +487,13 @@
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   margin-left: auto;
-  padding: 5px 8px;
-  border-radius: 8px;
-  background: rgba(14, 116, 144, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.45);
+  padding: 6px 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
   cursor: pointer;
   font-size: 10px;
   font-weight: 700;
@@ -453,8 +509,8 @@
 }
 
 .af-mp-celeste__check input {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   accent-color: #009ee3;
   cursor: pointer;
 }
@@ -470,8 +526,8 @@
     grid-template-rows: auto auto auto;
     align-items: center;
     column-gap: 12px;
-    row-gap: 10px;
-    padding: 10px 12px;
+    row-gap: 12px;
+    padding: 12px 14px 14px;
   }
 
   .af-mp-celeste__mid {
@@ -503,7 +559,7 @@
     letter-spacing: normal;
     text-align: center;
     line-height: 1.4;
-    padding: 0 2px;
+    padding: 2px 4px 0;
   }
 
   /* Gana a .af-form-group label (11px) y .af-form-group input (16px en ≤899px) */
@@ -513,14 +569,16 @@
     flex: none;
     width: 100%;
     max-width: 100%;
+    min-height: 44px;
+    max-width: 235px;
     margin-left: 0;
+    justify-self: center;
     box-sizing: border-box;
     justify-content: center;
-    padding: 4px 7px;
-    gap: 5px;
-    font-size: 9.5px;
+    padding: 8px 4px;
+    gap: 10px;
+    font-size: 10px;
     letter-spacing: 0.04em;
-    border-radius: 7px;
   }
 
   .af-form-group label.af-mp-celeste__check > span {
@@ -528,12 +586,12 @@
   }
 
   .af-form-group label.af-mp-celeste__check input[type="checkbox"] {
-    width: 17px;
-    height: 17px;
-    min-width: 17px;
-    min-height: 17px;
-    max-width: 17px;
-    max-height: 17px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
     font-size: 14px;
     line-height: 1;
     padding: 0;
