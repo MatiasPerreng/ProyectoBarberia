@@ -6,7 +6,7 @@ En la base de datos, el **precio del servicio es neto**: es lo que debe recibir 
 
 Si el cliente paga con **Mercado Pago**, MP descuenta:
 
-1. Comisión base: **4,99%** (`0.0499`)
+1. Comisión base: **5,99%** (`0.0599`) — Disponibilidad al instante
 2. IVA uruguayo sobre esa comisión: **22%** → factor **1,22**
 
 Para que, después de esos descuentos, al barbero le quede exactamente el precio neto del servicio, el **cliente paga un monto mayor** (precio bruto / final).
@@ -16,14 +16,14 @@ Para que, después de esos descuentos, al barbero le quede exactamente el precio
 ## Fórmula
 
 ```
-tasa_total_efectiva = 0.0499 × 1.22 = 0.060878  (6,0878 %)
-divisor_neto        = 1 - 0.060878 = 0.939122
+tasa_total_efectiva = 0.0599 × 1.22 = 0.073078  (7,3078 %)
+divisor_neto        = 1 - 0.073078 = 0.926922
 
-precio_final = precio_neto / 0.939122
+precio_final = precio_neto / 0.926922
 monto_extra  = precio_final - precio_neto   (redondeado a 2 decimales)
 ```
 
-**Ejemplo:** `precio_neto = 350` → `precio_final = 372,69`, `monto_extra = 22,69`.
+**Ejemplo:** `precio_neto = 350` → `precio_final = 377,59`, `monto_extra = 27,59`.
 
 La fórmula aplica a **cualquier** precio neto positivo; el redondeo a 2 decimales puede generar diferencias de hasta ~$0,01 en el neto recuperado.
 
@@ -111,7 +111,7 @@ Tokens `APP_USR-...` de producción no deben subirse a git (`.env` está en `.gi
 ## Checklist al activar o cambiar tarifas
 
 - [ ] Actualizar `MP_COMISION_BASE` / `MP_IVA_SOBRE_COMISION` en Python y JS
-- [ ] Probar `calcular_precio_mercadopago(350)` → 372,69 / 22,69
+- [ ] Probar `calcular_precio_mercadopago(350)` → 377,59 / 27,59
 - [ ] Verificar preferencia MP con `unit_price` bruto
 - [ ] Verificar webhook acepta `transaction_amount` esperado
 - [ ] Revisar copy del aviso en AgendaForm

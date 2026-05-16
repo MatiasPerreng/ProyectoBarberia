@@ -1,5 +1,5 @@
-/** Mismas constantes que Backend/utils/mercadopago_pricing.py */
-export const MP_COMISION_BASE = 0.0499;
+/** Mismas constantes que Backend/utils/mercadopago_pricing.py (disponibilidad al instante) */
+export const MP_COMISION_BASE = 0.0599;
 export const MP_IVA_SOBRE_COMISION = 1.22;
 export const MP_TASA_TOTAL_EFECTIVA = MP_COMISION_BASE * MP_IVA_SOBRE_COMISION;
 export const MP_DIVISOR_NETO = 1 - MP_TASA_TOTAL_EFECTIVA;

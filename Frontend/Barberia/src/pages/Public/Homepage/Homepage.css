@@ -1,4 +1,4 @@
-/* =======================================================
+﻿/* =======================================================
    REVEAL SYSTEM
 ======================================================= */
 .reveal {
@@ -16,7 +16,7 @@
 }
 
 /* =======================================================
-   HERO – ESTRUCTURA PREMIUM
+   HERO â€“ ESTRUCTURA PREMIUM
 ======================================================= */
 .hero-section {
   position: relative;
@@ -77,7 +77,7 @@
   box-sizing: border-box;
 }
 
-/* TÍTULO */
+/* TÃTULO */
 .hero-title {
   font-family: "Cinzel", serif;
   color: #fff;
@@ -89,7 +89,7 @@
   line-height: 1.2;
 }
 
-/* BOTÓN */
+/* BOTÃ“N */
 .hero-section .btn {
   position: relative;
   overflow: hidden;
@@ -129,7 +129,7 @@
   width: 100%;
 }
 
-/* Línea dorada inferior */
+/* LÃ­nea dorada inferior */
 .services-title::after {
   content: "";
   position: absolute;
@@ -146,7 +146,7 @@
   );
 }
 
-/* Halo sutil de fondo para el título */
+/* Halo sutil de fondo para el tÃ­tulo */
 .services-title::before {
   content: "";
   position: absolute;
@@ -207,13 +207,13 @@
     padding-top: calc(68px + 20px);
   }
 
-  /* 🔥 4x4 aprox mosaicos */
+  /* ðŸ”¥ 4x4 aprox mosaicos */
   .hero-section::after {
     background-size: 105px 105px;
     opacity: 0.5;
   }
 
-  /* Ajuste tipografías mobile */
+  /* Ajuste tipografÃ­as mobile */
   .hero-logo {
     max-width: 190px;
     padding: 14px;
@@ -241,3 +241,233 @@
     letter-spacing: 1.5px;
   }
 }
+/* =======================================================
+   CTA STRIP â€” bloque tipo mini landing
+======================================================= */
+.cta-strip {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2.5rem, 5vw, 3.5rem) 20px;
+  border-top: 1px solid rgba(230, 199, 123, 0.18);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+  background:
+    radial-gradient(ellipse 88% 75% at 14% 16%, rgba(230, 199, 123, 0.09), transparent 46%),
+    radial-gradient(ellipse 68% 58% at 88% 82%, rgba(20, 48, 72, 0.45), transparent 52%),
+    linear-gradient(168deg, #080808 0%, #12100c 42%, #0a0a0a 100%);
+}
+
+.cta-strip-glow {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 85%;
+  background: radial-gradient(
+    ellipse 55% 45% at 50% 0%,
+    rgba(230, 199, 123, 0.08),
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.cta-strip-grid-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.38;
+  background-image:
+    linear-gradient(rgba(230, 199, 123, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230, 199, 123, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, black 15%, transparent 72%);
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 70% at 50% 40%,
+    black 15%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.cta-strip-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+}
+
+.cta-strip-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1.75rem, 4vw, 3rem);
+}
+
+.cta-strip-copy {
+  min-width: 0;
+}
+
+.cta-strip-eyebrow {
+  margin: 0 0 0.5rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 224, 140, 0.95);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
+}
+
+.cta-strip-title {
+  margin: 0 0 0.65rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.25);
+}
+
+.cta-strip-lead {
+  margin: 0;
+  max-width: 36rem;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: clamp(1.02rem, 1.6vw, 1.125rem);
+  font-weight: 500;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.cta-strip-nowrap {
+  white-space: nowrap;
+}
+
+.cta-strip-mp {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.cta-strip-mp-logo-wrap {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.cta-strip-mp-logo {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 152px;
+  object-fit: contain;
+}
+
+.cta-strip-mp-body {
+  min-width: 0;
+}
+
+.cta-strip-mp-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 230, 160, 0.98);
+}
+
+.cta-strip-mp-text {
+  margin: 0;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.35vw, 1.02rem);
+  font-weight: 500;
+  line-height: 1.58;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.cta-strip-mp-text strong {
+  font-weight: 700;
+  color: #fff;
+}
+
+.cta-strip-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.btn-cta-strip {
+  display: inline-block;
+  text-align: center;
+  background: linear-gradient(180deg, #1c1914 0%, #0f0e0c 100%);
+  color: #fff !important;
+  font-weight: 700;
+  font-family: "Montserrat", sans-serif;
+  padding: 14px 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 199, 123, 0.55);
+  text-decoration: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-cta-strip:hover {
+  background: #e6c77b;
+  border-color: #e6c77b;
+  transform: translateY(-2px);
+  color: #0a0a0a !important;
+  text-shadow: none;
+  box-shadow: 0 12px 28px rgba(230, 199, 123, 0.22);
+}
+
+@media (max-width: 900px) {
+  .cta-strip-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .cta-strip-copy {
+    max-width: 32rem;
+  }
+
+  .cta-strip-lead {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-strip-mp {
+    grid-template-columns: 1fr;
+    text-align: left;
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-strip-mp-logo-wrap {
+    justify-self: center;
+    width: fit-content;
+  }
+
+  .cta-strip-aside {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .btn-cta-strip {
+    width: 100%;
+    white-space: normal;
+  }
+}
+

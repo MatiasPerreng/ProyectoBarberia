@@ -12,23 +12,20 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Configuración del observador para el efecto de aparición (reveal)
     const observerOptions = {
       root: null,
-      threshold: 0.1, // Se activa cuando el 10% de la sección es visible
+      threshold: 0.1,
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add("active");
-          // Dejamos de observar una vez que ya apareció
           observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
 
-    // Seleccionamos todas las secciones que deben aparecer al scrollear
     const revealSections = document.querySelectorAll(".reveal");
     revealSections.forEach((section) => observer.observe(section));
 
@@ -43,7 +40,6 @@ export default function HomePage() {
     <div className="homepage-main-container">
       <Navbar />
 
-      {/* SECCIÓN HERO (Sin reveal para carga inmediata) */}
       <section className="hero-section">
         <div className="container text-center py-5">
           <img
@@ -66,25 +62,65 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECCIÓN SERVICIOS (Con reveal) */}
       <section id="servicios" className="container py-5 reveal">
         <h2 className="services-title mb-4 text-center">Nuestros servicios</h2>
         <ServiciosList onSelectServicio={handleServicioSelect} />
       </section>
 
-      {/* SECCIÓN TRABAJOS / GALERÍA (Con reveal) */}
       <section id="trabajos" className="reveal">
         <GalleryCarousel />
       </section>
 
-      {/* SECCIÓN UBICACIÓN / MAPA (Con reveal) */}
       <section id="ubicacion" className="bg-light pt-5 pb-2 reveal">
         <div className="container">
           <MapEmbed />
         </div>
       </section>
 
-      {/* SECCIÓN CONTACTO (Con reveal) */}
+      <section className="cta-strip reveal" aria-label="Pago con Mercado Pago">
+        <div className="cta-strip-glow" aria-hidden="true" />
+        <div className="cta-strip-grid-pattern" aria-hidden="true" />
+        <div className="container cta-strip-container">
+          <div className="cta-strip-grid">
+            <div className="cta-strip-copy">
+              <p className="cta-strip-eyebrow">Agenda online</p>
+              <h2 className="cta-strip-title">¿Listo para tu turno?</h2>
+              <p className="cta-strip-lead">
+                Reservá hoy y asegurá tu lugar con{" "}
+                <span className="cta-strip-nowrap">King Barber.</span> Elegí servicio,
+                barbero y horario{" "}
+                <span className="cta-strip-nowrap">en pocos pasos.</span>
+              </p>
+              <div className="cta-strip-mp">
+                <div className="cta-strip-mp-logo-wrap">
+                  <img
+                    src="/mercadopago.png"
+                    alt="Mercado Pago"
+                    className="cta-strip-mp-logo"
+                    width={168}
+                    height={48}
+                    decoding="async"
+                  />
+                </div>
+                <div className="cta-strip-mp-body">
+                  <span className="cta-strip-mp-label">Pago anticipado</span>
+                  <p className="cta-strip-mp-text">
+                    Podés abonar con <strong>Mercado Pago</strong> antes de tu visita.
+                    El total incluye un pequeño costo de gestión online; en la reserva
+                    ves el monto exacto antes de pagar.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="cta-strip-aside">
+              <a href="#servicios" className="btn-cta-strip">
+                Reservar y pagar online
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="contacto" className="contact-section pt-2 pb-5 reveal">
         <div className="container">
           <ContactBar />
